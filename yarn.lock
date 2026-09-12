@@ -1446,7 +1446,7 @@
   resolved "https://registry.npmjs.org/@skidy89/libsignal-plugins-win32-x64-msvc/-/libsignal-plugins-win32-x64-msvc-1.0.33.tgz"
   integrity sha512-0GTVInG88fQfAJq8wuGOYLwJFNPtkkJKOmKrZlsjooP47l5F3MC7XQpRikYQwjKxqgkVstT/5dr1hBFSbZGHWQ==
 
-"@skidy89/libsignal-plugins@^1.0.33":
+"@skidy89/libsignal-plugins@1.0.33":
   version "1.0.33"
   resolved "https://registry.npmjs.org/@skidy89/libsignal-plugins/-/libsignal-plugins-1.0.33.tgz"
   integrity sha512-+m1KEgNnaihzlAfbQUCXV9cfHinAaZIvxSUoPQLe/ga7fScxAPw6HXu9IfAxt81MqbFTow9p8ZtiKwwy1fsxzA==
@@ -3930,10 +3930,9 @@ levn@^0.4.1:
 
 "libsignal@git+https://github.com/skidy89/libsignal-node":
   version "2.0.1"
-  resolved "git+https://github.com/skidy89/libsignal-node.git"
-  integrity sha512-FbS3vzezfeB/JUaExFrj7vDtpE7B97W/WfyT4GQSDcQ+GLH7Jr2L3JKNhM6z9ZK/Lu60u2jMcbc0IDliaMMaOQ==
+  resolved "git+https://github.com/skidy89/libsignal-node.git#c3ea2f987936cd0cc5ee511371ad2e70275c9945"
   dependencies:
-    "@skidy89/libsignal-plugins" "^1.0.33"
+    "@skidy89/libsignal-plugins" "1.0.33"
     protobufjs "6.8.8"
 
 lines-and-columns@^1.1.6:
