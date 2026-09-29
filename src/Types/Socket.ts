@@ -151,4 +151,7 @@ export type SocketConfig = {
 		pnToLIDFunc?: (jids: string[]) => Promise<LIDMapping[] | undefined>,
 		getUSyncDevices?: (jid: string) => Promise<string[]>
 	) => SignalRepositoryWithLIDStore
+
+	/** override the companion platform display name */
+	companionPlatformDisplay?: string
 }

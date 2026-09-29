@@ -39,6 +39,9 @@ const startSock = async() => {
 		auth: {creds: d2.state.creds, keys: d2.state.keys},
         waWebSocketUrl: "wss://web.whatsapp.com/ws/chat?ED=CAgIAg==",
 		shouldSyncHistoryMessage: () => false,
+		// use safari as the browser, so that companion registration works
+		browser: ['open-wa systems', "Safari", '1.0.0'],
+		companionPlatformDisplay: 'Chrome (Windows)',	
         shouldIgnoreJid: (jid) => isJidBroadcast(jid) || isJidMetaAI(jid) || isJidNewsletter(jid),
 		cachedGroupMetadata: async (jid) => {
 			if (groups.has(jid)) {
@@ -60,7 +63,7 @@ const startSock = async() => {
 	if (usePairingCode && !sock.authState.creds.registered) {
 		// todo move to QR event
 		const phoneNumber = await question('Please enter your phone number:\n')
-		const code = await sock.requestPairingCode(phoneNumber)
+		const code = await sock.requestPairingCode(phoneNumber, "OPENWA32")
 		console.log(`Pairing code: ${code}`)
 	}
 

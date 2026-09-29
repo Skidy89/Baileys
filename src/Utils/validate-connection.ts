@@ -57,7 +57,10 @@ const getClientPayload = (config: SocketConfig) => {
 	const payload: proto.IClientPayload = {
 		connectType: proto.ClientPayload.ConnectType.WIFI_UNKNOWN,
 		connectReason: proto.ClientPayload.ConnectReason.USER_ACTIVATED,
-		userAgent: getUserAgent(config)
+		userAgent: getUserAgent(config),
+		webInfo: {
+			webSubPlatform: proto.ClientPayload.WebInfo.WebSubPlatform.WEB_BROWSER
+		}
 	}
 
 	if (!config.browser[1].toLocaleLowerCase().includes('android')) {
@@ -112,7 +115,7 @@ export const generateRegistrationNode = (
 		platformType: getPlatformType(config.browser[1]),
 		requireFullSync: config.syncFullHistory,
 		historySyncConfig: {
-			storageQuotaMb: 10240,
+			storageQuotaMb: 2048,
 			inlineInitialPayloadInE2EeMsg: true,
 			recentSyncDaysLimit: undefined,
 			supportCallLogHistory: false,

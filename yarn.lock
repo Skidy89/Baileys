@@ -3930,7 +3930,8 @@ levn@^0.4.1:
 
 "libsignal@git+https://github.com/skidy89/libsignal-node":
   version "2.0.1"
-  resolved "git+https://github.com/skidy89/libsignal-node.git#c3ea2f987936cd0cc5ee511371ad2e70275c9945"
+  resolved "git+https://github.com/skidy89/libsignal-node.git"
+  integrity sha512-Gw+vjNlIEjFjmPxBdD3nyFRtuhbzHiscCF+Yx9tIq3AfjrK+s46ckm7QqedBm8A0hLK28BZC2dwxUGMckhzxfg==
   dependencies:
     "@skidy89/libsignal-plugins" "1.0.33"
     protobufjs "6.8.8"

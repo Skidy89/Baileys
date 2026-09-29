@@ -19,6 +19,7 @@ import {
 	addTransactionCapability,
 	aesEncryptCTR,
 	bindWaitForConnectionUpdate,
+	buildCompanionRegNode,
 	buildPairingQRData,
 	bytesToCrockford,
 	configureSuccessfulPairing,
@@ -28,7 +29,6 @@ import {
 	generateMdTagPrefix,
 	generateRegistrationNode,
 	getCodeFromWSError,
-	getCompanionPlatformId,
 	getErrorCodeFromStreamError,
 	getNextPreKeysNode,
 	makeEventBuffer,
@@ -831,14 +831,10 @@ export const makeSocket = (config: SocketConfig) => {
 			throw new Error('Custom pairing code must be exactly 8 chars')
 		}
 
+		const me = { id: jidEncode(phoneNumber, 's.whatsapp.net'), name: '~' }
 		authState.creds.pairingCode = pairingCode
-
-		authState.creds.me = {
-			id: jidEncode(phoneNumber, 's.whatsapp.net'),
-			name: '~'
-		}
-		ev.emit('creds.update', authState.creds)
-		await sendNode({
+		authState.creds.me = me
+		await query({
 			tag: 'iq',
 			attrs: {
 				to: S_WHATSAPP_NET,
@@ -846,52 +842,22 @@ export const makeSocket = (config: SocketConfig) => {
 				id: generateMessageTag(),
 				xmlns: 'md'
 			},
-			content: [
-				{
-					tag: 'link_code_companion_reg',
-					attrs: {
-						jid: authState.creds.me.id,
-						stage: 'companion_hello',
-
-						should_show_push_notification: 'true'
-					},
-					content: [
-						{
-							tag: 'link_code_pairing_wrapped_companion_ephemeral_pub',
-							attrs: {},
-							content: await generatePairingKey()
-						},
-						{
-							tag: 'companion_server_auth_key_pub',
-							attrs: {},
-							content: authState.creds.noiseKey.public
-						},
-						{
-							tag: 'companion_platform_id',
-							attrs: {},
-							content: getCompanionPlatformId(browser)
-						},
-						{
-							tag: 'companion_platform_display',
-							attrs: {},
-							content: `${browser[1]} (${browser[0]})`
-						},
-						{
-							tag: 'link_code_pairing_nonce',
-							attrs: {},
-							content: '0'
-						}
-					]
-				}
-			]
+			content: [buildCompanionRegNode({
+					jid: me.id,
+					wrappedEphemeralPub: await generatePairingKey(pairingCode),
+					serverAuthKeyPub: authState.creds.noiseKey.public,
+					browser,
+					platformDisplay: config.companionPlatformDisplay
+				})]
 		})
-		return authState.creds.pairingCode
+		ev.emit('creds.update', authState.creds)
+		return pairingCode
 	}
 
-	async function generatePairingKey() {
+	async function generatePairingKey(pairingKey: string) {
 		const salt = randomBytes(32)
 		const randomIv = randomBytes(16)
-		const key = await derivePairingCodeKey(authState.creds.pairingCode!, salt)
+		const key = derivePairingCodeKey(pairingKey, salt)
 		const ciphered = aesEncryptCTR(authState.creds.pairingEphemeralKeyPair.public, key, randomIv)
 		return Buffer.concat([salt, randomIv, ciphered])
 	}
