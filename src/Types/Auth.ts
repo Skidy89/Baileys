@@ -2,10 +2,10 @@ import type { proto } from '../../WAProto/index.js'
 import type { Contact } from './Contact'
 import type { MinimalMessage } from './Message'
 
-export type KeyPair = { public: Uint8Array; private: Uint8Array }
+export type KeyPair = { public: Buffer; private: Buffer }
 export type SignedKeyPair = {
 	keyPair: KeyPair
-	signature: Uint8Array
+	signature: Buffer
 	keyId: number
 	timestampS?: number
 }

@@ -1,7 +1,3 @@
-// @ts-ignore
-import * as libsignal from 'libsignal'
-// @ts-ignore
-import { PreKeyWhisperMessage } from 'libsignal/src/protobufs'
 import { LRUCache } from 'lru-cache'
 import type {
 	LIDMapping,
@@ -22,11 +18,10 @@ import {
 	transferDevice,
 	WAJIDDomains
 } from '../WABinary'
-import type { SenderKeyStore } from './Group/group_cipher'
-import { SenderKeyName } from './Group/sender-key-name'
-import { SenderKeyRecord } from './Group/sender-key-record'
-import { GroupCipher, GroupSessionBuilder, SenderKeyDistributionMessage } from './Group'
 import { LIDMappingStore } from './lid-mapping'
+import { SenderKeyName, SenderKeyRecord, type SenderKeyStore, GroupCipher, GroupSessionBuilder, SenderKeyDistributionMessage } from './Group/index'
+import { SessionBuilder, SessionRecord, ProtocolAddress, SessionCipher, type SignalStorage } from '@skidy89/signal-protocol'
+import { extractIdentityFromPkmsg } from '@skidy89/signal-protocol/dist/signal/util'
 
 /**
  * Resolve a signal-protocol-address string (`user[_domainType].device`) to its
@@ -59,30 +54,7 @@ async function resolveSignalAddressId(id: string, lidMapping: LIDMappingStore): 
 	return id
 }
 
-/** Extract identity key from PreKeyWhisperMessage for identity change detection */
-function extractIdentityFromPkmsg(ciphertext: Uint8Array): Uint8Array | undefined {
-	try {
-		if (!ciphertext || ciphertext.length < 2) {
-			return undefined
-		}
 
-		// Version byte check (version 3)
-		const version = ciphertext[0]!
-		if ((version & 0xf) !== 3) {
-			return undefined
-		}
-
-		// Parse protobuf (skip version byte)
-		const preKeyProto = PreKeyWhisperMessage.decode(ciphertext.slice(1))
-		if (preKeyProto.identityKey?.length === 33) {
-			return new Uint8Array(preKeyProto.identityKey)
-		}
-
-		return undefined
-	} catch {
-		return undefined
-	}
-}
 
 export function makeLibSignalRepository(
 	auth: SignalAuthState,
@@ -141,7 +113,7 @@ export function makeLibSignalRepository(
 			const cipher = new GroupCipher(storage, senderName)
 
 			return parsedKeys.transactWith({ records: [{ type: 'sender-key', id: senderName.toString() }] }, async () => {
-				return cipher.decrypt(msg)
+				return cipher.decrypt(msg as Buffer)
 			})
 		},
 		async processSenderKeyDistributionMessage({ item, authorJid }) {
@@ -156,7 +128,7 @@ export function makeLibSignalRepository(
 				null,
 				null,
 				null,
-				item.axolotlSenderKeyDistributionMessage
+				item.axolotlSenderKeyDistributionMessage! as Buffer
 			)
 			const senderNameStr = senderName.toString()
 
@@ -192,7 +164,7 @@ export function makeLibSignalRepository(
 			// `wireJid` everywhere `addrStr` would appear.
 			const wireJid = await resolveLIDSignalAddress(addrStr)
 			const pinnedStorage = pinResolutionForStorage(addrStr, wireJid)
-			const session = new libsignal.SessionCipher(pinnedStorage, addr)
+			const session = new SessionCipher(pinnedStorage, addr)
 
 			// H1 fix: pkmsg identity-key save runs INSIDE the per-jid transaction
 			// scope, sharing the session+identity-key locks with the decrypt
@@ -209,10 +181,10 @@ export function makeLibSignalRepository(
 				let result: Buffer
 				switch (type) {
 					case 'pkmsg':
-						result = await session.decryptPreKeyWhisperMessage(ciphertext)
+						result = await session.decryptPreKeyWhisperMessage(ciphertext as Buffer)
 						break
 					case 'msg':
-						result = await session.decryptWhisperMessage(ciphertext)
+						result = await session.decryptWhisperMessage(ciphertext as Buffer)
 						break
 				}
 
@@ -246,10 +218,10 @@ export function makeLibSignalRepository(
 			// same wire id we lock on (see decryptMessage for rationale).
 			const wireJid = await resolveLIDSignalAddress(addrStr)
 			const pinnedStorage = pinResolutionForStorage(addrStr, wireJid)
-			const cipher = new libsignal.SessionCipher(pinnedStorage, addr)
+			const cipher = new SessionCipher(pinnedStorage, addr)
 
 			return parsedKeys.transactWith({ records: [{ type: 'session', id: wireJid }] }, async () => {
-				const { type: sigType, body } = await cipher.encrypt(data)
+				const { type: sigType, body } = await cipher.encrypt(data as Buffer)
 				const type = sigType === 3 ? 'pkmsg' : 'msg'
 				return { type, ciphertext: Buffer.from(body, 'binary') }
 			})
@@ -259,7 +231,7 @@ export function makeLibSignalRepository(
 			const senderName = jidToSignalSenderKeyName(group, meId)
 			return parsedKeys.transactWith({ records: [{ type: 'sender-key', id: senderName.toString() }] }, async () => {
 				const { skdm } = await ensureSenderKeyAndCreateSkdm(group, meId)
-				const ciphertext = await new GroupCipher(storage, senderName).encrypt(data)
+				const ciphertext = await new GroupCipher(storage, senderName).encrypt(data  as Buffer)
 				return { ciphertext, senderKeyDistributionMessage: skdm.serialize() }
 			})
 		},
@@ -307,7 +279,7 @@ export function makeLibSignalRepository(
 			// same wire id we lock on (see decryptMessage for rationale).
 			const wireJid = await resolveLIDSignalAddress(addrStr)
 			const pinnedStorage = pinResolutionForStorage(addrStr, wireJid)
-			const cipher = new libsignal.SessionBuilder(pinnedStorage, addr)
+			const cipher = new SessionBuilder(pinnedStorage, addr)
 			return parsedKeys.transactWith({ records: [{ type: 'session', id: wireJid }] }, async () => {
 				// libsignal runtime accepts an absent prekey (initOutgoing checks `device.preKey && ...`)
 				// but the bundled .d.ts marks it required.
@@ -419,8 +391,8 @@ export function makeLibSignalRepository(
 				pnUser: string
 				lidUser: string
 				deviceId: number
-				fromAddr: libsignal.ProtocolAddress
-				toAddr: libsignal.ProtocolAddress
+				fromAddr: ProtocolAddress
+				toAddr: ProtocolAddress
 			}
 
 			const migrationOps: MigrationOp[] = deviceJids.map(jid => {
@@ -467,7 +439,7 @@ export function makeLibSignalRepository(
 						const pnSession = pnSessions[pnAddrStr]
 						if (pnSession) {
 							// Session exists (guaranteed from device discovery)
-							const fromSession = libsignal.SessionRecord.deserialize(pnSession)
+							const fromSession = SessionRecord.deserialize(pnSession as Buffer)
 							if (fromSession.haveOpenSession()) {
 								// Queue for bulk update: copy to LID, delete from PN
 								sessionUpdates[lidAddrStr] = fromSession.serialize()
@@ -502,7 +474,7 @@ export function makeLibSignalRepository(
 	return repository
 }
 
-const jidToSignalProtocolAddress = (jid: string): libsignal.ProtocolAddress => {
+const jidToSignalProtocolAddress = (jid: string): ProtocolAddress => {
 	const decoded = jidDecode(jid)!
 	const { user, device, server, domainType } = decoded
 
@@ -519,7 +491,7 @@ const jidToSignalProtocolAddress = (jid: string): libsignal.ProtocolAddress => {
 		throw new Error('Unexpected non-hosted device JID with device 99. This ID seems invalid. ID:' + jid)
 	}
 
-	return new libsignal.ProtocolAddress(signalUser, finalDevice)
+	return new ProtocolAddress(signalUser, finalDevice)
 }
 
 const jidToSignalSenderKeyName = (group: string, user: string): SenderKeyName => {
@@ -541,7 +513,7 @@ function signalStorage(
 	 */
 	pinnedResolver?: (id: string) => Promise<string>
 ): SenderKeyStore &
-	libsignal.SignalStorage & {
+	SignalStorage & {
 		loadIdentityKey(id: string): Promise<Uint8Array | undefined>
 		saveIdentity(id: string, identityKey: Uint8Array): Promise<boolean>
 	} {
@@ -554,7 +526,7 @@ function signalStorage(
 				const { [wireJid]: sess } = await keys.get('session', [wireJid])
 
 				if (sess) {
-					return libsignal.SessionRecord.deserialize(sess)
+					return SessionRecord.deserialize(sess as Buffer)
 				}
 			} catch (e) {
 				return null
@@ -562,7 +534,7 @@ function signalStorage(
 
 			return null
 		},
-		storeSession: async (id: string, session: libsignal.SessionRecord) => {
+		storeSession: async (id: string, session: SessionRecord) => {
 			const wireJid = await resolveLIDSignalAddress(id)
 			await keys.set({ session: { [wireJid]: session.serialize() } })
 		},
@@ -636,7 +608,7 @@ function signalStorage(
 			const keyId = senderKeyName.toString()
 			const { [keyId]: key } = await keys.get('sender-key', [keyId])
 			if (key) {
-				return SenderKeyRecord.deserialize(key)
+				return SenderKeyRecord.deserialize(key as Buffer)
 			}
 
 			return new SenderKeyRecord()

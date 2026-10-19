@@ -22947,7 +22947,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** Conversation id. */
-        id?: (string|null);
+        id: string;
 
         /** Conversation messages. */
         messages: proto.HistorySyncMsg.$Properties[];
@@ -23226,7 +23226,7 @@ export namespace proto {
         interface $Properties {
 
             /** Conversation id */
-            id?: (string|null);
+            id: string;
 
             /** Conversation messages */
             messages?: (proto.HistorySyncMsg.$Properties[]|null);
@@ -23426,7 +23426,7 @@ export namespace proto {
 
         /** Shape of a Conversation. */
         type $Shape = {
-          id?: string|null;
+          id: string;
           messages?: proto.HistorySyncMsg.$Shape[]|null;
           newJid?: string|null;
           oldJid?: string|null;
@@ -28364,7 +28364,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** GroupParticipant userJid. */
-        userJid?: (string|null);
+        userJid: string;
 
         /** GroupParticipant rank. */
         rank?: (proto.GroupParticipant.Rank|null);
@@ -28457,7 +28457,7 @@ export namespace proto {
         interface $Properties {
 
             /** GroupParticipant userJid */
-            userJid?: (string|null);
+            userJid: string;
 
             /** GroupParticipant rank */
             rank?: (proto.GroupParticipant.Rank|null);

@@ -1,10 +1,9 @@
 import { createCipheriv, createDecipheriv, createHash, createHmac, pbkdf2Sync, randomBytes } from 'crypto'
 import HKDF from 'futoin-hkdf'
-import * as curve from 'libsignal/src/curve'
-import { KEY_BUNDLE_TYPE } from '../Defaults'
+import {curve} from "@skidy89/signal-protocol"
 import type { KeyPair } from '../Types'
+import { KEY_BUNDLE_TYPE } from '../Defaults'
 
-/** with the new libsignal, this would not be necessary, but keep it if something breaks */
 export const generateSignalPubKey = (pubKey: Uint8Array | Buffer) =>
 	pubKey.length === 33 ? pubKey : Buffer.concat([KEY_BUNDLE_TYPE, pubKey])
 
@@ -13,27 +12,23 @@ export const Curve = {
 		const { pubKey, privKey } = curve.generateKeyPair()
 		return {
 			private: privKey,
-			// remove version byte
 			public: pubKey.subarray(1)
 		}
 	},
 	sharedKey: (privateKey: Uint8Array, publicKey: Uint8Array) => {
-		const shared = curve.calculateAgreement(generateSignalPubKey(publicKey), privateKey)
+		const shared = curve.calculateAgreement(publicKey as Buffer, privateKey as Buffer)
 		return shared
 	},
-	sign: (privateKey: Uint8Array, buf: Uint8Array) => curve.calculateSignature(privateKey, buf),
+	sign: (privateKey: Uint8Array, buf: Uint8Array) => curve.calculateSignature(privateKey as Buffer, buf as Buffer),
 	verify: (pubKey: Uint8Array, message: Uint8Array, signature: Uint8Array) => {
-		return curve.verifySignature(generateSignalPubKey(pubKey), message, signature)
+		return curve.verifySignature(pubKey as Buffer, message as Buffer, signature as Buffer )
 	}
 }
 
 export const signedKeyPair = (identityKeyPair: KeyPair, keyId: number) => {
-	const preKey = Curve.generateKeyPair()
-	const pubKey = generateSignalPubKey(preKey.public)
-
-	const signature = Curve.sign(identityKeyPair.private, pubKey)
-
-	return { keyPair: preKey, signature, keyId }
+	const keyPair = Curve.generateKeyPair()
+	const signature = Curve.sign(identityKeyPair.private, generateSignalPubKey(keyPair.public))
+	return { keyPair, signature, keyId }
 }
 
 const GCM_TAG_LENGTH = 128 >> 3

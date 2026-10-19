@@ -295,11 +295,6 @@ async function findAppModules() {
                   }
                 } else if (m.object.property.name === 'FLAGS') {
                   flags.push(m.property.name.toLowerCase());
-                  
-                  if (m.property.name !== 'REQUIRED') {
-                    flags.push(m.property.name.toLowerCase());
-                    
-                  }
                 }
               }
             });

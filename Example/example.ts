@@ -1,6 +1,6 @@
 import { Boom } from '@hapi/boom'
 import readline from 'readline'
-import makeWASocket, { AnyMessageContent, delay, DisconnectReason, fetchLatestBaileysVersion, getAggregateVotesInPollMessage, getHistoryMsg, GroupMetadata, isJidBot, isJidBroadcast, isJidMetaAI, isJidNewsletter, jidDecode, makeCacheableSignalKeyStore, normalizeMessageContent, PatchedMessageWithRecipientJID, proto, useMultiFileAuthState, WAMessageContent, migrateAuthState, useSqliteAuthState } from '../src'
+import makeWASocket, { AnyMessageContent, delay, DisconnectReason, fetchLatestBaileysVersion, getAggregateVotesInPollMessage, getHistoryMsg, GroupMetadata, isJidBot, isJidBroadcast, isJidMetaAI, isJidNewsletter, jidDecode, makeCacheableSignalKeyStore, normalizeMessageContent, PatchedMessageWithRecipientJID, proto, useMultiFileAuthState, WAMessageContent, migrateAuthState, useSqliteAuthState, WAVersion } from '../src'
 import P from 'pino'
 
 import qrcode from 'qrcode-terminal'
@@ -30,11 +30,11 @@ const startSock = async() => {
 
 	
 	// fetch latest version of WA Web
-	const { version, isLatest } = await fetchLatestBaileysVersion()
-	console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
+	
+	const WA_VERSION: WAVersion = [2, 3000, 1050189019];
 
 	const sock = makeWASocket({
-		version,
+		version: WA_VERSION,
 		logger: logger,
 		auth: {creds: d2.state.creds, keys: d2.state.keys},
         waWebSocketUrl: "wss://web.whatsapp.com/ws/chat?ED=CAgIAg==",

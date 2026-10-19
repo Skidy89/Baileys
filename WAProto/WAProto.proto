@@ -1,7 +1,7 @@
 syntax = "proto3";
 package proto;
 
-/// WhatsApp Version: 2.3000.1050653261
+/// WhatsApp Version: 2.3000.1050796734
 
 message ACP2Setting {
     optional bool enabled = 1;
@@ -1801,7 +1801,7 @@ message ContextInfo {
 }
 
 message Conversation {
-    optional string id = 1;
+    required string id = 1;
     repeated HistorySyncMsg messages = 2;
     optional string newJid = 3;
     optional string oldJid = 4;
@@ -2207,7 +2207,7 @@ message GroupMention {
 }
 
 message GroupParticipant {
-    optional string userJid = 1;
+    required string userJid = 1;
     optional Rank rank = 2;
     optional MemberLabel memberLabel = 3;
     enum Rank {
