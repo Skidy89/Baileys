@@ -256,6 +256,7 @@ export function makeLibSignalRepository(
 				getOpenSession?: () => { indexInfo?: { baseKey?: Buffer }; registrationId?: number } | undefined
 			} | null
 			if (!session) {
+				console.warn({ jid, addr }, 'getSessionInfo: no session found')
 				return null
 			}
 
@@ -308,6 +309,7 @@ export function makeLibSignalRepository(
 
 				return { exists: true }
 			} catch (error) {
+				console.error({ error, jid }, 'validateSession failed')
 				return { exists: false, reason: 'validation error' }
 			}
 		},
