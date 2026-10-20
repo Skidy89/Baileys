@@ -300,7 +300,6 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 
 		await handleLegacyMexNewsletterNotification(node)
 	}
-
 	const handleReachoutTimelockNotification = (data: MexGqlData) => {
 		const payload = data.xwa2_notify_account_reachout_timelock as ReachoutTimelockNotificationPayload | undefined
 

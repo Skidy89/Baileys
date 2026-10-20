@@ -55,9 +55,11 @@ export const generateOrGetPreKeys = (creds: AuthenticationCreds, range: number) 
 	const remaining = range - avaliable
 	const lastPreKeyId = creds.nextPreKeyId + remaining - 1
 	const newPreKeys: { [id: number]: KeyPair } = {}
+
 	if (remaining > 0) {
-		for (let i = creds.nextPreKeyId; i <= lastPreKeyId; i++) {
-			newPreKeys[i] = Curve.generateKeyPair()
+		const keyPairs = Curve.generateKeyPairs(remaining)
+		for (let i = 0; i < remaining; i++) {
+			newPreKeys[creds.nextPreKeyId! + i] = keyPairs[i]!
 		}
 	}
 

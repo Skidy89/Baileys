@@ -1389,10 +1389,10 @@
   dependencies:
     "@sinonjs/commons" "^3.0.1"
 
-"@skidy89/signal-protocol@^0.0.1-beta.3":
-  version "0.0.1-beta.3"
-  resolved "https://registry.npmjs.org/@skidy89/signal-protocol/-/signal-protocol-0.0.1-beta.3.tgz"
-  integrity sha512-xGZ+kC4+mI6okq6Qdwh8s4ntok6WmX+FBKfhyymoptmc2jz6YrUzzLqPFnDoG36zgn6AQ/+78JPsw4A2VEyjTQ==
+"@skidy89/signal-protocol@^0.0.1-beta.5":
+  version "0.0.1-beta.5"
+  resolved "https://registry.npmjs.org/@skidy89/signal-protocol/-/signal-protocol-0.0.1-beta.5.tgz"
+  integrity sha512-4sVW0hRsj7pVD1yG69eVVDAJzy8hhox/eFFke+HzI9B9j5TNNmejVfXczM+RtQYALoBOpfX/s/06Xke6YcCpaA==
   dependencies:
     msgpackr "^2.1.1"
     protobufjs "^8.8.1"

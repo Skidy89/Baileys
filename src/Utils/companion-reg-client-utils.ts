@@ -48,7 +48,6 @@ export const buildPairingQRData = (
 	)
 }
 
-
 /**
  * Builds the `link_code_companion_reg` stanza sent when pairing by code.
  *

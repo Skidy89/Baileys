@@ -542,12 +542,13 @@ export const assertMeId = (creds: AuthenticationCreds): string => {
 }
 
 export const initAuthCreds = (): AuthenticationCreds => {
-	const identityKey = Curve.generateKeyPair()
+	const [noiseKey, pairingEphemeralKeyPair, identityKey] = Curve.generateKeyPairs(3)
+
 	return {
-		noiseKey: Curve.generateKeyPair(),
-		pairingEphemeralKeyPair: Curve.generateKeyPair(),
-		signedIdentityKey: identityKey,
-		signedPreKey: signedKeyPair(identityKey, 1),
+		noiseKey: noiseKey!,
+		pairingEphemeralKeyPair: pairingEphemeralKeyPair!,
+		signedIdentityKey: identityKey!,
+		signedPreKey: signedKeyPair(identityKey!, 1),
 		registrationId: generateRegistrationId(),
 		advSecretKey: randomBytes(32).toString('base64'),
 		processedHistoryMessages: [],

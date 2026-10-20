@@ -7,7 +7,6 @@ import type {
 	SignalKeyStoreWithTransaction
 } from '../Types'
 import type { SignalRepositoryWithLIDStore } from '../Types/Signal'
-import { generateSignalPubKey } from '../Utils'
 import type { ILogger } from '../Utils/logger'
 import {
 	isHostedLidUser,
@@ -19,8 +18,21 @@ import {
 	WAJIDDomains
 } from '../WABinary'
 import { LIDMappingStore } from './lid-mapping'
-import { SenderKeyName, SenderKeyRecord, type SenderKeyStore, GroupCipher, GroupSessionBuilder, SenderKeyDistributionMessage } from './Group/index'
-import { SessionBuilder, SessionRecord, ProtocolAddress, SessionCipher, type SignalStorage } from '@skidy89/signal-protocol'
+import {
+	SenderKeyName,
+	SenderKeyRecord,
+	type SenderKeyStore,
+	GroupCipher,
+	GroupSessionBuilder,
+	SenderKeyDistributionMessage
+} from './Group/index'
+import {
+	SessionBuilder,
+	SessionRecord,
+	ProtocolAddress,
+	SessionCipher,
+	type SignalStorage
+} from '@skidy89/signal-protocol'
 import { extractIdentityFromPkmsg } from '@skidy89/signal-protocol/dist/signal/util'
 
 /**
@@ -53,8 +65,6 @@ async function resolveSignalAddressId(id: string, lidMapping: LIDMappingStore): 
 
 	return id
 }
-
-
 
 export function makeLibSignalRepository(
 	auth: SignalAuthState,
@@ -230,8 +240,7 @@ export function makeLibSignalRepository(
 		async encryptGroupMessage({ group, meId, data }) {
 			const senderName = jidToSignalSenderKeyName(group, meId)
 			return parsedKeys.transactWith({ records: [{ type: 'sender-key', id: senderName.toString() }] }, async () => {
-				const { skdm } = await ensureSenderKeyAndCreateSkdm(group, meId)
-				const ciphertext = await new GroupCipher(storage, senderName).encrypt(data  as Buffer)
+				const { skdm, ciphertext }  = await new GroupCipher(storage, senderName).encryptWithSkdm(data as Buffer)
 				return { ciphertext, senderKeyDistributionMessage: skdm.serialize() }
 			})
 		},
@@ -385,7 +394,7 @@ export function makeLibSignalRepository(
 					'bulk device migration complete - all user devices processed'
 				)
 
-			// Prepare migration operations with addressing metadata up-front so
+			// Prepare migration operations with addressing metadata up-front so+`)
 			// we can build a precise lock scope before entering the critical section.
 			type MigrationOp = {
 				fromJid: string
@@ -593,8 +602,8 @@ function signalStorage(
 			const { [keyId]: key } = await keys.get('pre-key', [keyId])
 			if (key) {
 				return {
-					privKey: Buffer.from(key.private),
-					pubKey: Buffer.from(key.public)
+					privKey: key.private,
+					pubKey: key.public
 				}
 			}
 		},
@@ -602,8 +611,8 @@ function signalStorage(
 		loadSignedPreKey: () => {
 			const key = creds.signedPreKey
 			return {
-				privKey: Buffer.from(key.keyPair.private),
-				pubKey: Buffer.from(key.keyPair.public)
+				privKey: key.keyPair.private,
+				pubKey: key.keyPair.public
 			}
 		},
 		loadSenderKey: async (senderKeyName: SenderKeyName) => {
@@ -623,8 +632,8 @@ function signalStorage(
 		getOurIdentity: () => {
 			const { signedIdentityKey } = creds
 			return {
-				privKey: Buffer.from(signedIdentityKey.private),
-				pubKey: Buffer.from(generateSignalPubKey(signedIdentityKey.public))
+				privKey: signedIdentityKey.private,
+				pubKey: signedIdentityKey.public
 			}
 		}
 	}

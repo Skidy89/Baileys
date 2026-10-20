@@ -842,13 +842,15 @@ export const makeSocket = (config: SocketConfig) => {
 				id: generateMessageTag(),
 				xmlns: 'md'
 			},
-			content: [buildCompanionRegNode({
+			content: [
+				buildCompanionRegNode({
 					jid: me.id,
 					wrappedEphemeralPub: await generatePairingKey(pairingCode),
 					serverAuthKeyPub: authState.creds.noiseKey.public,
 					browser,
 					platformDisplay: config.companionPlatformDisplay
-				})]
+				})
+			]
 		})
 		ev.emit('creds.update', authState.creds)
 		return pairingCode

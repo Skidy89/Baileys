@@ -82,7 +82,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		sendNode,
 		groupMetadata,
 		groupToggleEphemeral,
-		registerSocketEndHandler
+		registerSocketEndHandler,
+		executeUSyncQuery
 	} = sock
 
 	const getLIDForPN = signalRepository.lidMapping.getLIDForPN.bind(signalRepository.lidMapping)
@@ -1251,9 +1252,24 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			messageRetryManager.clear()
 		}
 	})
+	
+	const findUserByUsername = async (username: string, pin: string) => {
+		const usyncQuery = new USyncQuery().withContactProtocol()
+		const user = new USyncUser().withUsername(username)
+		if (pin) user.withUsernameKey(pin)
+		usyncQuery.withUser(user)
+		const result = await executeUSyncQuery(usyncQuery)
+		if (!result?.list?.length) return null
+		const entry = result.list[0]
+		return {
+			jid: entry.id,
+			contact: entry.contact ?? false
+		}
+	}
 
 	return {
 		...sock,
+		findUserByUsername,
 		userDevicesCache,
 		devicesMutex,
 		issuePrivacyTokens,

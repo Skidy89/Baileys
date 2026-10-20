@@ -149,6 +149,20 @@ export const makeChatsSocket = (config: SocketConfig) => {
 
 		return privacySettings
 	}
+	const storePrivacyTokens = async (entries: { jid: string; privacyToken: string | Buffer; privacyModeTs?: number }[]) => {
+		if (!entries?.length) return
+		const write: { [jid: string]: { token: Buffer; ts: string } } = {}
+		for (const { jid, privacyToken, privacyModeTs } of entries) {
+			if (!jid || !privacyToken?.length) continue
+			write[jid] = {
+				token: Buffer.isBuffer(privacyToken) ? privacyToken : Buffer.from(privacyToken),
+				ts: String(privacyModeTs || '')
+			}
+		}
+		if (Object.keys(write).length) {
+			await authState.keys.set({ 'privacy-token': write })
+		}
+	}
 
 	const updateDefaultDisappearingMode = async (duration: number) => {
 		await query({
@@ -292,6 +306,36 @@ export const makeChatsSocket = (config: SocketConfig) => {
 				...(targetJid ? { target: targetJid } : {})
 			}
 		})
+	}
+	const executeUSyncQuery = async (usyncQuery: USyncQuery) => {
+		const result = await sock.executeUSyncQuery(usyncQuery) as { list: any[]; sideList: any[] } | undefined
+		if (!result) return result
+
+		// B. Auto-persist privacy tokens found in any usync response.
+		const privacyEntries = []
+		const blockedContacts = []
+		for (const entry of [...(result.list || []), ...(result.sideList || [])]) {
+			if (entry.privacy?.token!) {
+				privacyEntries.push({
+					jid: entry.id,
+					privacyToken: entry.privacy.token!,
+					privacyModeTs: entry.privacy.modeTs!
+				})
+			}
+			// G. Emit contacts.update for contacts that blocked us.
+			if (entry.isBlockedByContact) {
+				blockedContacts.push({ id: entry.id, isBlockedByContact: true })
+			}
+		}
+		if (privacyEntries.length) {
+			storePrivacyTokens(privacyEntries).catch(err => {
+				logger && logger.warn({ err }, 'failed to store privacy tokens from usync')
+			})
+		}
+		if (blockedContacts.length) {
+			ev.emit('contacts.update', blockedContacts)
+		}
+		return result
 	}
 
 	/** update the profile status for yourself */
@@ -1240,6 +1284,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
 		resyncAppState,
 		chatModify,
 		cleanDirtyBits,
-		placeholderResendCache
+		placeholderResendCache,
+		executeUSyncQuery
 	}
 }

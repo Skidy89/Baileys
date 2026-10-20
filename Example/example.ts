@@ -6,7 +6,7 @@ import P from 'pino'
 import qrcode from 'qrcode-terminal'
 import { Readable } from 'stream'
 const logger = P({
-  level: "silent",
+  level: "debug",
   
 })
 

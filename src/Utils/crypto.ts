@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, createHash, createHmac, pbkdf2Sync, randomBytes } from 'crypto'
 import HKDF from 'futoin-hkdf'
-import {curve} from "@skidy89/signal-protocol"
+import { curve } from '@skidy89/signal-protocol'
 import type { KeyPair } from '../Types'
 import { KEY_BUNDLE_TYPE } from '../Defaults'
 
@@ -10,10 +10,25 @@ export const generateSignalPubKey = (pubKey: Uint8Array | Buffer) =>
 export const Curve = {
 	generateKeyPair: (): KeyPair => {
 		const { pubKey, privKey } = curve.generateKeyPair()
+		if (pubKey.length !== 33) {
+			throw new Error(`Invalid pubKey length: ${pubKey.length}`)
+		}
 		return {
 			private: privKey,
 			public: pubKey.subarray(1)
 		}
+	},
+	generateKeyPairs: (count: number): KeyPair[] => {
+		const keyPairs = curve.generateKeyPairs(count)
+		return keyPairs.map(({ pubKey, privKey }) => {
+			if (pubKey.length !== 33) {
+				throw new Error(`Invalid pubKey length: ${pubKey.length}`)
+			}
+			return {
+				private: privKey,
+				public: pubKey.subarray(1)
+			}
+		})
 	},
 	sharedKey: (privateKey: Uint8Array, publicKey: Uint8Array) => {
 		const shared = curve.calculateAgreement(publicKey as Buffer, privateKey as Buffer)
@@ -21,7 +36,7 @@ export const Curve = {
 	},
 	sign: (privateKey: Uint8Array, buf: Uint8Array) => curve.calculateSignature(privateKey as Buffer, buf as Buffer),
 	verify: (pubKey: Uint8Array, message: Uint8Array, signature: Uint8Array) => {
-		return curve.verifySignature(pubKey as Buffer, message as Buffer, signature as Buffer )
+		return curve.verifySignature(pubKey as Buffer, message as Buffer, signature as Buffer)
 	}
 }
 
