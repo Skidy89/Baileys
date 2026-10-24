@@ -17,7 +17,6 @@ import { type BinaryNode, getAllBinaryNodeChildren, jidDecode } from '../WABinar
 import { sha256 } from './crypto'
 export const packr = new Packr()
 
-
 export const getKeyAuthor = (key: WAMessageKey | undefined | null, meId = 'me') =>
 	(key?.fromMe ? meId : key?.participantAlt || key?.remoteJidAlt || key?.participant || key?.remoteJid) || ''
 

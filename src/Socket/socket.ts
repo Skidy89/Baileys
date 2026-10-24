@@ -509,7 +509,7 @@ export const makeSocket = (config: SocketConfig) => {
 		const keyEnc = await noise.processHandshake(handshake, creds.noiseKey)
 
 		let node: proto.IClientPayload
-		if (!creds.me) {
+		if (!creds.me || !creds.registered) {
 			node = generateRegistrationNode(creds, config)
 			if (logger) logger.info({ node }, 'not logged in, attempting registration...')
 		} else {
@@ -1085,11 +1085,11 @@ export const makeSocket = (config: SocketConfig) => {
 	ev.on('creds.update', update => {
 		const name = update.me?.name
 		// if name has just been received
-		if (creds.me?.name !== name) {
+		if (typeof name === 'string' && name.length > 0 && creds.me?.name !== name) {
 			if (logger) logger.debug({ name }, 'updated pushName')
 			sendNode({
 				tag: 'presence',
-				attrs: { name: name! }
+				attrs: { name: name }
 			}).catch(err => {
 				if (logger) logger.warn({ trace: err.stack }, 'error in sending presence update on name change')
 			})

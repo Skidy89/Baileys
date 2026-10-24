@@ -54,8 +54,10 @@ type E2ESessionOpts = {
 	jid: string
 	session: E2ESession
 }
+export type EncryptManyResult = { type: 'pkmsg' | 'msg'; ciphertext: Uint8Array } | { error: string }
 
 export type SignalRepository = {
+	encryptMessages(items: { jid: string; data: Uint8Array }[]): Promise<EncryptManyResult[]>
 	decryptGroupMessage(opts: DecryptGroupSignalOpts): Promise<Uint8Array>
 	processSenderKeyDistributionMessage(opts: ProcessSenderKeyDistributionMessageOpts): Promise<void>
 	decryptMessage(opts: DecryptSignalProtoOpts): Promise<Uint8Array>

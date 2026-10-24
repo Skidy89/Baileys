@@ -6,7 +6,7 @@ import type {
 	SignalKeyStoreWithRecordTransaction,
 	SignalKeyStoreWithTransaction
 } from '../Types'
-import type { SignalRepositoryWithLIDStore } from '../Types/Signal'
+import type { EncryptManyResult, SignalRepositoryWithLIDStore } from '../Types/Signal'
 import type { ILogger } from '../Utils/logger'
 import {
 	isHostedLidUser,
@@ -31,9 +31,10 @@ import {
 	SessionRecord,
 	ProtocolAddress,
 	SessionCipher,
-	type SignalStorage
+	type SignalStorage,
+	sessionEncryptManyAsync
 } from '@skidy89/signal-protocol'
-import { extractIdentityFromPkmsg } from '@skidy89/signal-protocol/dist/signal/util'
+import { extractIdentityFromPkmsg, pub33 } from '@skidy89/signal-protocol/dist/signal/util'
 
 /**
  * Resolve a signal-protocol-address string (`user[_domainType].device`) to its
@@ -99,6 +100,10 @@ export function makeLibSignalRepository(
 	// implemented; narrow to the record-transaction variant so the internal
 	// call sites don't have to null-check the (publicly optional) method.
 	const parsedKeys = auth.keys as SignalKeyStoreWithRecordTransaction
+	const ourIdentity = () => {
+		const { signedIdentityKey } = auth.creds
+		return { pubKey: signedIdentityKey.public, privKey: signedIdentityKey.private }
+	}
 	const migratedSessionCache = new LRUCache<string, true>({
 		ttl: 3 * 24 * 60 * 60 * 1000, // 7 days
 		ttlAutopurge: true,
@@ -158,6 +163,64 @@ export function makeLibSignalRepository(
 				}
 
 				await builder.process(senderName, senderMsg)
+			})
+		},
+		async encryptMessages(items: { jid: string; data: Uint8Array }[]) {
+			const resolved = await Promise.all(
+				items.map(async ({ jid, data }, idx) => ({
+					idx,
+					data,
+					wireJid: await resolveLIDSignalAddress(jidToSignalProtocolAddress(jid).toString())
+				}))
+			)
+			const ids = [...new Set(resolved.map(r => r.wireJid))]
+			const results: EncryptManyResult[] = new Array(items.length)
+
+			return parsedKeys.transactWith({ records: ids.map(id => ({ type: 'session' as const, id })) }, async () => {
+				const current = new Map<string, Buffer>()
+				const stored = await parsedKeys.get('session', ids) // 1 sola lectura
+				for (const id of ids) if (stored[id]) current.set(id, stored[id] as Buffer)
+				const dirty = new Set<string>()
+				const { pubKey } = ourIdentity()
+
+				let pending = resolved
+				while (pending.length) {
+					const seen = new Set<string>()
+					const wave: typeof resolved = []
+					const rest: typeof resolved = []
+					for (const it of pending) {
+						if (seen.has(it.wireJid)) rest.push(it)
+						else {
+							seen.add(it.wireJid)
+							wave.push(it)
+						}
+					}
+
+					const ready = wave.filter(w => current.has(w.wireJid))
+					for (const w of wave) if (!current.has(w.wireJid)) results[w.idx] = { error: 'no session' }
+
+					const outs = await sessionEncryptManyAsync(
+						ready.map(w => ({ record: current.get(w.wireJid)!, plaintext: w.data as Buffer })),
+						pub33(pubKey),
+						auth.creds.registrationId
+					)
+					ready.forEach((w, i) => {
+						const o = outs[i]!
+						if (o.error) {
+							results[w.idx] = { error: o.error }
+							return
+						}
+						current.set(w.wireJid, o.newRecord)
+						dirty.add(w.wireJid)
+						results[w.idx] = { type: o.msgType === 3 ? 'pkmsg' : 'msg', ciphertext: o.body }
+					})
+					pending = rest
+				}
+
+				if (dirty.size) {
+					await parsedKeys.set({ session: Object.fromEntries([...dirty].map(id => [id, current.get(id)!])) }) // 1 sola escritura
+				}
+				return results
 			})
 		},
 		async decryptMessage({ jid, type, ciphertext }) {
@@ -240,7 +303,7 @@ export function makeLibSignalRepository(
 		async encryptGroupMessage({ group, meId, data }) {
 			const senderName = jidToSignalSenderKeyName(group, meId)
 			return parsedKeys.transactWith({ records: [{ type: 'sender-key', id: senderName.toString() }] }, async () => {
-				const { skdm, ciphertext }  = await new GroupCipher(storage, senderName).encryptWithSkdm(data as Buffer)
+				const { skdm, ciphertext } = await new GroupCipher(storage, senderName).encryptWithSkdm(data as Buffer)
 				return { ciphertext, senderKeyDistributionMessage: skdm.serialize() }
 			})
 		},

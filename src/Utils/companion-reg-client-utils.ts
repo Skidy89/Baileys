@@ -101,7 +101,7 @@ export const buildCompanionRegNode = ({
 		{
 			tag: 'link_code_pairing_nonce',
 			attrs: {},
-			content: '0'
+			content: Buffer.alloc(1) // empty nonce
 		}
 	]
 })
