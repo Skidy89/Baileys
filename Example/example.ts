@@ -1,12 +1,13 @@
 import { Boom } from '@hapi/boom'
 import readline from 'readline'
-import makeWASocket, { AnyMessageContent, delay, DisconnectReason, fetchLatestBaileysVersion, getAggregateVotesInPollMessage, getHistoryMsg, GroupMetadata, isJidBot, isJidBroadcast, isJidMetaAI, isJidNewsletter, jidDecode, makeCacheableSignalKeyStore, normalizeMessageContent, PatchedMessageWithRecipientJID, proto, useMultiFileAuthState, WAMessageContent, migrateAuthState, useSqliteAuthState, WAVersion } from '../src'
+import makeWASocket, { AnyMessageContent, delay, DisconnectReason, fetchLatestBaileysVersion, getAggregateVotesInPollMessage, getHistoryMsg, GroupMetadata, isJidBot, isJidBroadcast, isJidMetaAI, isJidNewsletter, jidDecode, makeCacheableSignalKeyStore, normalizeMessageContent, PatchedMessageWithRecipientJID, proto, useMultiFileAuthState, WAMessageContent, migrateAuthState, useSqliteAuthState, WAVersion, downloadMediaMessage, generateWAMessageFromContent, prepareWAMessageMedia, BinaryNode } from '../src'
 import P from 'pino'
 
 import qrcode from 'qrcode-terminal'
 import { Readable } from 'stream'
+import { writeFile } from 'fs/promises'
 const logger = P({
-  level: "debug",
+  level: "silent",
   
 })
 
@@ -151,6 +152,7 @@ const startSock = async() => {
                 const messageId = await sock.fetchMessageHistory(50, msg.key, msg.messageTimestamp!)
                 console.log('requested on-demand sync, id=', messageId)
               }
+			  
 			  if (text == "test") {
 				console.time("test")
 				const p = Date.now()

@@ -265,6 +265,9 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				case 'NotificationUserReachoutTimelockUpdate':
 					handleReachoutTimelockNotification(data)
 					break
+				case 'NotificationGroupLimitSharingPropertyUpdate':
+					handleGroupLimitSharingPropertyUpdate(updateNode)
+					break
 
 				case 'MessageCappingInfoNotification':
 					handleMessageCappingNotification(data)
@@ -299,6 +302,12 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		}
 
 		await handleLegacyMexNewsletterNotification(node)
+	}
+	const handleGroupLimitSharingPropertyUpdate = (BinaryNode: BinaryNode) => {
+		// just ack for now
+		void sendMessageAck(BinaryNode).catch(err => {
+			if (logger) logger.error({ err, node: binaryNodeToString(BinaryNode) }, 'failed to send ack for group limit sharing property update')
+		})
 	}
 	const handleReachoutTimelockNotification = (data: MexGqlData) => {
 		const payload = data.xwa2_notify_account_reachout_timelock as ReachoutTimelockNotificationPayload | undefined

@@ -113,7 +113,7 @@ export const extractAddressingContext = (stanza: BinaryNode) => {
 	if (addressingMode === 'lid') {
 		// Message is LID-addressed: sender is LID, extract corresponding PN
 		// without device data
-		senderAlt = stanza.attrs.participant_pn || stanza.attrs.sender_pn || stanza.attrs.peer_recipient_pn
+		senderAlt = stanza.attrs.participant_pn || stanza.attrs.sender_pn || stanza.attrs.peer_recipient_pn || stanza.attrs.peer_recipient_username
 		recipientAlt = stanza.attrs.recipient_pn
 		// with device data
 		//if (sender && senderAlt) senderAlt = transferDevice(sender, senderAlt)
@@ -121,8 +121,7 @@ export const extractAddressingContext = (stanza: BinaryNode) => {
 		// Message is PN-addressed: sender is PN, extract corresponding LID
 		// without device data
 		senderAlt = stanza.attrs.participant_lid || stanza.attrs.sender_lid || stanza.attrs.peer_recipient_lid
-		recipientAlt = stanza.attrs.recipient_lid
-
+		recipientAlt = stanza.attrs.recipient_lid || stanza.attrs.peer_recipient_pn || stanza.attrs.peer_recipient_username
 		//with device data
 		//if (sender && senderAlt) senderAlt = transferDevice(sender, senderAlt)
 	}

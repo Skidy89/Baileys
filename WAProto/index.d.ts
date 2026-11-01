@@ -22782,7 +22782,7 @@ export namespace proto {
         }
 
         /** StatusSourceType enum. */
-        enum StatusSourceType {
+        enum  StatusSourceType {
 
             /** IMAGE value */
             IMAGE = 0,

@@ -564,7 +564,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					const bytes = encodeWAMessage(msgToEncrypt)
 					const mutexKey = jid
 
-					const node = await encryptionMutex.mutex(mutexKey, async () => {
+					const node = await encryptionMutex.mutex(mutexKey, async () => {						
 						const { type, ciphertext } = await signalRepository.encryptMessage({ jid, data: bytes })
 
 						if (type === 'pkmsg') {

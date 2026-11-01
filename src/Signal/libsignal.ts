@@ -19,17 +19,18 @@ import {
 } from '../WABinary'
 import { LIDMappingStore } from './lid-mapping'
 import {
-	SenderKeyName,
-	SenderKeyRecord,
-	type SenderKeyStore,
 	GroupCipher,
 	GroupSessionBuilder,
-	SenderKeyDistributionMessage
-} from './Group/index'
+	SenderKeyName,
+	SenderKeyRecord,
+	SenderKeyDistributionMessage,
+	ProtocolAddress
+} from '@skidy89/signal-protocol'
+import type { SenderKeyStore } from '@skidy89/signal-protocol'
+
 import {
 	SessionBuilder,
 	SessionRecord,
-	ProtocolAddress,
 	SessionCipher,
 	type SignalStorage
 } from '@skidy89/signal-protocol'

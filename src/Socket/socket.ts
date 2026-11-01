@@ -769,7 +769,7 @@ export const makeSocket = (config: SocketConfig) => {
 				void end(new Boom('Connection was lost', { statusCode: DisconnectReason.connectionLost }))
 			} else if (ws.isOpen) {
 				// if its all good, send a keep alive request
-				query({
+				const i = query({
 					tag: 'iq',
 					attrs: {
 						id: generateMessageTag(),
@@ -777,10 +777,13 @@ export const makeSocket = (config: SocketConfig) => {
 						type: 'get',
 						xmlns: 'w:p'
 					},
-					content: [{ tag: 'ping', attrs: {} }]
+					content: []
 				}).catch(err => {
 					if (logger) logger.error({ trace: err.stack }, 'error in sending keep alive')
 				})
+				if (!i) {
+					if (logger) logger.error('No response from keep alive request')
+				}
 			} else {
 				if (logger) logger.warn('keep alive called when WS not open')
 			}
@@ -1043,9 +1046,10 @@ export const makeSocket = (config: SocketConfig) => {
 		await sendNode({
 			tag: 'ib',
 			attrs: {},
-			content: [{ tag: 'offline_batch', attrs: { count: '100' } }]
+			content: [{ tag: 'offline_batch', attrs: { count: '200' } }]
 		})
 	})
+	
 
 	ws.on('CB:ib,,edge_routing', (node: BinaryNode) => {
 		const edgeRoutingNode = getBinaryNodeChild(node, 'edge_routing')
