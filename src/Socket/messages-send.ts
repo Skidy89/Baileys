@@ -1190,7 +1190,13 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		} else if (message.liveLocationMessage) {
 			return 'livelocation'
 		} else if (message.stickerMessage) {
+			const sticker = message.stickerMessage
+			if (sticker.isAiSticker) {
+				return 'genai_sticker'
+			}
 			return 'sticker'
+		} else if (message.stickerPackMessage) {
+			return 'sticker_pack'
 		} else if (message.listMessage) {
 			return 'list'
 		} else if (message.listResponseMessage) {
