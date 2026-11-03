@@ -266,6 +266,7 @@ type EncryptedStreamOptions = {
 	saveOriginalFileIfRequired?: boolean
 	logger?: ILogger
 	opts?: RequestInit
+	mediaKey?: Buffer
 }
 
 /** Extracts video thumb using FFMPEG */
@@ -325,7 +326,7 @@ export async function generateThumbnail(
 export const encryptedStream = async (
 	media: WAMediaUpload,
 	mediaType: MediaType,
-	{ logger, saveOriginalFileIfRequired, opts }: EncryptedStreamOptions = {}
+	{ logger, saveOriginalFileIfRequired, opts, mediaKey: providedKey }: EncryptedStreamOptions = {}
 ) => {
 	logger?.debug(
 		{
@@ -344,8 +345,10 @@ export const encryptedStream = async (
 		},
 		'fetched media stream'
 	)
-
-	const mediaKey = Crypto.randomBytes(32)
+	if (providedKey && providedKey.length !== 32) {
+		throw new Boom('mediaKey must be 32 bytes', { statusCode: 400 })
+	}
+	const mediaKey = providedKey ?? Crypto.randomBytes(32)
 
 	const { cipherKey, iv, macKey } = await getMediaKeys(mediaKey, mediaType)
 
