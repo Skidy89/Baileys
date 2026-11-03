@@ -94,40 +94,64 @@ export const DEFAULT_CONNECTION_CONFIG: SocketConfig = {
 	makeSignalRepository: makeLibSignalRepository
 }
 
-export const MEDIA_PATH_MAP: { [T in MediaType]?: string } = {
-	image: '/mms/image',
-	video: '/mms/video',
-	document: '/mms/document',
-	audio: '/mms/audio',
-	sticker: '/mms/image',
-	'thumbnail-link': '/mms/image',
-	'product-catalog-image': '/product/image',
-	'md-app-state': '',
-	'md-msg-hist': '/mms/md-app-state',
-	'biz-cover-photo': '/pps/biz-cover-photo'
-}
-
+export const MEDIA_PATH_MAP = {
+    image: '/mms/image',
+    video: '/mms/video',
+    audio: '/mms/audio',
+    document: '/mms/document',
+    sticker: '/mms/image',
+    gif: '/mms/gif',
+    ptt: '/mms/ptt',
+    ptv: '/mms/video',
+    ppic: '/pps/photo',
+    'ads-image': '/mms/ads-image',
+    'ads-video': '/mms/ads-video',
+    'biz-cover-photo': '/pps/biz-cover-photo',
+    'group-history': '/mms/group-history',
+    'md-app-state': '/mms/md-app-state',
+    'md-msg-hist': '/mms/md-msg-hist',
+    'music-artwork': '/mms/music-artwork',
+    'product-catalog-image': '/product/image',
+    'sticker-pack': '/mms/sticker-pack',
+    'thumbnail-document': '/mms/thumbnail-document',
+    'thumbnail-image': '/mms/thumbnail-image',
+    'thumbnail-link': '/mms/thumbnail-link',
+    'thumbnail-sticker-pack': '/mms/thumbnail-sticker-pack',
+    'thumbnail-video': '/mms/thumbnail-video',
+    'maiba-file': '/wa-ai/maiba-file'
+};
 export const MEDIA_HKDF_KEY_MAPPING = {
-	audio: 'Audio',
-	document: 'Document',
-	gif: 'Video',
-	image: 'Image',
-	ppic: '',
-	product: 'Image',
-	ptt: 'Audio',
-	sticker: 'Image',
-	video: 'Video',
-	'thumbnail-document': 'Document Thumbnail',
-	'thumbnail-image': 'Image Thumbnail',
-	'thumbnail-video': 'Video Thumbnail',
-	'thumbnail-link': 'Link Thumbnail',
-	'md-msg-hist': 'History',
-	'md-app-state': 'App State',
-	'product-catalog-image': '',
-	'payment-bg-image': 'Payment Background',
-	ptv: 'Video',
-	'biz-cover-photo': 'Image'
-}
+    audio: 'Audio',
+    document: 'Document',
+    gif: 'Video',
+    history: 'History',
+    image: 'Image',
+    product: 'Image',
+    ppic: '',
+    ptt: 'Audio',
+    sticker: 'Image',
+    video: 'Video',
+    'group-history': 'Group History',
+    'ads-image': 'ads-image',
+    'ads-video': 'ads-video',
+    'sticker-pack': 'Sticker Pack',
+    'thumbnail-sticker-pack': 'Sticker Pack Thumbnail',
+    'thumbnail-document': 'Document Thumbnail',
+    'thumbnail-image': 'Image Thumbnail',
+    'thumbnail-video': 'Video Thumbnail',
+    'thumbnail-link': 'Link Thumbnail',
+    'md-msg-hist': 'History',
+    'md-app-state': 'App State',
+    'product-catalog-image': 'Image',
+    'payment-bg-image': 'Payment Background',
+    ptv: 'Video',
+    'biz-cover-photo': 'Image',
+    'music-artwork': 'Music Artwork',
+    'maiba-file': 'Document',
+    location: 'Location',
+    contact: 'Contact',
+    'voip-token': 'Voip Token'
+};
 
 export type MediaType = keyof typeof MEDIA_HKDF_KEY_MAPPING
 

@@ -140,6 +140,7 @@ const startSock = async() => {
 
         if (upsert.type === 'notify') {
           for (const msg of upsert.messages) {
+			
             if (msg.message?.conversation || msg.message?.extendedTextMessage?.text) {
               const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text
               if (text == "requestPlaceholder" && !upsert.requestId) {
@@ -152,6 +153,10 @@ const startSock = async() => {
                 const messageId = await sock.fetchMessageHistory(50, msg.key, msg.messageTimestamp!)
                 console.log('requested on-demand sync, id=', messageId)
               }
+			  if (text == "exit") {
+				console.log('exiting...')
+				process.exit(0)
+			  }
 			  
 			  if (text == "test") {
 				console.time("test")
@@ -160,6 +165,7 @@ const startSock = async() => {
 				console.timeEnd("test")
 				const end = Date.now()
 				const toMB = (bytes: number) => (bytes / 1024 / 1024).toFixed(2)
+				
 				await sock.sendMessage(msg.key.remoteJid!, { text: `Response time: ${end - p}ms
 					memory Usage:
 					rss: ${toMB(process.memoryUsage().rss)} MB
@@ -208,3 +214,4 @@ const startSock = async() => {
 
 startSock()
 
+process.on('SIGINT', () => process.exit(0))
