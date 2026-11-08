@@ -1,4 +1,5 @@
 import { Boom } from '@hapi/boom'
+import { FrameDecoder, encodeFrame as encodeNativeFrame } from '@skidy89/signal-protocol'
 import { proto } from '../../WAProto/index.js'
 import { NOISE_MODE, WA_CERT_DETAILS } from '../Defaults'
 import type { KeyPair } from '../Types'
@@ -8,10 +9,9 @@ import { aesDecryptGCM, aesEncryptGCM, Curve, hkdf, sha256 } from './crypto'
 import type { ILogger } from './logger'
 
 const generateIV = (counter: number) => {
-	const iv = new ArrayBuffer(12)
-	new DataView(iv).setUint32(8, counter)
-
-	return new Uint8Array(iv)
+	const iv = Buffer.alloc(12)
+	iv.writeUInt32BE(counter, 8)
+	return iv
 }
 
 export const makeNoiseHandler = ({
@@ -90,7 +90,7 @@ export const makeNoiseHandler = ({
 	let isFinished = false
 	let sentIntro = false
 
-	let inBytes = Buffer.alloc(0)
+	const frameDecoder = new FrameDecoder()
 
 	authenticate(NOISE_HEADER)
 	authenticate(publicKey)
@@ -142,50 +142,28 @@ export const makeNoiseHandler = ({
 				header = Buffer.from(NOISE_HEADER)
 			}
 
-			const introSize = sentIntro ? 0 : header.length
-			const frame = Buffer.alloc(introSize + 3 + data.byteLength)
-
-			if (!sentIntro) {
-				frame.set(header)
-				sentIntro = true
-			}
-
-			frame.writeUInt8(data.byteLength >> 16, introSize)
-			frame.writeUInt16BE(65535 & data.byteLength, introSize + 1)
-			frame.set(data, introSize + 3)
-
+			const frame = encodeNativeFrame(Buffer.from(data), sentIntro ? undefined : header)
+			sentIntro = true
 			return frame
 		},
 		decodeFrame: async (newData: Buffer | Uint8Array, onFrame: (buff: Uint8Array | BinaryNode) => void) => {
-			// the binary protocol uses its own framing mechanism
-			// on top of the WS frames
-			// so we get this data and separate out the frames
-			const getBytesSize = () => {
-				if (inBytes.length >= 3) {
-					return (inBytes.readUInt8() << 16) | inBytes.readUInt16BE(1)
-				}
-			}
-
-			inBytes = Buffer.concat([inBytes, newData])
-
 			if (logger) {
-				logger.trace(`recv ${newData.length} bytes, total recv ${inBytes.length} bytes`)
+				logger.trace(`recv ${newData.length} bytes`)
 			}
 
-			let size = getBytesSize()
-			while (size && inBytes.length >= size + 3) {
-				let frame: Uint8Array | BinaryNode = inBytes.subarray(3, size + 3)
-				inBytes = inBytes.subarray(size + 3)
+			frameDecoder.feed(Buffer.from(newData))
+			let frame: Buffer | null
+			while ((frame = frameDecoder.nextFrame())) {
+				let decodedFrame: Uint8Array | BinaryNode = frame
 
 				if (isFinished) {
 					const result = decrypt(frame)
-					frame = await decodeBinaryNode(result)
+					decodedFrame = await decodeBinaryNode(result)
 				}
 
-				if (logger) logger.trace({ msg: (frame as BinaryNode)?.attrs?.id }, 'recv frame')
+				if (logger) logger.trace({ msg: (decodedFrame as BinaryNode)?.attrs?.id }, 'recv frame')
 
-				onFrame(frame)
-				size = getBytesSize()
+				onFrame(decodedFrame)
 			}
 		}
 	}

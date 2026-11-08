@@ -7,7 +7,7 @@ import qrcode from 'qrcode-terminal'
 import { Readable } from 'stream'
 import { writeFile } from 'fs/promises'
 const logger = P({
-  level: "silent",
+  level: "debug",
   
 })
 

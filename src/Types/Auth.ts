@@ -75,7 +75,7 @@ export type SignalDataTypeMap = {
 	'pre-key': KeyPair
 	session: Uint8Array
 	'sender-key': Uint8Array
-	'sender-key-memory': { [jid: string]: boolean }
+	'sender-key-memory': string[] | { [jid: string]: boolean }
 	'app-state-sync-key': proto.Message.IAppStateSyncKeyData
 	'app-state-sync-version': LTHashState
 	'lid-mapping': string

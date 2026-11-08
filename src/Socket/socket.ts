@@ -505,6 +505,7 @@ export const makeSocket = (config: SocketConfig) => {
 		const result = await awaitNextMessage<Uint8Array>(init)
 		const handshake = proto.HandshakeMessage.decode(result)
 		if (logger) logger.trace({ handshake }, 'handshake recv from WA')
+		console.log(creds)
 
 		const keyEnc = await noise.processHandshake(handshake, creds.noiseKey)
 
@@ -956,7 +957,9 @@ export const makeSocket = (config: SocketConfig) => {
 	// if device pairs successfully, the server asks to restart the connection
 	ws.on('CB:iq,,pair-success', async (stanza: BinaryNode) => {
 		if (logger) logger.debug('pair success recv')
-		try {
+		try { 
+	        console.log(JSON.stringify(stanza))
+			
 			updateServerTimeOffset(stanza)
 			const { reply, creds: updatedCreds } = configureSuccessfulPairing(stanza, creds)
 			if (logger)
@@ -1011,6 +1014,7 @@ export const makeSocket = (config: SocketConfig) => {
 
 					// Create device list for our own user (needed for bulk migration)
 					const { user, device } = jidDecode(myPN)!
+					console.log({ user, device })
 					await authState.keys.set({
 						'device-list': {
 							[user]: [device?.toString() || '0']

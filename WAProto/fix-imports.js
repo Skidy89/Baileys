@@ -78,6 +78,18 @@ try {
   })
 
   writeFileSync(filePath, content, 'utf8')
+
+  const declarationPath = './index.d.ts'
+  let declaration = readFileSync(declarationPath, 'utf8')
+  declaration = declaration.replace(/import Long = require\((['"])long\1\);/, 'import type Long from "long";')
+  if (/\b(module\.exports|exports\.|require\s*\()/.test(content)) {
+    throw new Error('Generated protobuf JavaScript still contains CommonJS output')
+  }
+  if (/import\s+\w+\s*=\s*require\s*\(/.test(declaration)) {
+    throw new Error('Generated protobuf declarations still contain CommonJS imports')
+  }
+  writeFileSync(declarationPath, declaration, 'utf8')
+
   console.log(`✅ Fixed imports in ${filePath}`)
 } catch (error) {
   console.error(`❌ Error fixing imports: ${error.message}`)

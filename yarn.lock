@@ -1157,6 +1157,11 @@
   resolved "https://registry.npmjs.org/@keyv/serialize/-/serialize-1.1.1.tgz"
   integrity sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==
 
+"@msgpack/msgpack@^3.1.3":
+  version "3.1.3"
+  resolved "https://registry.npmjs.org/@msgpack/msgpack/-/msgpack-3.1.3.tgz"
+  integrity sha512-47XIizs9XZXvuJgoaJUIE2lFoID8ugvc0jzSHP+Ptfk8nTbnR8g788wv48N03Kx0UkAv559HWRQ3yzOgzlRNUA==
+
 "@msgpackr-extract/msgpackr-extract-win32-x64@3.0.4":
   version "3.0.4"
   resolved "https://registry.npmjs.org/@msgpackr-extract/msgpackr-extract-win32-x64/-/msgpackr-extract-win32-x64-3.0.4.tgz"
@@ -1389,10 +1394,10 @@
   dependencies:
     "@sinonjs/commons" "^3.0.1"
 
-"@skidy89/signal-protocol@^0.0.1-beta.5":
-  version "0.0.1-beta.5"
-  resolved "https://registry.npmjs.org/@skidy89/signal-protocol/-/signal-protocol-0.0.1-beta.5.tgz"
-  integrity sha512-4sVW0hRsj7pVD1yG69eVVDAJzy8hhox/eFFke+HzI9B9j5TNNmejVfXczM+RtQYALoBOpfX/s/06Xke6YcCpaA==
+"@skidy89/signal-protocol@^0.0.2-beta.1":
+  version "0.0.2-beta.1"
+  resolved "https://registry.npmjs.org/@skidy89/signal-protocol/-/signal-protocol-0.0.2-beta.1.tgz"
+  integrity sha512-X8KvUhA0sbBu/oKg5U+ibigwmXxYN36sb5WaR6FwJNCXQgrdqnk1y1xj0DvdA7zqo6e1nDrIzqwacwIvdbrT9w==
   dependencies:
     msgpackr "^2.1.1"
     protobufjs "^8.8.1"
