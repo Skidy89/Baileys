@@ -1,22 +1,27 @@
 import NodeCache from '@cacheable/node-cache';
 import { Boom } from '@hapi/boom';
 import { proto } from '../../WAProto/index.js';
-import type { AnyMessageContent, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMessage, WAMessageKey } from '../Types';
+import type { AnyMessageContent, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMessage, WAMessageKey } from '../Types';
 import { MessageRetryManager } from '../Utils';
 import { type BinaryNode, type JidWithDevice } from '../WABinary';
 import { USyncQuery } from '../WAUSync';
+import { type DeviceWithJid } from './messages/devices.js';
 export declare const makeMessagesSocket: (config: SocketConfig) => {
+    findUserByUsername: (username: string, pin: string) => Promise<{
+        jid: any;
+        contact: any;
+    } | null>;
     userDevicesCache: import("../Types").PossiblyExtendedCacheStore | NodeCache<JidWithDevice[]>;
     devicesMutex: {
         mutex<T>(code: () => Promise<T> | T): Promise<T>;
     };
-    issuePrivacyTokens: (jids: string[], timestamp?: number) => Promise<any>;
+    issuePrivacyTokens: (jids: string[], timestamp?: number) => Promise<BinaryNode>;
     assertSessions: (jids: string[], force?: boolean) => Promise<boolean>;
     relayMessage: (jid: string, message: proto.IMessage, { messageId: msgId, participant, additionalAttributes, additionalNodes, useUserDevicesCache, useCachedGroupMetadata, statusJidList }: MessageRelayOptions) => Promise<string>;
-    sendReceipt: (jid: string, participant: string | undefined, messageIds: string[], type: MessageReceiptType) => Promise<void>;
-    sendReceipts: (keys: WAMessageKey[], type: MessageReceiptType) => Promise<void>;
+    sendReceipt: (jid: string, participant: string | undefined, messageIds: string[], type: import("../Types").MessageReceiptType) => Promise<void>;
+    sendReceipts: (keys: WAMessageKey[], type: import("../Types").MessageReceiptType) => Promise<void>;
     readMessages: (keys: WAMessageKey[]) => Promise<void>;
-    refreshMediaConn: (forceGet?: boolean) => Promise<MediaConnInfo>;
+    refreshMediaConn: (forceGet?: boolean) => Promise<import("../Types").MediaConnInfo>;
     getMediaHost: () => string;
     waUploadToServer: import("../Types").WAMediaUploadFunction;
     fetchPrivacySettings: (force?: boolean) => Promise<{
@@ -27,9 +32,7 @@ export declare const makeMessagesSocket: (config: SocketConfig) => {
         nodes: BinaryNode[];
         shouldIncludeDeviceIdentity: boolean;
     }>;
-    getUSyncDevices: (jids: string[], useCache: boolean, ignoreZeroDevices: boolean) => Promise<(JidWithDevice & {
-        jid: string;
-    })[]>;
+    getUSyncDevices: (jids: string[], useCache: boolean, ignoreZeroDevices: boolean) => Promise<DeviceWithJid[]>;
     messageRetryManager: MessageRetryManager | null;
     updateMemberLabel: (jid: string, memberLabel: string) => Promise<string>;
     updateMediaMessage: (message: WAMessage) => Promise<WAMessage>;
@@ -106,6 +109,10 @@ export declare const makeMessagesSocket: (config: SocketConfig) => {
     chatModify: (mod: import("../Types").ChatModification, jid: string) => Promise<void>;
     cleanDirtyBits: (type: "account_sync" | "groups", fromTimestamp?: number | string) => Promise<void>;
     placeholderResendCache: import("../Types").CacheStore;
+    executeUSyncQuery: (usyncQuery: USyncQuery) => Promise<{
+        list: any[];
+        sideList: any[];
+    } | undefined>;
     type: "md";
     ws: import("./Client/websocket.js").WebSocketClient;
     ev: import("../Types").BaileysEventEmitter & {
@@ -143,7 +150,6 @@ export declare const makeMessagesSocket: (config: SocketConfig) => {
     getUSyncDevicesForMigration: (jid: string) => Promise<string[]>;
     waitForConnectionUpdate: (check: (u: Partial<import("../Types").ConnectionState>) => Promise<boolean | undefined>, timeoutMs?: number) => Promise<void>;
     sendWAMBuffer: (wamBuffer: Buffer) => Promise<any>;
-    executeUSyncQuery: (usyncQuery: USyncQuery) => Promise<import("../WAUSync").USyncQueryResult | undefined>;
     onWhatsApp: (...phoneNumber: string[]) => Promise<{
         jid: string;
         exists: boolean;

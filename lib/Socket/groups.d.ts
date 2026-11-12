@@ -89,6 +89,10 @@ export declare const makeGroupsSocket: (config: SocketConfig) => {
     chatModify: (mod: import("../Types").ChatModification, jid: string) => Promise<void>;
     cleanDirtyBits: (type: "account_sync" | "groups", fromTimestamp?: number | string) => Promise<void>;
     placeholderResendCache: import("../Types").CacheStore;
+    executeUSyncQuery: (usyncQuery: import("../index.js").USyncQuery) => Promise<{
+        list: any[];
+        sideList: any[];
+    } | undefined>;
     type: "md";
     ws: import("./Client/websocket.js").WebSocketClient;
     ev: import("../Types").BaileysEventEmitter & {
@@ -126,7 +130,6 @@ export declare const makeGroupsSocket: (config: SocketConfig) => {
     getUSyncDevicesForMigration: (jid: string) => Promise<string[]>;
     waitForConnectionUpdate: (check: (u: Partial<import("../Types").ConnectionState>) => Promise<boolean | undefined>, timeoutMs?: number) => Promise<void>;
     sendWAMBuffer: (wamBuffer: Buffer) => Promise<any>;
-    executeUSyncQuery: (usyncQuery: import("../index.js").USyncQuery) => Promise<import("../index.js").USyncQueryResult | undefined>;
     onWhatsApp: (...phoneNumber: string[]) => Promise<{
         jid: string;
         exists: boolean;

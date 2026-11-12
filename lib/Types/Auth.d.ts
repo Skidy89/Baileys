@@ -69,7 +69,7 @@ export type SignalDataTypeMap = {
     'pre-key': KeyPair;
     session: Uint8Array;
     'sender-key': Uint8Array;
-    'sender-key-memory': {
+    'sender-key-memory': string[] | {
         [jid: string]: boolean;
     };
     'app-state-sync-key': proto.Message.IAppStateSyncKeyData;
@@ -82,6 +82,10 @@ export type SignalDataTypeMap = {
         senderTimestamp?: number;
     };
     'identity-key': Uint8Array;
+    'privacy-token': {
+        token: Buffer;
+        ts: string;
+    };
 };
 export type SignalDataSet = {
     [T in keyof SignalDataTypeMap]?: {

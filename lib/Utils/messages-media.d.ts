@@ -56,6 +56,7 @@ type EncryptedStreamOptions = {
     saveOriginalFileIfRequired?: boolean;
     logger?: ILogger;
     opts?: RequestInit;
+    mediaKey?: Buffer;
 };
 /** generates a thumbnail for a given media, if required */
 export declare function generateThumbnail(file: string, mediaType: 'video' | 'image', options: {
@@ -67,8 +68,8 @@ export declare function generateThumbnail(file: string, mediaType: 'video' | 'im
         height: number;
     } | undefined;
 }>;
-export declare const encryptedStream: (media: WAMediaUpload, mediaType: MediaType, { logger, saveOriginalFileIfRequired, opts }?: EncryptedStreamOptions) => Promise<{
-    mediaKey: NonSharedBuffer;
+export declare const encryptedStream: (media: WAMediaUpload, mediaType: MediaType, { logger, saveOriginalFileIfRequired, opts, mediaKey: providedKey }?: EncryptedStreamOptions) => Promise<{
+    mediaKey: Buffer<ArrayBufferLike>;
     originalFilePath: string | undefined;
     encFilePath: string;
     mac: Buffer<ArrayBuffer>;

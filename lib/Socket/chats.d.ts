@@ -51,6 +51,10 @@ export declare const makeChatsSocket: (config: SocketConfig) => {
     chatModify: (mod: ChatModification, jid: string) => Promise<void>;
     cleanDirtyBits: (type: "account_sync" | "groups", fromTimestamp?: number | string) => Promise<void>;
     placeholderResendCache: CacheStore;
+    executeUSyncQuery: (usyncQuery: USyncQuery) => Promise<{
+        list: any[];
+        sideList: any[];
+    } | undefined>;
     type: "md";
     ws: import("./Client/websocket.js").WebSocketClient;
     ev: import("../Types").BaileysEventEmitter & {
@@ -88,7 +92,6 @@ export declare const makeChatsSocket: (config: SocketConfig) => {
     getUSyncDevicesForMigration: (jid: string) => Promise<string[]>;
     waitForConnectionUpdate: (check: (u: Partial<import("../Types").ConnectionState>) => Promise<boolean | undefined>, timeoutMs?: number) => Promise<void>;
     sendWAMBuffer: (wamBuffer: Buffer) => Promise<any>;
-    executeUSyncQuery: (usyncQuery: USyncQuery) => Promise<import("../WAUSync").USyncQueryResult | undefined>;
     onWhatsApp: (...phoneNumber: string[]) => Promise<{
         jid: string;
         exists: boolean;

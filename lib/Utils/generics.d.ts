@@ -4,10 +4,6 @@ import { Packr } from 'msgpackr';
 import type { BaileysEventEmitter, BaileysEventMap, ConnectionState, WACallUpdateType, WAMessageKey, WAVersion } from '../Types';
 import { type BinaryNode } from '../WABinary';
 export declare const packr: Packr;
-export declare const BufferJSON: {
-    replacer: (k: any, value: any) => any;
-    reviver: (_: any, value: any) => any;
-};
 export declare const getKeyAuthor: (key: WAMessageKey | undefined | null, meId?: string) => string;
 export declare const isStringNullOrEmpty: (value: string | null | undefined) => value is null | undefined | "";
 export declare const writeRandomPadMax16: (msg: Uint8Array) => Buffer<ArrayBuffer>;

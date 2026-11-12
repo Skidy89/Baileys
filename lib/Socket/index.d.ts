@@ -6,11 +6,15 @@ declare const makeWASocket: (config: UserFacingSocketConfig) => {
     fetchMessageHistory: (count: number, oldestMsgKey: import("..").WAMessageKey, oldestMsgTimestamp: number | import("long").default) => Promise<string>;
     requestPlaceholderResend: (messageKey: import("..").WAMessageKey, msgData?: Partial<import("..").WAMessage>) => Promise<string | undefined>;
     messageRetryManager: import("..").MessageRetryManager | null;
+    findUserByUsername: (username: string, pin: string) => Promise<{
+        jid: any;
+        contact: any;
+    } | null>;
     userDevicesCache: import("..").PossiblyExtendedCacheStore | import("@cacheable/node-cache").NodeCache<import("..").JidWithDevice[]>;
     devicesMutex: {
         mutex<T>(code: () => Promise<T> | T): Promise<T>;
     };
-    issuePrivacyTokens: (jids: string[], timestamp?: number) => Promise<any>;
+    issuePrivacyTokens: (jids: string[], timestamp?: number) => Promise<import("..").BinaryNode>;
     assertSessions: (jids: string[], force?: boolean) => Promise<boolean>;
     relayMessage: (jid: string, message: import("..").proto.IMessage, { messageId: msgId, participant, additionalAttributes, additionalNodes, useUserDevicesCache, useCachedGroupMetadata, statusJidList }: import("..").MessageRelayOptions) => Promise<string>;
     sendReceipt: (jid: string, participant: string | undefined, messageIds: string[], type: import("..").MessageReceiptType) => Promise<void>;
@@ -27,9 +31,7 @@ declare const makeWASocket: (config: UserFacingSocketConfig) => {
         nodes: import("..").BinaryNode[];
         shouldIncludeDeviceIdentity: boolean;
     }>;
-    getUSyncDevices: (jids: string[], useCache: boolean, ignoreZeroDevices: boolean) => Promise<(import("..").JidWithDevice & {
-        jid: string;
-    })[]>;
+    getUSyncDevices: (jids: string[], useCache: boolean, ignoreZeroDevices: boolean) => Promise<import("./messages/devices").DeviceWithJid[]>;
     updateMemberLabel: (jid: string, memberLabel: string) => Promise<string>;
     updateMediaMessage: (message: import("..").WAMessage) => Promise<import("..").WAMessage>;
     sendMessage: (jid: string, content: import("..").AnyMessageContent, options?: import("..").MiscMessageGenerationOptions) => Promise<import("..").WAMessage | undefined>;
@@ -105,6 +107,10 @@ declare const makeWASocket: (config: UserFacingSocketConfig) => {
     chatModify: (mod: import("..").ChatModification, jid: string) => Promise<void>;
     cleanDirtyBits: (type: "account_sync" | "groups", fromTimestamp?: number | string) => Promise<void>;
     placeholderResendCache: import("..").CacheStore;
+    executeUSyncQuery: (usyncQuery: import("..").USyncQuery) => Promise<{
+        list: any[];
+        sideList: any[];
+    } | undefined>;
     type: "md";
     ws: import("./Client").WebSocketClient;
     ev: import("..").BaileysEventEmitter & {
@@ -142,7 +148,6 @@ declare const makeWASocket: (config: UserFacingSocketConfig) => {
     getUSyncDevicesForMigration: (jid: string) => Promise<string[]>;
     waitForConnectionUpdate: (check: (u: Partial<import("..").ConnectionState>) => Promise<boolean | undefined>, timeoutMs?: number) => Promise<void>;
     sendWAMBuffer: (wamBuffer: Buffer) => Promise<any>;
-    executeUSyncQuery: (usyncQuery: import("..").USyncQuery) => Promise<import("..").USyncQueryResult | undefined>;
     onWhatsApp: (...phoneNumber: string[]) => Promise<{
         jid: string;
         exists: boolean;
