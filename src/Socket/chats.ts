@@ -149,7 +149,9 @@ export const makeChatsSocket = (config: SocketConfig) => {
 
 		return privacySettings
 	}
-	const storePrivacyTokens = async (entries: { jid: string; privacyToken: string | Buffer; privacyModeTs?: number }[]) => {
+	const storePrivacyTokens = async (
+		entries: { jid: string; privacyToken: string | Buffer; privacyModeTs?: number }[]
+	) => {
 		if (!entries?.length) return
 		const write: { [jid: string]: { token: Buffer; ts: string } } = {}
 		for (const { jid, privacyToken, privacyModeTs } of entries) {
@@ -308,7 +310,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
 		})
 	}
 	const executeUSyncQuery = async (usyncQuery: USyncQuery) => {
-		const result = await sock.executeUSyncQuery(usyncQuery) as { list: any[]; sideList: any[] } | undefined
+		const result = (await sock.executeUSyncQuery(usyncQuery)) as { list: any[]; sideList: any[] } | undefined
 		if (!result) return result
 
 		// B. Auto-persist privacy tokens found in any usync response.

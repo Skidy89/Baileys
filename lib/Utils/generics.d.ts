@@ -1,8 +1,8 @@
 import type Long from 'long';
 import { proto } from '../../WAProto/index.js';
 import { Packr } from 'msgpackr';
-import type { BaileysEventEmitter, BaileysEventMap, ConnectionState, WACallUpdateType, WAMessageKey, WAVersion } from '../Types';
-import { type BinaryNode } from '../WABinary';
+import type { BaileysEventEmitter, BaileysEventMap, ConnectionState, WACallUpdateType, WAMessageKey, WAVersion } from '../Types/index.js';
+import { type BinaryNode } from '../WABinary/index.js';
 export declare const packr: Packr;
 export declare const getKeyAuthor: (key: WAMessageKey | undefined | null, meId?: string) => string;
 export declare const isStringNullOrEmpty: (value: string | null | undefined) => value is null | undefined | "";

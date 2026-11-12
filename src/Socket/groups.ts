@@ -366,7 +366,7 @@ export const extractGroupMetadata = (result: BinaryNode) => {
 		isCommunityAnnounce: !!getBinaryNodeChild(group, 'default_sub_group'),
 		joinApprovalMode: !!getBinaryNodeChild(group, 'membership_approval_mode'),
 		memberAddMode,
-		participants: getBinaryNodeChildren(group, 'participant').map(({ attrs }) => {			
+		participants: getBinaryNodeChildren(group, 'participant').map(({ attrs }) => {
 			return {
 				id: attrs.jid!,
 				phoneNumber: isLidUser(attrs.jid) && isPnUser(attrs.phone_number) ? attrs.phone_number : undefined,

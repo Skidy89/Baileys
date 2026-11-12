@@ -95,13 +95,7 @@ export const SERVER_ERROR_CODES = {
 } as const
 
 type MessageType =
-	| 'chat'
-	| 'peer_broadcast'
-	| 'other_broadcast'
-	| 'group'
-	| 'direct_peer_status'
-	| 'other_status'
-	| 'newsletter'
+	'chat' | 'peer_broadcast' | 'other_broadcast' | 'group' | 'direct_peer_status' | 'other_status' | 'newsletter'
 
 export const extractAddressingContext = (stanza: BinaryNode) => {
 	let senderAlt: string | undefined
@@ -113,7 +107,11 @@ export const extractAddressingContext = (stanza: BinaryNode) => {
 	if (addressingMode === 'lid') {
 		// Message is LID-addressed: sender is LID, extract corresponding PN
 		// without device data
-		senderAlt = stanza.attrs.participant_pn || stanza.attrs.sender_pn || stanza.attrs.peer_recipient_pn || stanza.attrs.peer_recipient_username
+		senderAlt =
+			stanza.attrs.participant_pn ||
+			stanza.attrs.sender_pn ||
+			stanza.attrs.peer_recipient_pn ||
+			stanza.attrs.peer_recipient_username
 		recipientAlt = stanza.attrs.recipient_pn
 		// with device data
 		//if (sender && senderAlt) senderAlt = transferDevice(sender, senderAlt)

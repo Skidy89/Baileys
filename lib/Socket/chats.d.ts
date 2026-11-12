@@ -1,7 +1,7 @@
 import { Boom } from '@hapi/boom';
-import type { BotListInfo, CacheStore, ChatModification, MessageUpsertType, SocketConfig, WAMediaUpload, WAMessage, WAPatchCreate, WAPresence } from '../Types';
-import { type BinaryNode } from '../WABinary';
-import { USyncQuery } from '../WAUSync';
+import type { BotListInfo, CacheStore, ChatModification, MessageUpsertType, SocketConfig, WAMediaUpload, WAMessage, WAPatchCreate, WAPresence } from '../Types/index.js';
+import { type BinaryNode } from '../WABinary/index.js';
+import { USyncQuery } from '../WAUSync/index.js';
 export declare const makeChatsSocket: (config: SocketConfig) => {
     serverProps: {
         /** AB prop 10518: gate tctoken on 1:1 messages. Default true (safe: avoids 463). */
@@ -36,8 +36,8 @@ export declare const makeChatsSocket: (config: SocketConfig) => {
     presenceSubscribe: (toJid: string) => Promise<void>;
     profilePictureUrl: (jid: string, type?: "preview" | "image", timeoutMs?: number) => Promise<string | undefined>;
     fetchBlocklist: () => Promise<(string | undefined)[]>;
-    fetchStatus: (...jids: string[]) => Promise<import("../WAUSync").USyncQueryResultList[] | undefined>;
-    fetchDisappearingDuration: (...jids: string[]) => Promise<import("../WAUSync").USyncQueryResultList[] | undefined>;
+    fetchStatus: (...jids: string[]) => Promise<import("../WAUSync/index.js").USyncQueryResultList[] | undefined>;
+    fetchDisappearingDuration: (...jids: string[]) => Promise<import("../WAUSync/index.js").USyncQueryResultList[] | undefined>;
     updateProfilePicture: (jid: string, content: WAMediaUpload, dimensions?: {
         width: number;
         height: number;
@@ -57,8 +57,8 @@ export declare const makeChatsSocket: (config: SocketConfig) => {
     } | undefined>;
     type: "md";
     ws: import("./Client/websocket.js").WebSocketClient;
-    ev: import("../Types").BaileysEventEmitter & {
-        process(handler: (events: Partial<import("../Types").BaileysEventMap>) => void | Promise<void>): () => void;
+    ev: import("../Types/index.js").BaileysEventEmitter & {
+        process(handler: (events: Partial<import("../Types/index.js").BaileysEventMap>) => void | Promise<void>): () => void;
         buffer(): void;
         createBufferedFunction<A extends any[], T>(work: (...args: A) => Promise<T>): (...args: A) => Promise<T>;
         flush(): boolean;
@@ -66,11 +66,11 @@ export declare const makeChatsSocket: (config: SocketConfig) => {
         destroy(): void;
     };
     authState: {
-        creds: import("../Types").AuthenticationCreds;
-        keys: import("../Types").SignalKeyStoreWithRecordTransaction;
+        creds: import("../Types/index.js").AuthenticationCreds;
+        keys: import("../Types/index.js").SignalKeyStoreWithRecordTransaction;
     };
-    signalRepository: import("../Types").SignalRepositoryWithLIDStore;
-    user: import("../Types").Contact | undefined;
+    signalRepository: import("../Types/index.js").SignalRepositoryWithLIDStore;
+    user: import("../Types/index.js").Contact | undefined;
     generateMessageTag: () => string;
     query: (node: BinaryNode, timeoutMs?: number) => Promise<any>;
     waitForMessage: <T>(msgId: string, timeoutMs?: number | undefined) => Promise<T | undefined>;
@@ -90,12 +90,12 @@ export declare const makeChatsSocket: (config: SocketConfig) => {
     sendUnifiedSession: () => Promise<void>;
     wamBuffer: import("../index.js").BinaryInfo;
     getUSyncDevicesForMigration: (jid: string) => Promise<string[]>;
-    waitForConnectionUpdate: (check: (u: Partial<import("../Types").ConnectionState>) => Promise<boolean | undefined>, timeoutMs?: number) => Promise<void>;
+    waitForConnectionUpdate: (check: (u: Partial<import("../Types/index.js").ConnectionState>) => Promise<boolean | undefined>, timeoutMs?: number) => Promise<void>;
     sendWAMBuffer: (wamBuffer: Buffer) => Promise<any>;
     onWhatsApp: (...phoneNumber: string[]) => Promise<{
         jid: string;
         exists: boolean;
     }[] | undefined>;
-    fetchNewChatMessageCap: () => Promise<import("../Types").NewChatMessageCapInfo>;
+    fetchNewChatMessageCap: () => Promise<import("../Types/index.js").NewChatMessageCapInfo>;
 };
 //# sourceMappingURL=chats.d.ts.map

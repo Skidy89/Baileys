@@ -123,7 +123,13 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		logger
 	})
 
-	const createParticipantNodes = makeParticipantNodeCreator({ patchMessageBeforeSending, authState, signalRepository, encryptionMutex, logger })
+	const createParticipantNodes = makeParticipantNodeCreator({
+		patchMessageBeforeSending,
+		authState,
+		signalRepository,
+		encryptionMutex,
+		logger
+	})
 
 	const relayMessage = async (
 		jid: string,
@@ -700,7 +706,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			messageRetryManager.clear()
 		}
 	})
-	
+
 	const findUserByUsername = async (username: string, pin: string) => {
 		const usyncQuery = new USyncQuery().withContactProtocol()
 		const user = new USyncUser().withUsername(username)

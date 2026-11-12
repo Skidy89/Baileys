@@ -1,5 +1,10 @@
 import { performance } from 'node:perf_hooks'
-import { decodeBinaryNode, decodeDecompressedBinaryNode, decompressingIfRequired, encodeBinaryNode } from '../src/WABinary'
+import {
+	decodeBinaryNode,
+	decodeDecompressedBinaryNode,
+	decompressingIfRequired,
+	encodeBinaryNode
+} from '../src/WABinary'
 import * as constants from '../src/WABinary/constants'
 
 const iterations = Number(process.argv[2] || 20_000)
@@ -39,7 +44,7 @@ for (let i = 0; i < 2_000; i++) {
 
 const elapsed = { legacy: [] as number[], native: [] as number[] }
 for (let round = 0; round < rounds; round++) {
-	const order = round % 2 === 0 ? ['legacy', 'native'] as const : ['native', 'legacy'] as const
+	const order = round % 2 === 0 ? (['legacy', 'native'] as const) : (['native', 'legacy'] as const)
 	for (const name of order) {
 		elapsed[name].push(await measure(name === 'legacy' ? legacyDecode : currentDecode))
 	}

@@ -28,12 +28,7 @@ import {
 } from '@skidy89/signal-protocol'
 import type { SenderKeyStore } from '@skidy89/signal-protocol'
 
-import {
-	SessionBuilder,
-	SessionRecord,
-	SessionCipher,
-	type SignalStorage
-} from '@skidy89/signal-protocol'
+import { SessionBuilder, SessionRecord, SessionCipher, type SignalStorage } from '@skidy89/signal-protocol'
 import { extractIdentityFromPkmsg } from '@skidy89/signal-protocol/dist/signal/util'
 
 /**
@@ -241,7 +236,7 @@ export function makeLibSignalRepository(
 		async encryptGroupMessage({ group, meId, data }) {
 			const senderName = jidToSignalSenderKeyName(group, meId)
 			return parsedKeys.transactWith({ records: [{ type: 'sender-key', id: senderName.toString() }] }, async () => {
-				const { skdm, ciphertext }  = await new GroupCipher(storage, senderName).encryptWithSkdm(data as Buffer)
+				const { skdm, ciphertext } = await new GroupCipher(storage, senderName).encryptWithSkdm(data as Buffer)
 				return { ciphertext, senderKeyDistributionMessage: skdm.serialize() }
 			})
 		},

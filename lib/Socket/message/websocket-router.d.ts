@@ -1,4 +1,4 @@
-import type { BinaryNode } from '../../WABinary';
+import type { BinaryNode } from '../../WABinary/index.js';
 type FrameHandler = (frame: BinaryNode) => void;
 interface Route {
     attrKey?: string;

@@ -957,9 +957,9 @@ export const makeSocket = (config: SocketConfig) => {
 	// if device pairs successfully, the server asks to restart the connection
 	ws.on('CB:iq,,pair-success', async (stanza: BinaryNode) => {
 		if (logger) logger.debug('pair success recv')
-		try { 
-	        console.log(JSON.stringify(stanza))
-			
+		try {
+			console.log(JSON.stringify(stanza))
+
 			updateServerTimeOffset(stanza)
 			const { reply, creds: updatedCreds } = configureSuccessfulPairing(stanza, creds)
 			if (logger)
@@ -1053,7 +1053,6 @@ export const makeSocket = (config: SocketConfig) => {
 			content: [{ tag: 'offline_batch', attrs: { count: '200' } }]
 		})
 	})
-	
 
 	ws.on('CB:ib,,edge_routing', (node: BinaryNode) => {
 		const edgeRoutingNode = getBinaryNodeChild(node, 'edge_routing')

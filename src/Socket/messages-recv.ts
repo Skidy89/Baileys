@@ -306,7 +306,11 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 	const handleGroupLimitSharingPropertyUpdate = (BinaryNode: BinaryNode) => {
 		// just ack for now
 		void sendMessageAck(BinaryNode).catch(err => {
-			if (logger) logger.error({ err, node: binaryNodeToString(BinaryNode) }, 'failed to send ack for group limit sharing property update')
+			if (logger)
+				logger.error(
+					{ err, node: binaryNodeToString(BinaryNode) },
+					'failed to send ack for group limit sharing property update'
+				)
 		})
 	}
 	const handleReachoutTimelockNotification = (data: MexGqlData) => {

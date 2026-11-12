@@ -1,5 +1,5 @@
 import { proto } from '../../WAProto/index.js';
-import { type BinaryNode } from './types';
+import { type BinaryNode } from './types.js';
 export declare const getBinaryNodeChildren: (node: BinaryNode | undefined, childTag: string) => BinaryNode[];
 export declare const getBinaryNodeChild: (node: BinaryNode | undefined, childTag: string) => BinaryNode | undefined;
 export declare const getAllBinaryNodeChildren: ({ content }: BinaryNode) => BinaryNode[];

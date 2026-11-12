@@ -1,6 +1,6 @@
-import { type BinaryNode } from '../../WABinary';
-import type { SignalRepositoryWithLIDStore } from '../../Types/Signal';
-import type { ILogger } from '../../Utils/logger';
+import { type BinaryNode } from '../../WABinary/index.js';
+import type { SignalRepositoryWithLIDStore } from '../../Types/Signal.js';
+import type { ILogger } from '../../Utils/logger.js';
 type Dependencies = {
     query: (node: BinaryNode) => Promise<BinaryNode>;
     signalRepository: SignalRepositoryWithLIDStore;
