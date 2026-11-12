@@ -9,6 +9,7 @@ import { join } from 'path'
 import { Readable, Transform } from 'stream'
 import { pipeline } from 'node:stream/promises'
 import { URL } from 'url'
+import { ResizeFit, Transformer } from '@napi-rs/image'
 import { proto } from '../../WAProto/index.js'
 import { DEFAULT_ORIGIN, MEDIA_HKDF_KEY_MAPPING, MEDIA_PATH_MAP, type MediaType } from '../Defaults'
 import type {
@@ -31,21 +32,6 @@ import type { ILogger } from './logger'
 import { exec } from 'node:child_process'
 
 const getTmpFilesDirectory = () => tmpdir()
-
-const getImageProcessingLibrary = async () => {
-	//@ts-ignore
-	const [jimp, sharp] = await Promise.all([import('jimp').catch(() => {}), import('sharp').catch(() => {})])
-
-	if (sharp) {
-		return { sharp }
-	}
-
-	if (jimp) {
-		return { jimp }
-	}
-
-	throw new Boom('No image processing library available')
-}
 
 export const hkdfInfoKey = (type: MediaType) => {
 	const hkdfInfo = MEDIA_HKDF_KEY_MAPPING[type]
@@ -116,27 +102,21 @@ export async function getMediaKeys(
 }
 
 export const extractImageThumb = async (bufferOrFilePath: Readable | Buffer | string, width = 32) => {
-	// TODO: use napi-rs/image
-	// This will have positive speed and performance impacts as well as minimizing RAM usage.
 	if (bufferOrFilePath instanceof Readable) {
 		bufferOrFilePath = await toBuffer(bufferOrFilePath)
 	}
 
-	const lib = await getImageProcessingLibrary()
-	if ('sharp' in lib && typeof lib.sharp?.default === 'function') {
-		const img = lib.sharp.default(bufferOrFilePath)
-		const dimensions = await img.metadata()
+	const input = typeof bufferOrFilePath === 'string' ? await fs.readFile(bufferOrFilePath) : bufferOrFilePath
+	const image = new Transformer(input)
+	const dimensions = await image.metadata()
+	const buffer = await image.resize(width).jpeg(50)
 
-		const buffer = await img.resize(width).jpeg({ quality: 50 }).toBuffer()
-		return {
-			buffer,
-			original: {
-				width: dimensions.width,
-				height: dimensions.height
-			}
+	return {
+		buffer,
+		original: {
+			width: dimensions.width,
+			height: dimensions.height
 		}
-	} else {
-		throw new Boom('No image processing library available')
 	}
 }
 
@@ -160,28 +140,8 @@ export const generateProfilePicture = async (
 		buffer = await toBuffer(stream)
 	}
 
-	const lib = await getImageProcessingLibrary()
-	let img: Promise<Buffer>
-	if ('sharp' in lib && typeof lib.sharp?.default === 'function') {
-		img = lib.sharp
-			.default(buffer)
-			.resize(w, h)
-			.jpeg({
-				quality: 50
-			})
-			.toBuffer()
-	} else if ('jimp' in lib && typeof lib.jimp?.Jimp === 'function') {
-		const jimp = await (lib.jimp.Jimp as any).read(buffer)
-		const min = Math.min(jimp.width, jimp.height)
-		const cropped = jimp.crop({ x: 0, y: 0, w: min, h: min })
-
-		img = cropped.resize({ w, h, mode: lib.jimp.ResizeStrategy.BILINEAR }).getBuffer('image/jpeg', { quality: 50 })
-	} else {
-		throw new Boom('No image processing library available')
-	}
-
 	return {
-		img: await img
+		img: await new Transformer(buffer).resize({ width: w, height: h, fit: ResizeFit.Cover }).jpeg(50)
 	}
 }
 

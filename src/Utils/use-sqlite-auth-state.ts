@@ -23,7 +23,7 @@ async function loadBetterSqlite3(): Promise<DatabaseConstructor> {
 		return mod.default ?? mod
 	} catch (err) {
 		const helpful = new Error(
-			'`better-sqlite3` is required for `useSqliteAuthState`. Install it as a peer dependency: `npm install better-sqlite3` (or `yarn add better-sqlite3`).'
+			'`better-sqlite3` is required for `useSqliteAuthState`. Install it as a peer dependency: `npm install better-sqlite3`.'
 		)
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		;(helpful as any).cause = err

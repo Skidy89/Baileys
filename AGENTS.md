@@ -33,11 +33,10 @@ scripts/           Repo automation (version bumps, etc.)
 
 ## Setup
 
-This repo requires **Yarn 4** via Corepack. Yarn 1 / classic will fail noisily on `package.json` resolutions.
+This repo requires npm.
 
 ```bash
-corepack enable
-yarn install
+npm install
 ```
 
 Node ≥ 20 (enforced by `engines` and `preinstall`).
@@ -46,18 +45,18 @@ Node ≥ 20 (enforced by `engines` and `preinstall`).
 
 | Task | Command |
 |---|---|
-| Install | `yarn install` |
-| Build (lib + types) | `yarn build` |
-| Type-check + lint | `yarn lint` |
-| Auto-fix lint + format | `yarn lint:fix` |
-| Format only | `yarn format` |
-| Unit + integration tests | `yarn test` |
-| End-to-end tests | `yarn test:e2e` (requires the bartender mock server, see below) |
-| Run the example | `yarn example` |
-| Regenerate protobufs | `yarn gen:protobuf` |
-| Audit deps | `yarn npm audit --recursive` |
+| Install | `npm install` |
+| Build (lib + types) | `npm run build` |
+| Type-check + lint | `npm run lint` |
+| Auto-fix lint + format | `npm run lint:fix` |
+| Format only | `npm run format` |
+| Unit + integration tests | `npm test` |
+| End-to-end tests | `npm run test:e2e` (requires the bartender mock server, see below) |
+| Run the example | `npm run example` |
+| Regenerate protobufs | `npm run gen:protobuf` |
+| Audit deps | `npm audit` |
 
-`yarn lint` runs `tsc` first, then ESLint. A green lint means no type errors.
+`npm run lint` runs `tsc` first, then ESLint. A green lint means no type errors.
 
 ## Code style
 
@@ -254,10 +253,10 @@ test(e2e): test harness + signal/prekey fixes
 PR titles follow the same convention. Squash-merge is the default.
 
 Before opening a PR:
-1. `yarn lint` — must be 0 errors.
-2. `yarn test` — must be all green. If you can't run e2e locally, say so in the PR description.
+1. `npm run lint` — must be 0 errors.
+2. `npm test` — must be all green. If you can't run e2e locally, say so in the PR description.
 3. Don't commit `baileys_auth_info/`, `.env`, `mitm_*.db`, `.superset/`, or any session state. Git is configured to ignore the obvious ones; double-check.
-4. Don't commit regenerated `yarn.lock` from a different package manager. If your `yarn.lock` diff is unexpectedly large (thousands of lines for a one-line `package.json` change), you're using Yarn 1 — switch to Corepack.
+4. Commit only `package-lock.json` for dependency changes.
 
 ## What not to touch without coordination
 
@@ -265,7 +264,7 @@ Before opening a PR:
 - **`Defaults/baileys-version.json`** — bumped by the `update-version` workflow. Manual edits race with automation.
 - **`WAProto/` generated files** — regenerate, don't hand-edit.
 - **`.github/workflows/`** — CI changes are reviewed separately; bundle them in their own PR when possible.
-- **`package.json` `resolutions`** — these patch known security advisories. Removing entries reintroduces CVEs; check `yarn npm audit --recursive` before pruning.
+- **`package.json` `resolutions`** — these patch known security advisories. Removing entries reintroduces CVEs; check `npm audit` before pruning.
 
 ## Testing expectations
 

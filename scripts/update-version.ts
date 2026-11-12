@@ -6,7 +6,7 @@
  * - src/Defaults/index.ts
  * - src/Utils/generics.ts
  *
- * Usage: yarn update:version
+ * Usage: npm run update:version
  */
 
 import { readFileSync, writeFileSync } from 'fs'

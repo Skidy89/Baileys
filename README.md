@@ -49,19 +49,19 @@ Do check out & run [example.ts](Example/example.ts) to see an example usage of t
 The script covers most common use cases.
 To run the example script, download or clone the repo and then type the following in a terminal:
 1. ``` cd path/to/Baileys ```
-2. ``` yarn ```
-3. ``` yarn example ```
+2. ``` npm install ```
+3. ``` npm run example ```
 
 ## Install
 
 Use the stable version:
 ```
-yarn add @whiskeysockets/baileys
+npm install @whiskeysockets/baileys
 ```
 
 Use the edge version (no guarantee of stability, but latest fixes + features)
 ```
-yarn add github:WhiskeySockets/Baileys
+npm install github:WhiskeySockets/Baileys
 ```
 
 Then import your code using:
@@ -593,7 +593,7 @@ await sock.sendMessage(
 
 1. By default, wa does not have link generation when sent from the web
 2. Baileys has a function to generate the content for these link previews
-3. To enable this function's usage, add `link-preview-js` as a dependency to your project with `yarn add link-preview-js`
+3. To enable this function's usage, add `link-preview-js` as a dependency to your project with `npm install link-preview-js`
 4. Send a link:
 ```ts
 await sock.sendMessage(
@@ -721,7 +721,7 @@ await sock.sendMessage(jid, {
 ## Manipulating Media Messages
 
 ### Thumbnail in Media Messages
-- For media messages, the thumbnail can be generated automatically for images & stickers provided you add `jimp` or `sharp` as a dependency in your project using `yarn add jimp` or `yarn add sharp`.
+- For media messages, thumbnails for images and stickers are generated automatically using the native `@napi-rs/image` dependency.
 - Thumbnails for videos can also be generated automatically, though, you need to have `ffmpeg` installed on your system.
 
 ### Downloading Media Messages
