@@ -1,6 +1,6 @@
 import { proto } from '../../WAProto/index.js';
-import type { BaileysEventEmitter, BaileysEventMap, Contact } from '../Types';
-import type { ILogger } from './logger';
+import type { BaileysEventEmitter, BaileysEventMap, Contact } from '../Types/index.js';
+import type { ILogger } from './logger.js';
 export type ContactsUpsertResult = {
     event: 'contacts.upsert';
     data: Contact[];

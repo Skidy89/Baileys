@@ -1,13 +1,13 @@
 import { Boom } from '@hapi/boom';
-import type { SocketConfig } from '../Types';
-import type { BinaryNode } from '../WABinary';
-import { USyncQuery } from '../WAUSync';
+import type { SocketConfig } from '../Types/index.js';
+import type { BinaryNode } from '../WABinary/index.js';
+import { USyncQuery } from '../WAUSync/index.js';
 export declare const makeUSyncSocket: (config: SocketConfig) => {
-    executeUSyncQuery: (usyncQuery: USyncQuery) => Promise<import("..").USyncQueryResult | undefined>;
+    executeUSyncQuery: (usyncQuery: USyncQuery) => Promise<import("../index.js").USyncQueryResult | undefined>;
     type: "md";
-    ws: import("./Client").WebSocketClient;
-    ev: import("..").BaileysEventEmitter & {
-        process(handler: (events: Partial<import("..").BaileysEventMap>) => void | Promise<void>): () => void;
+    ws: import("./Client/index.js").WebSocketClient;
+    ev: import("../index.js").BaileysEventEmitter & {
+        process(handler: (events: Partial<import("../index.js").BaileysEventMap>) => void | Promise<void>): () => void;
         buffer(): void;
         createBufferedFunction<A extends unknown[], T>(work: (...args: A) => Promise<T>): (...args: A) => Promise<T>;
         flush(): boolean;
@@ -15,11 +15,11 @@ export declare const makeUSyncSocket: (config: SocketConfig) => {
         destroy(): void;
     };
     authState: {
-        creds: import("..").AuthenticationCreds;
-        keys: import("..").SignalKeyStoreWithRecordTransaction;
+        creds: import("../index.js").AuthenticationCreds;
+        keys: import("../index.js").SignalKeyStoreWithRecordTransaction;
     };
-    signalRepository: import("..").SignalRepositoryWithLIDStore;
-    user: import("..").Contact | undefined;
+    signalRepository: import("../index.js").SignalRepositoryWithLIDStore;
+    user: import("../index.js").Contact | undefined;
     generateMessageTag: () => string;
     query: (node: BinaryNode, timeoutMs?: number) => Promise<BinaryNode>;
     waitForMessage: <T>(msgId: string, timeoutMs?: number | undefined) => Promise<T>;
@@ -37,14 +37,14 @@ export declare const makeUSyncSocket: (config: SocketConfig) => {
     requestPairingCode: (phoneNumber: string, customPairingCode?: string) => Promise<string>;
     updateServerTimeOffset: ({ attrs }: BinaryNode) => void;
     sendUnifiedSession: () => Promise<void>;
-    wamBuffer: import("..").BinaryInfo;
+    wamBuffer: import("../index.js").BinaryInfo;
     getUSyncDevicesForMigration: (jid: string) => Promise<string[]>;
-    waitForConnectionUpdate: (check: (u: Partial<import("..").ConnectionState>) => Promise<boolean | undefined>, timeoutMs?: number) => Promise<void>;
+    waitForConnectionUpdate: (check: (u: Partial<import("../index.js").ConnectionState>) => Promise<boolean | undefined>, timeoutMs?: number) => Promise<void>;
     sendWAMBuffer: (wamBuffer: Buffer) => Promise<BinaryNode>;
     onWhatsApp: (...phoneNumber: string[]) => Promise<{
         jid: string;
         exists: boolean;
     }[] | undefined>;
-    fetchNewChatMessageCap: () => Promise<import("..").NewChatMessageCapInfo>;
+    fetchNewChatMessageCap: () => Promise<import("../index.js").NewChatMessageCapInfo>;
 };
 //# sourceMappingURL=usync.d.ts.map

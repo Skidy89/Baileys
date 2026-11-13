@@ -1,5 +1,5 @@
 import type BetterSqlite3Module from 'better-sqlite3';
-import type { AuthenticationState } from '../Types';
+import type { AuthenticationState } from '../Types/index.js';
 /** A live `better-sqlite3` database handle (the instance type, not the constructor). */
 type Database = BetterSqlite3Module.Database;
 type SqliteAuthStateOptions = {
