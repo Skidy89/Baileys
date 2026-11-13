@@ -1,5 +1,5 @@
 import * as $protobuf from "protobufjs";
-import type Long from "long";
+import Long = require("long");
 
 /** Namespace proto. */
 export namespace proto {
@@ -24,16 +24,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ACP2Setting enabled. */
-        enabled?: (boolean|null);
+        enabled: boolean;
 
         /** ACP2Setting trigger. */
-        trigger?: (proto.LimitSharing.TriggerType|null);
+        trigger: proto.LimitSharing.TriggerType;
 
         /** ACP2Setting settingTimestamp. */
-        settingTimestamp?: (number|Long|null);
+        settingTimestamp: (number|Long);
 
         /** ACP2Setting initiatedByMe. */
-        initiatedByMe?: (boolean|null);
+        initiatedByMe: boolean;
 
         /**
          * Creates a new ACP2Setting instance using the specified properties.
@@ -159,19 +159,19 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ADVDeviceIdentity rawId. */
-        rawId?: (number|null);
+        rawId: number;
 
         /** ADVDeviceIdentity timestamp. */
-        timestamp?: (number|Long|null);
+        timestamp: (number|Long);
 
         /** ADVDeviceIdentity keyIndex. */
-        keyIndex?: (number|null);
+        keyIndex: number;
 
         /** ADVDeviceIdentity accountType. */
-        accountType?: (proto.ADVEncryptionType|null);
+        accountType: proto.ADVEncryptionType;
 
         /** ADVDeviceIdentity deviceType. */
-        deviceType?: (proto.ADVEncryptionType|null);
+        deviceType: proto.ADVEncryptionType;
 
         /**
          * Creates a new ADVDeviceIdentity instance using the specified properties.
@@ -313,19 +313,19 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ADVKeyIndexList rawId. */
-        rawId?: (number|null);
+        rawId: number;
 
         /** ADVKeyIndexList timestamp. */
-        timestamp?: (number|Long|null);
+        timestamp: (number|Long);
 
         /** ADVKeyIndexList currentIndex. */
-        currentIndex?: (number|null);
+        currentIndex: number;
 
         /** ADVKeyIndexList validIndexes. */
         validIndexes: number[];
 
         /** ADVKeyIndexList accountType. */
-        accountType?: (proto.ADVEncryptionType|null);
+        accountType: proto.ADVEncryptionType;
 
         /**
          * Creates a new ADVKeyIndexList instance using the specified properties.
@@ -454,16 +454,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ADVSignedDeviceIdentity details. */
-        details?: (Uint8Array|null);
+        details: Uint8Array;
 
         /** ADVSignedDeviceIdentity accountSignatureKey. */
-        accountSignatureKey?: (Uint8Array|null);
+        accountSignatureKey: Uint8Array;
 
         /** ADVSignedDeviceIdentity accountSignature. */
-        accountSignature?: (Uint8Array|null);
+        accountSignature: Uint8Array;
 
         /** ADVSignedDeviceIdentity deviceSignature. */
-        deviceSignature?: (Uint8Array|null);
+        deviceSignature: Uint8Array;
 
         /**
          * Creates a new ADVSignedDeviceIdentity instance using the specified properties.
@@ -589,13 +589,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ADVSignedDeviceIdentityHMAC details. */
-        details?: (Uint8Array|null);
+        details: Uint8Array;
 
         /** ADVSignedDeviceIdentityHMAC hmac. */
-        hmac?: (Uint8Array|null);
+        hmac: Uint8Array;
 
         /** ADVSignedDeviceIdentityHMAC accountType. */
-        accountType?: (proto.ADVEncryptionType|null);
+        accountType: proto.ADVEncryptionType;
 
         /**
          * Creates a new ADVSignedDeviceIdentityHMAC instance using the specified properties.
@@ -718,13 +718,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ADVSignedKeyIndexList details. */
-        details?: (Uint8Array|null);
+        details: Uint8Array;
 
         /** ADVSignedKeyIndexList accountSignature. */
-        accountSignature?: (Uint8Array|null);
+        accountSignature: Uint8Array;
 
         /** ADVSignedKeyIndexList accountSignatureKey. */
-        accountSignatureKey?: (Uint8Array|null);
+        accountSignatureKey: Uint8Array;
 
         /**
          * Creates a new ADVSignedKeyIndexList instance using the specified properties.
@@ -847,7 +847,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AIHomeState lastFetchTime. */
-        lastFetchTime?: (number|Long|null);
+        lastFetchTime: (number|Long);
 
         /** AIHomeState capabilityOptions. */
         capabilityOptions: proto.AIHomeState.AIHomeOption.$Properties[];
@@ -975,28 +975,28 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AIHomeOption type. */
-            type?: (proto.AIHomeState.AIHomeOption.AIHomeActionType|null);
+            type: proto.AIHomeState.AIHomeOption.AIHomeActionType;
 
             /** AIHomeOption title. */
-            title?: (string|null);
+            title: string;
 
             /** AIHomeOption promptText. */
-            promptText?: (string|null);
+            promptText: string;
 
             /** AIHomeOption sessionId. */
-            sessionId?: (string|null);
+            sessionId: string;
 
             /** AIHomeOption imageWdsIdentifier. */
-            imageWdsIdentifier?: (string|null);
+            imageWdsIdentifier: string;
 
             /** AIHomeOption imageTintColor. */
-            imageTintColor?: (string|null);
+            imageTintColor: string;
 
             /** AIHomeOption imageBackgroundColor. */
-            imageBackgroundColor?: (string|null);
+            imageBackgroundColor: string;
 
             /** AIHomeOption cardTypeId. */
-            cardTypeId?: (string|null);
+            cardTypeId: string;
 
             /**
              * Creates a new AIHomeOption instance using the specified properties.
@@ -1157,13 +1157,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AIMediaCollectionMessage collectionId. */
-        collectionId?: (string|null);
+        collectionId: string;
 
         /** AIMediaCollectionMessage expectedMediaCount. */
-        expectedMediaCount?: (number|null);
+        expectedMediaCount: number;
 
         /** AIMediaCollectionMessage hasGlobalCaption. */
-        hasGlobalCaption?: (boolean|null);
+        hasGlobalCaption: boolean;
 
         /**
          * Creates a new AIMediaCollectionMessage instance using the specified properties.
@@ -1286,10 +1286,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AIMediaCollectionMetadata collectionId. */
-        collectionId?: (string|null);
+        collectionId: string;
 
         /** AIMediaCollectionMetadata uploadOrderIndex. */
-        uploadOrderIndex?: (number|null);
+        uploadOrderIndex: number;
 
         /**
          * Creates a new AIMediaCollectionMetadata instance using the specified properties.
@@ -1658,10 +1658,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** Metadata createdWithGenAi. */
-            createdWithGenAi?: (boolean|null);
+            createdWithGenAi: boolean;
 
             /** Metadata editedWithGenAi. */
-            editedWithGenAi?: (boolean|null);
+            editedWithGenAi: boolean;
 
             /**
              * Creates a new Metadata instance using the specified properties.
@@ -1788,7 +1788,7 @@ export namespace proto {
         message?: (proto.Message.$Properties|null);
 
         /** AIQueryFanout timestamp. */
-        timestamp?: (number|Long|null);
+        timestamp: (number|Long);
 
         /**
          * Creates a new AIQueryFanout instance using the specified properties.
@@ -1919,7 +1919,7 @@ export namespace proto {
         messageKey?: (proto.MessageKey.$Properties|null);
 
         /** AIRegenerateMetadata responseTimestampMs. */
-        responseTimestampMs?: (number|Long|null);
+        responseTimestampMs: (number|Long);
 
         /**
          * Creates a new AIRegenerateMetadata instance using the specified properties.
@@ -2039,7 +2039,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AIRichResponseCodeMetadata codeLanguage. */
-        codeLanguage?: (string|null);
+        codeLanguage: string;
 
         /** AIRichResponseCodeMetadata codeBlocks. */
         codeBlocks: proto.AIRichResponseCodeMetadata.AIRichResponseCodeBlock.$Properties[];
@@ -2161,10 +2161,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AIRichResponseCodeBlock highlightType. */
-            highlightType?: (proto.AIRichResponseCodeMetadata.AIRichResponseCodeHighlightType|null);
+            highlightType: proto.AIRichResponseCodeMetadata.AIRichResponseCodeHighlightType;
 
             /** AIRichResponseCodeBlock codeContent. */
-            codeContent?: (string|null);
+            codeContent: string;
 
             /**
              * Creates a new AIRichResponseCodeBlock instance using the specified properties.
@@ -2310,7 +2310,7 @@ export namespace proto {
         itemsMetadata: proto.AIRichResponseContentItemsMetadata.AIRichResponseContentItemMetadata.$Properties[];
 
         /** AIRichResponseContentItemsMetadata contentType. */
-        contentType?: (proto.AIRichResponseContentItemsMetadata.ContentType|null);
+        contentType: proto.AIRichResponseContentItemsMetadata.ContentType;
 
         /**
          * Creates a new AIRichResponseContentItemsMetadata instance using the specified properties.
@@ -2561,16 +2561,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AIRichResponseReelItem title. */
-            title?: (string|null);
+            title: string;
 
             /** AIRichResponseReelItem profileIconUrl. */
-            profileIconUrl?: (string|null);
+            profileIconUrl: string;
 
             /** AIRichResponseReelItem thumbnailUrl. */
-            thumbnailUrl?: (string|null);
+            thumbnailUrl: string;
 
             /** AIRichResponseReelItem videoUrl. */
-            videoUrl?: (string|null);
+            videoUrl: string;
 
             /**
              * Creates a new AIRichResponseReelItem instance using the specified properties.
@@ -2707,16 +2707,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AIRichResponseDynamicMetadata type. */
-        type?: (proto.AIRichResponseDynamicMetadata.AIRichResponseDynamicMetadataType|null);
+        type: proto.AIRichResponseDynamicMetadata.AIRichResponseDynamicMetadataType;
 
         /** AIRichResponseDynamicMetadata version. */
-        version?: (number|Long|null);
+        version: (number|Long);
 
         /** AIRichResponseDynamicMetadata url. */
-        url?: (string|null);
+        url: string;
 
         /** AIRichResponseDynamicMetadata loopCount. */
-        loopCount?: (number|null);
+        loopCount: number;
 
         /**
          * Creates a new AIRichResponseDynamicMetadata instance using the specified properties.
@@ -2978,13 +2978,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AIRichResponseImageURL imagePreviewUrl. */
-        imagePreviewUrl?: (string|null);
+        imagePreviewUrl: string;
 
         /** AIRichResponseImageURL imageHighResUrl. */
-        imageHighResUrl?: (string|null);
+        imageHighResUrl: string;
 
         /** AIRichResponseImageURL sourceUrl. */
-        sourceUrl?: (string|null);
+        sourceUrl: string;
 
         /**
          * Creates a new AIRichResponseImageURL instance using the specified properties.
@@ -3110,13 +3110,13 @@ export namespace proto {
         imageUrl?: (proto.AIRichResponseImageURL.$Properties|null);
 
         /** AIRichResponseInlineImageMetadata imageText. */
-        imageText?: (string|null);
+        imageText: string;
 
         /** AIRichResponseInlineImageMetadata alignment. */
-        alignment?: (proto.AIRichResponseInlineImageMetadata.AIRichResponseImageAlignment|null);
+        alignment: proto.AIRichResponseInlineImageMetadata.AIRichResponseImageAlignment;
 
         /** AIRichResponseInlineImageMetadata tapLinkUrl. */
-        tapLinkUrl?: (string|null);
+        tapLinkUrl: string;
 
         /**
          * Creates a new AIRichResponseInlineImageMetadata instance using the specified properties.
@@ -3255,7 +3255,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AIRichResponseLatexMetadata text. */
-        text?: (string|null);
+        text: string;
 
         /** AIRichResponseLatexMetadata expressions. */
         expressions: proto.AIRichResponseLatexMetadata.AIRichResponseLatexExpression.$Properties[];
@@ -3377,31 +3377,31 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AIRichResponseLatexExpression latexExpression. */
-            latexExpression?: (string|null);
+            latexExpression: string;
 
             /** AIRichResponseLatexExpression url. */
-            url?: (string|null);
+            url: string;
 
             /** AIRichResponseLatexExpression width. */
-            width?: (number|null);
+            width: number;
 
             /** AIRichResponseLatexExpression height. */
-            height?: (number|null);
+            height: number;
 
             /** AIRichResponseLatexExpression fontHeight. */
-            fontHeight?: (number|null);
+            fontHeight: number;
 
             /** AIRichResponseLatexExpression imageTopPadding. */
-            imageTopPadding?: (number|null);
+            imageTopPadding: number;
 
             /** AIRichResponseLatexExpression imageLeadingPadding. */
-            imageLeadingPadding?: (number|null);
+            imageLeadingPadding: number;
 
             /** AIRichResponseLatexExpression imageBottomPadding. */
-            imageBottomPadding?: (number|null);
+            imageBottomPadding: number;
 
             /** AIRichResponseLatexExpression imageTrailingPadding. */
-            imageTrailingPadding?: (number|null);
+            imageTrailingPadding: number;
 
             /**
              * Creates a new AIRichResponseLatexExpression instance using the specified properties.
@@ -3543,22 +3543,22 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AIRichResponseMapMetadata centerLatitude. */
-        centerLatitude?: (number|null);
+        centerLatitude: number;
 
         /** AIRichResponseMapMetadata centerLongitude. */
-        centerLongitude?: (number|null);
+        centerLongitude: number;
 
         /** AIRichResponseMapMetadata latitudeDelta. */
-        latitudeDelta?: (number|null);
+        latitudeDelta: number;
 
         /** AIRichResponseMapMetadata longitudeDelta. */
-        longitudeDelta?: (number|null);
+        longitudeDelta: number;
 
         /** AIRichResponseMapMetadata annotations. */
         annotations: proto.AIRichResponseMapMetadata.AIRichResponseMapAnnotation.$Properties[];
 
         /** AIRichResponseMapMetadata showInfoList. */
-        showInfoList?: (boolean|null);
+        showInfoList: boolean;
 
         /**
          * Creates a new AIRichResponseMapMetadata instance using the specified properties.
@@ -3689,19 +3689,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AIRichResponseMapAnnotation annotationNumber. */
-            annotationNumber?: (number|null);
+            annotationNumber: number;
 
             /** AIRichResponseMapAnnotation latitude. */
-            latitude?: (number|null);
+            latitude: number;
 
             /** AIRichResponseMapAnnotation longitude. */
-            longitude?: (number|null);
+            longitude: number;
 
             /** AIRichResponseMapAnnotation title. */
-            title?: (string|null);
+            title: string;
 
             /** AIRichResponseMapAnnotation body. */
-            body?: (string|null);
+            body: string;
 
             /**
              * Creates a new AIRichResponseMapAnnotation instance using the specified properties.
@@ -3831,7 +3831,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AIRichResponseMessage messageType. */
-        messageType?: (proto.AIRichResponseMessageType|null);
+        messageType: proto.AIRichResponseMessageType;
 
         /** AIRichResponseMessage submessages. */
         submessages: proto.AIRichResponseSubMessage.$Properties[];
@@ -3989,13 +3989,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AIRichResponseSubMessage messageType. */
-        messageType?: (proto.AIRichResponseSubMessageType|null);
+        messageType: proto.AIRichResponseSubMessageType;
 
         /** AIRichResponseSubMessage gridImageMetadata. */
         gridImageMetadata?: (proto.AIRichResponseGridImageMetadata.$Properties|null);
 
         /** AIRichResponseSubMessage messageText. */
-        messageText?: (string|null);
+        messageText: string;
 
         /** AIRichResponseSubMessage imageMetadata. */
         imageMetadata?: (proto.AIRichResponseInlineImageMetadata.$Properties|null);
@@ -4209,7 +4209,7 @@ export namespace proto {
         rows: proto.AIRichResponseTableMetadata.AIRichResponseTableRow.$Properties[];
 
         /** AIRichResponseTableMetadata title. */
-        title?: (string|null);
+        title: string;
 
         /**
          * Creates a new AIRichResponseTableMetadata instance using the specified properties.
@@ -4331,7 +4331,7 @@ export namespace proto {
             items: string[];
 
             /** AIRichResponseTableRow isHeading. */
-            isHeading?: (boolean|null);
+            isHeading: boolean;
 
             /**
              * Creates a new AIRichResponseTableRow instance using the specified properties.
@@ -4452,7 +4452,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AIRichResponseUnifiedResponse data. */
-        data?: (Uint8Array|null);
+        data: Uint8Array;
 
         /**
          * Creates a new AIRichResponseUnifiedResponse instance using the specified properties.
@@ -4585,7 +4585,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AISubscriptionUpsellMetadata requestType. */
-        requestType?: (proto.AISubscriptionRequestType|null);
+        requestType: proto.AISubscriptionRequestType;
 
         /**
          * Creates a new AISubscriptionUpsellMetadata instance using the specified properties.
@@ -4824,10 +4824,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AIThreadClientInfo type. */
-            type?: (proto.AIThreadInfo.AIThreadClientInfo.AIThreadType|null);
+            type: proto.AIThreadInfo.AIThreadClientInfo.AIThreadType;
 
             /** AIThreadClientInfo sourceChatJid. */
-            sourceChatJid?: (string|null);
+            sourceChatJid: string;
 
             /**
              * Creates a new AIThreadClientInfo instance using the specified properties.
@@ -4966,7 +4966,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AIThreadServerInfo title. */
-            title?: (string|null);
+            title: string;
 
             /**
              * Creates a new AIThreadServerInfo instance using the specified properties.
@@ -5084,19 +5084,19 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** Account lid. */
-        lid?: (string|null);
+        lid: string;
 
         /** Account username. */
-        username?: (string|null);
+        username: string;
 
         /** Account countryCode. */
-        countryCode?: (string|null);
+        countryCode: string;
 
         /** Account isUsernameDeleted. */
-        isUsernameDeleted?: (boolean|null);
+        isUsernameDeleted: boolean;
 
         /** Account pnLearnState. */
-        pnLearnState?: (proto.Account.PnLearnState|null);
+        pnLearnState: proto.Account.PnLearnState;
 
         /**
          * Creates a new Account instance using the specified properties.
@@ -5238,10 +5238,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ActionLink url. */
-        url?: (string|null);
+        url: string;
 
         /** ActionLink buttonTitle. */
-        buttonTitle?: (string|null);
+        buttonTitle: string;
 
         /**
          * Creates a new ActionLink instance using the specified properties.
@@ -5361,16 +5361,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AutoDownloadSettings downloadImages. */
-        downloadImages?: (boolean|null);
+        downloadImages: boolean;
 
         /** AutoDownloadSettings downloadAudio. */
-        downloadAudio?: (boolean|null);
+        downloadAudio: boolean;
 
         /** AutoDownloadSettings downloadVideo. */
-        downloadVideo?: (boolean|null);
+        downloadVideo: boolean;
 
         /** AutoDownloadSettings downloadDocuments. */
-        downloadDocuments?: (boolean|null);
+        downloadDocuments: boolean;
 
         /**
          * Creates a new AutoDownloadSettings instance using the specified properties.
@@ -5496,10 +5496,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** AvatarUserSettings fbid. */
-        fbid?: (string|null);
+        fbid: string;
 
         /** AvatarUserSettings password. */
-        password?: (string|null);
+        password: string;
 
         /**
          * Creates a new AvatarUserSettings instance using the specified properties.
@@ -5880,7 +5880,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** AgentOnboardingStarted composerBlockDurationSecs. */
-                composerBlockDurationSecs?: (number|Long|null);
+                composerBlockDurationSecs: (number|Long);
 
                 /**
                  * Creates a new AgentOnboardingStarted instance using the specified properties.
@@ -6009,22 +6009,22 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BizAccountLinkInfo whatsappBizAcctFbid. */
-        whatsappBizAcctFbid?: (number|Long|null);
+        whatsappBizAcctFbid: (number|Long);
 
         /** BizAccountLinkInfo whatsappAcctNumber. */
-        whatsappAcctNumber?: (string|null);
+        whatsappAcctNumber: string;
 
         /** BizAccountLinkInfo issueTime. */
-        issueTime?: (number|Long|null);
+        issueTime: (number|Long);
 
         /** BizAccountLinkInfo hostStorage. */
-        hostStorage?: (proto.BizAccountLinkInfo.HostStorageType|null);
+        hostStorage: proto.BizAccountLinkInfo.HostStorageType;
 
         /** BizAccountLinkInfo accountType. */
-        accountType?: (proto.BizAccountLinkInfo.AccountType|null);
+        accountType: proto.BizAccountLinkInfo.AccountType;
 
         /** BizAccountLinkInfo whatsappAcctEmail. */
-        whatsappAcctEmail?: (string|null);
+        whatsappAcctEmail: string;
 
         /**
          * Creates a new BizAccountLinkInfo instance using the specified properties.
@@ -6176,7 +6176,7 @@ export namespace proto {
         vnameCert?: (proto.VerifiedNameCertificate.$Properties|null);
 
         /** BizAccountPayload bizAcctLinkInfo. */
-        bizAcctLinkInfo?: (Uint8Array|null);
+        bizAcctLinkInfo: Uint8Array;
 
         /**
          * Creates a new BizAccountPayload instance using the specified properties.
@@ -6296,28 +6296,28 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BizIdentityInfo vlevel. */
-        vlevel?: (proto.BizIdentityInfo.VerifiedLevelValue|null);
+        vlevel: proto.BizIdentityInfo.VerifiedLevelValue;
 
         /** BizIdentityInfo vnameCert. */
         vnameCert?: (proto.VerifiedNameCertificate.$Properties|null);
 
         /** BizIdentityInfo signed. */
-        signed?: (boolean|null);
+        signed: boolean;
 
         /** BizIdentityInfo revoked. */
-        revoked?: (boolean|null);
+        revoked: boolean;
 
         /** BizIdentityInfo hostStorage. */
-        hostStorage?: (proto.BizIdentityInfo.HostStorageType|null);
+        hostStorage: proto.BizIdentityInfo.HostStorageType;
 
         /** BizIdentityInfo actualActors. */
-        actualActors?: (proto.BizIdentityInfo.ActualActorsType|null);
+        actualActors: proto.BizIdentityInfo.ActualActorsType;
 
         /** BizIdentityInfo privacyModeTs. */
-        privacyModeTs?: (number|Long|null);
+        privacyModeTs: (number|Long);
 
         /** BizIdentityInfo featureControls. */
-        featureControls?: (number|Long|null);
+        featureControls: (number|Long);
 
         /**
          * Creates a new BizIdentityInfo instance using the specified properties.
@@ -6488,13 +6488,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotAgeCollectionMetadata ageCollectionEligible. */
-        ageCollectionEligible?: (boolean|null);
+        ageCollectionEligible: boolean;
 
         /** BotAgeCollectionMetadata shouldTriggerAgeCollectionOnClient. */
-        shouldTriggerAgeCollectionOnClient?: (boolean|null);
+        shouldTriggerAgeCollectionOnClient: boolean;
 
         /** BotAgeCollectionMetadata ageCollectionType. */
-        ageCollectionType?: (proto.BotAgeCollectionMetadata.AgeCollectionType|null);
+        ageCollectionType: proto.BotAgeCollectionMetadata.AgeCollectionType;
 
         /**
          * Creates a new BotAgeCollectionMetadata instance using the specified properties.
@@ -6627,10 +6627,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotAgentDeepLinkMetadata token. */
-        token?: (string|null);
+        token: string;
 
         /** BotAgentDeepLinkMetadata clientPublicKey. */
-        clientPublicKey?: (Uint8Array|null);
+        clientPublicKey: Uint8Array;
 
         /**
          * Creates a new BotAgentDeepLinkMetadata instance using the specified properties.
@@ -7228,7 +7228,13 @@ export namespace proto {
             AI_INTERJECTIONS_ENABLED = 86,
 
             /** AI_RICH_RESPONSE_READ_ALOUD_ENABLED value */
-            AI_RICH_RESPONSE_READ_ALOUD_ENABLED = 87
+            AI_RICH_RESPONSE_READ_ALOUD_ENABLED = 87,
+
+            /** AI_RICH_RESPONSE_ITEM_LISTS_ENABLED value */
+            AI_RICH_RESPONSE_ITEM_LISTS_ENABLED = 88,
+
+            /** RICH_RESPONSE_SIDE_BY_SIDE_BUFFER_BOTH value */
+            RICH_RESPONSE_SIDE_BY_SIDE_BUFFER_BOTH = 89
         }
     }
 
@@ -7252,13 +7258,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotCommandMetadata commandName. */
-        commandName?: (string|null);
+        commandName: string;
 
         /** BotCommandMetadata commandDescription. */
-        commandDescription?: (string|null);
+        commandDescription: string;
 
         /** BotCommandMetadata commandPrompt. */
-        commandPrompt?: (string|null);
+        commandPrompt: string;
 
         /**
          * Creates a new BotCommandMetadata instance using the specified properties.
@@ -7381,7 +7387,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotDocumentMessageMetadata pluginType. */
-        pluginType?: (proto.BotDocumentMessageMetadata.DocumentPluginType|null);
+        pluginType: proto.BotDocumentMessageMetadata.DocumentPluginType;
 
         /**
          * Creates a new BotDocumentMessageMetadata instance using the specified properties.
@@ -7511,19 +7517,19 @@ export namespace proto {
         messageKey?: (proto.MessageKey.$Properties|null);
 
         /** BotFeedbackMessage kind. */
-        kind?: (proto.BotFeedbackMessage.BotFeedbackKind|null);
+        kind: proto.BotFeedbackMessage.BotFeedbackKind;
 
         /** BotFeedbackMessage text. */
-        text?: (string|null);
+        text: string;
 
         /** BotFeedbackMessage kindNegative. */
-        kindNegative?: (number|Long|null);
+        kindNegative: (number|Long);
 
         /** BotFeedbackMessage kindPositive. */
-        kindPositive?: (number|Long|null);
+        kindPositive: (number|Long);
 
         /** BotFeedbackMessage kindReport. */
-        kindReport?: (proto.BotFeedbackMessage.ReportKind|null);
+        kindReport: proto.BotFeedbackMessage.ReportKind;
 
         /** BotFeedbackMessage sideBySideSurveyMetadata. */
         sideBySideSurveyMetadata?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.$Properties|null);
@@ -7757,25 +7763,25 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SideBySideSurveyMetadata selectedRequestId. */
-            selectedRequestId?: (string|null);
+            selectedRequestId: string;
 
             /** SideBySideSurveyMetadata surveyId. */
-            surveyId?: (number|null);
+            surveyId: number;
 
             /** SideBySideSurveyMetadata simonSessionFbid. */
-            simonSessionFbid?: (string|null);
+            simonSessionFbid: string;
 
             /** SideBySideSurveyMetadata responseOtid. */
-            responseOtid?: (string|null);
+            responseOtid: string;
 
             /** SideBySideSurveyMetadata responseTimestampMsString. */
-            responseTimestampMsString?: (string|null);
+            responseTimestampMsString: string;
 
             /** SideBySideSurveyMetadata isSelectedResponsePrimary. */
-            isSelectedResponsePrimary?: (boolean|null);
+            isSelectedResponsePrimary: boolean;
 
             /** SideBySideSurveyMetadata messageIdToEdit. */
-            messageIdToEdit?: (string|null);
+            messageIdToEdit: string;
 
             /** SideBySideSurveyMetadata analyticsData. */
             analyticsData?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SideBySideSurveyAnalyticsData.$Properties|null);
@@ -7921,13 +7927,13 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** SideBySideSurveyAnalyticsData tessaEvent. */
-                tessaEvent?: (string|null);
+                tessaEvent: string;
 
                 /** SideBySideSurveyAnalyticsData tessaSessionFbid. */
-                tessaSessionFbid?: (string|null);
+                tessaSessionFbid: string;
 
                 /** SideBySideSurveyAnalyticsData simonSessionFbid. */
-                simonSessionFbid?: (string|null);
+                simonSessionFbid: string;
 
                 /**
                  * Creates a new SideBySideSurveyAnalyticsData instance using the specified properties.
@@ -8050,16 +8056,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** SidebySideSurveyMetaAiAnalyticsData surveyId. */
-                surveyId?: (number|null);
+                surveyId: number;
 
                 /** SidebySideSurveyMetaAiAnalyticsData primaryResponseId. */
-                primaryResponseId?: (string|null);
+                primaryResponseId: string;
 
                 /** SidebySideSurveyMetaAiAnalyticsData testArmName. */
-                testArmName?: (string|null);
+                testArmName: string;
 
                 /** SidebySideSurveyMetaAiAnalyticsData timestampMsString. */
-                timestampMsString?: (string|null);
+                timestampMsString: string;
 
                 /** SidebySideSurveyMetaAiAnalyticsData ctaImpressionEvent. */
                 ctaImpressionEvent?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAImpressionEventData.$Properties|null);
@@ -8214,7 +8220,7 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** SideBySideSurveyAbandonEventData abandonDwellTimeMsString. */
-                    abandonDwellTimeMsString?: (string|null);
+                    abandonDwellTimeMsString: string;
 
                     /**
                      * Creates a new SideBySideSurveyAbandonEventData instance using the specified properties.
@@ -8331,10 +8337,10 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** SideBySideSurveyCTAClickEventData isSurveyExpired. */
-                    isSurveyExpired?: (boolean|null);
+                    isSurveyExpired: boolean;
 
                     /** SideBySideSurveyCTAClickEventData clickDwellTimeMsString. */
-                    clickDwellTimeMsString?: (string|null);
+                    clickDwellTimeMsString: string;
 
                     /**
                      * Creates a new SideBySideSurveyCTAClickEventData instance using the specified properties.
@@ -8454,7 +8460,7 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** SideBySideSurveyCTAImpressionEventData isSurveyExpired. */
-                    isSurveyExpired?: (boolean|null);
+                    isSurveyExpired: boolean;
 
                     /**
                      * Creates a new SideBySideSurveyCTAImpressionEventData instance using the specified properties.
@@ -8682,10 +8688,10 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** SideBySideSurveyResponseEventData responseDwellTimeMsString. */
-                    responseDwellTimeMsString?: (string|null);
+                    responseDwellTimeMsString: string;
 
                     /** SideBySideSurveyResponseEventData selectedResponseId. */
-                    selectedResponseId?: (string|null);
+                    selectedResponseId: string;
 
                     /**
                      * Creates a new SideBySideSurveyResponseEventData instance using the specified properties.
@@ -8925,7 +8931,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotGroupParticipantMetadata botFbid. */
-        botFbid?: (string|null);
+        botFbid: string;
 
         /**
          * Creates a new BotGroupParticipantMetadata instance using the specified properties.
@@ -9159,10 +9165,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotImagineMetadata imagineType. */
-        imagineType?: (proto.BotImagineMetadata.ImagineType|null);
+        imagineType: proto.BotImagineMetadata.ImagineType;
 
         /** BotImagineMetadata shortPrompt. */
-        shortPrompt?: (string|null);
+        shortPrompt: string;
 
         /**
          * Creates a new BotImagineMetadata instance using the specified properties.
@@ -9301,13 +9307,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotInfrastructureDiagnostics botBackend. */
-        botBackend?: (proto.BotInfrastructureDiagnostics.BotBackend|null);
+        botBackend: proto.BotInfrastructureDiagnostics.BotBackend;
 
         /** BotInfrastructureDiagnostics toolsUsed. */
         toolsUsed: string[];
 
         /** BotInfrastructureDiagnostics isThinking. */
-        isThinking?: (boolean|null);
+        isThinking: boolean;
 
         /**
          * Creates a new BotInfrastructureDiagnostics instance using the specified properties.
@@ -9440,7 +9446,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotInterjectionMetadata targetPromptMessageId. */
-        targetPromptMessageId?: (string|null);
+        targetPromptMessageId: string;
 
         /** BotInterjectionMetadata foldedPromptMessageIds. */
         foldedPromptMessageIds: string[];
@@ -9563,7 +9569,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotLinkedAccount type. */
-        type?: (proto.BotLinkedAccount.BotLinkedAccountType|null);
+        type: proto.BotLinkedAccount.BotLinkedAccountType;
 
         /**
          * Creates a new BotLinkedAccount instance using the specified properties.
@@ -9690,10 +9696,10 @@ export namespace proto {
         accounts: proto.BotLinkedAccount.$Properties[];
 
         /** BotLinkedAccountsMetadata acAuthTokens. */
-        acAuthTokens?: (Uint8Array|null);
+        acAuthTokens: Uint8Array;
 
         /** BotLinkedAccountsMetadata acErrorCode. */
-        acErrorCode?: (number|null);
+        acErrorCode: number;
 
         /**
          * Creates a new BotLinkedAccountsMetadata instance using the specified properties.
@@ -9816,25 +9822,25 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotMediaMetadata fileSha256. */
-        fileSha256?: (string|null);
+        fileSha256: string;
 
         /** BotMediaMetadata mediaKey. */
-        mediaKey?: (string|null);
+        mediaKey: string;
 
         /** BotMediaMetadata fileEncSha256. */
-        fileEncSha256?: (string|null);
+        fileEncSha256: string;
 
         /** BotMediaMetadata directPath. */
-        directPath?: (string|null);
+        directPath: string;
 
         /** BotMediaMetadata mediaKeyTimestamp. */
-        mediaKeyTimestamp?: (number|Long|null);
+        mediaKeyTimestamp: (number|Long);
 
         /** BotMediaMetadata mimetype. */
-        mimetype?: (string|null);
+        mimetype: string;
 
         /** BotMediaMetadata orientationType. */
-        orientationType?: (proto.BotMediaMetadata.OrientationType|null);
+        orientationType: proto.BotMediaMetadata.OrientationType;
 
         /**
          * Creates a new BotMediaMetadata instance using the specified properties.
@@ -9982,10 +9988,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotMemoryFact fact. */
-        fact?: (string|null);
+        fact: string;
 
         /** BotMemoryFact factId. */
-        factId?: (string|null);
+        factId: string;
 
         /**
          * Creates a new BotMemoryFact instance using the specified properties.
@@ -10111,7 +10117,7 @@ export namespace proto {
         removedFacts: proto.BotMemoryFact.$Properties[];
 
         /** BotMemoryMetadata disclaimer. */
-        disclaimer?: (string|null);
+        disclaimer: string;
 
         /**
          * Creates a new BotMemoryMetadata instance using the specified properties.
@@ -10351,10 +10357,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotMessageOrigin type. */
-        type?: (proto.BotMessageOrigin.BotMessageOriginType|null);
+        type: proto.BotMessageOrigin.BotMessageOriginType;
 
         /** BotMessageOrigin proactiveMessageCampaignId. */
-        proactiveMessageCampaignId?: (string|null);
+        proactiveMessageCampaignId: string;
 
         /**
          * Creates a new BotMessageOrigin instance using the specified properties.
@@ -10601,10 +10607,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotMessageSharingInfo botEntryPointOrigin. */
-        botEntryPointOrigin?: (proto.BotMetricsEntryPoint|null);
+        botEntryPointOrigin: proto.BotMetricsEntryPoint;
 
         /** BotMessageSharingInfo forwardScore. */
-        forwardScore?: (number|null);
+        forwardScore: number;
 
         /**
          * Creates a new BotMessageSharingInfo instance using the specified properties.
@@ -10724,7 +10730,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotMetadata personaId. */
-        personaId?: (string|null);
+        personaId: string;
 
         /** BotMetadata pluginMetadata. */
         pluginMetadata?: (proto.BotPluginMetadata.$Properties|null);
@@ -10733,7 +10739,7 @@ export namespace proto {
         suggestedPromptMetadata?: (proto.BotSuggestedPromptMetadata.$Properties|null);
 
         /** BotMetadata invokerJid. */
-        invokerJid?: (string|null);
+        invokerJid: string;
 
         /** BotMetadata sessionMetadata. */
         sessionMetadata?: (proto.BotSessionMetadata.$Properties|null);
@@ -10742,7 +10748,7 @@ export namespace proto {
         memuMetadata?: (proto.BotMemuMetadata.$Properties|null);
 
         /** BotMetadata timezone. */
-        timezone?: (string|null);
+        timezone: string;
 
         /** BotMetadata reminderMetadata. */
         reminderMetadata?: (proto.BotReminderMetadata.$Properties|null);
@@ -10751,7 +10757,7 @@ export namespace proto {
         modelMetadata?: (proto.BotModelMetadata.$Properties|null);
 
         /** BotMetadata messageDisclaimerText. */
-        messageDisclaimerText?: (string|null);
+        messageDisclaimerText: string;
 
         /** BotMetadata progressIndicatorMetadata. */
         progressIndicatorMetadata?: (proto.BotProgressIndicatorMetadata.$Properties|null);
@@ -10778,7 +10784,7 @@ export namespace proto {
         richResponseSourcesMetadata?: (proto.BotSourcesMetadata.$Properties|null);
 
         /** BotMetadata aiConversationContext. */
-        aiConversationContext?: (Uint8Array|null);
+        aiConversationContext: Uint8Array;
 
         /** BotMetadata botPromotionMessageMetadata. */
         botPromotionMessageMetadata?: (proto.BotPromotionMessageMetadata.$Properties|null);
@@ -10793,10 +10799,10 @@ export namespace proto {
         botAgeCollectionMetadata?: (proto.BotAgeCollectionMetadata.$Properties|null);
 
         /** BotMetadata conversationStarterPromptId. */
-        conversationStarterPromptId?: (string|null);
+        conversationStarterPromptId: string;
 
         /** BotMetadata botResponseId. */
-        botResponseId?: (string|null);
+        botResponseId: string;
 
         /** BotMetadata verificationMetadata. */
         verificationMetadata?: (proto.BotSignatureVerificationMetadata.$Properties|null);
@@ -10850,13 +10856,13 @@ export namespace proto {
         botHistoryShareMetadata?: (proto.BotHistoryShareMetadata.$Properties|null);
 
         /** BotMetadata responseStoppedByUser. */
-        responseStoppedByUser?: (boolean|null);
+        responseStoppedByUser: boolean;
 
         /** BotMetadata interjectionMetadata. */
         interjectionMetadata?: (proto.BotInterjectionMetadata.$Properties|null);
 
         /** BotMetadata internalMetadata. */
-        internalMetadata?: (Uint8Array|null);
+        internalMetadata: Uint8Array;
 
         /**
          * Creates a new BotMetadata instance using the specified properties.
@@ -11239,7 +11245,10 @@ export namespace proto {
         NEW_3P_AGENT_CREATION = 58,
 
         /** SHARE value */
-        SHARE = 59
+        SHARE = 59,
+
+        /** BIRTHDAY_BANNER value */
+        BIRTHDAY_BANNER = 60
     }
 
     /**
@@ -11262,13 +11271,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotMetricsMetadata destinationId. */
-        destinationId?: (string|null);
+        destinationId: string;
 
         /** BotMetricsMetadata destinationEntryPoint. */
-        destinationEntryPoint?: (proto.BotMetricsEntryPoint|null);
+        destinationEntryPoint: proto.BotMetricsEntryPoint;
 
         /** BotMetricsMetadata threadOrigin. */
-        threadOrigin?: (proto.BotMetricsThreadEntryPoint|null);
+        threadOrigin: proto.BotMetricsThreadEntryPoint;
 
         /**
          * Creates a new BotMetricsMetadata instance using the specified properties.
@@ -11543,13 +11552,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotModelMetadata modelType. */
-        modelType?: (proto.BotModelMetadata.ModelType|null);
+        modelType: proto.BotModelMetadata.ModelType;
 
         /** BotModelMetadata premiumModelStatus. */
-        premiumModelStatus?: (proto.BotModelMetadata.PremiumModelStatus|null);
+        premiumModelStatus: proto.BotModelMetadata.PremiumModelStatus;
 
         /** BotModelMetadata modelNameOverride. */
-        modelNameOverride?: (string|null);
+        modelNameOverride: string;
 
         /**
          * Creates a new BotModelMetadata instance using the specified properties.
@@ -11698,40 +11707,40 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotPluginMetadata provider. */
-        provider?: (proto.BotPluginMetadata.SearchProvider|null);
+        provider: proto.BotPluginMetadata.SearchProvider;
 
         /** BotPluginMetadata pluginType. */
-        pluginType?: (proto.BotPluginMetadata.PluginType|null);
+        pluginType: proto.BotPluginMetadata.PluginType;
 
         /** BotPluginMetadata thumbnailCdnUrl. */
-        thumbnailCdnUrl?: (string|null);
+        thumbnailCdnUrl: string;
 
         /** BotPluginMetadata profilePhotoCdnUrl. */
-        profilePhotoCdnUrl?: (string|null);
+        profilePhotoCdnUrl: string;
 
         /** BotPluginMetadata searchProviderUrl. */
-        searchProviderUrl?: (string|null);
+        searchProviderUrl: string;
 
         /** BotPluginMetadata referenceIndex. */
-        referenceIndex?: (number|null);
+        referenceIndex: number;
 
         /** BotPluginMetadata expectedLinksCount. */
-        expectedLinksCount?: (number|null);
+        expectedLinksCount: number;
 
         /** BotPluginMetadata searchQuery. */
-        searchQuery?: (string|null);
+        searchQuery: string;
 
         /** BotPluginMetadata parentPluginMessageKey. */
         parentPluginMessageKey?: (proto.MessageKey.$Properties|null);
 
         /** BotPluginMetadata deprecatedField. */
-        deprecatedField?: (proto.BotPluginMetadata.PluginType|null);
+        deprecatedField: proto.BotPluginMetadata.PluginType;
 
         /** BotPluginMetadata parentPluginType. */
-        parentPluginType?: (proto.BotPluginMetadata.PluginType|null);
+        parentPluginType: proto.BotPluginMetadata.PluginType;
 
         /** BotPluginMetadata faviconCdnUrl. */
-        faviconCdnUrl?: (string|null);
+        faviconCdnUrl: string;
 
         /**
          * Creates a new BotPluginMetadata instance using the specified properties.
@@ -11910,13 +11919,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotProgressIndicatorMetadata progressDescription. */
-        progressDescription?: (string|null);
+        progressDescription: string;
 
         /** BotProgressIndicatorMetadata stepsMetadata. */
         stepsMetadata: proto.BotProgressIndicatorMetadata.BotPlanningStepMetadata.$Properties[];
 
         /** BotProgressIndicatorMetadata estimatedCompletionTime. */
-        estimatedCompletionTime?: (number|Long|null);
+        estimatedCompletionTime: (number|Long);
 
         /**
          * Creates a new BotProgressIndicatorMetadata instance using the specified properties.
@@ -12038,22 +12047,22 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BotPlanningStepMetadata statusTitle. */
-            statusTitle?: (string|null);
+            statusTitle: string;
 
             /** BotPlanningStepMetadata statusBody. */
-            statusBody?: (string|null);
+            statusBody: string;
 
             /** BotPlanningStepMetadata sourcesMetadata. */
             sourcesMetadata: proto.BotProgressIndicatorMetadata.BotPlanningStepMetadata.BotPlanningSearchSourcesMetadata.$Properties[];
 
             /** BotPlanningStepMetadata status. */
-            status?: (proto.BotProgressIndicatorMetadata.BotPlanningStepMetadata.PlanningStepStatus|null);
+            status: proto.BotProgressIndicatorMetadata.BotPlanningStepMetadata.PlanningStepStatus;
 
             /** BotPlanningStepMetadata isReasoning. */
-            isReasoning?: (boolean|null);
+            isReasoning: boolean;
 
             /** BotPlanningStepMetadata isEnhancedSearch. */
-            isEnhancedSearch?: (boolean|null);
+            isEnhancedSearch: boolean;
 
             /** BotPlanningStepMetadata sections. */
             sections: proto.BotProgressIndicatorMetadata.BotPlanningStepMetadata.BotPlanningStepSectionMetadata.$Properties[];
@@ -12190,16 +12199,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** BotPlanningSearchSourceMetadata title. */
-                title?: (string|null);
+                title: string;
 
                 /** BotPlanningSearchSourceMetadata provider. */
-                provider?: (proto.BotProgressIndicatorMetadata.BotPlanningStepMetadata.BotSearchSourceProvider|null);
+                provider: proto.BotProgressIndicatorMetadata.BotPlanningStepMetadata.BotSearchSourceProvider;
 
                 /** BotPlanningSearchSourceMetadata sourceUrl. */
-                sourceUrl?: (string|null);
+                sourceUrl: string;
 
                 /** BotPlanningSearchSourceMetadata favIconUrl. */
-                favIconUrl?: (string|null);
+                favIconUrl: string;
 
                 /**
                  * Creates a new BotPlanningSearchSourceMetadata instance using the specified properties.
@@ -12325,13 +12334,13 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** BotPlanningSearchSourcesMetadata sourceTitle. */
-                sourceTitle?: (string|null);
+                sourceTitle: string;
 
                 /** BotPlanningSearchSourcesMetadata provider. */
-                provider?: (proto.BotProgressIndicatorMetadata.BotPlanningStepMetadata.BotPlanningSearchSourcesMetadata.BotPlanningSearchSourceProvider|null);
+                provider: proto.BotProgressIndicatorMetadata.BotPlanningStepMetadata.BotPlanningSearchSourcesMetadata.BotPlanningSearchSourceProvider;
 
                 /** BotPlanningSearchSourcesMetadata sourceUrl. */
-                sourceUrl?: (string|null);
+                sourceUrl: string;
 
                 /**
                  * Creates a new BotPlanningSearchSourcesMetadata instance using the specified properties.
@@ -12470,10 +12479,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** BotPlanningStepSectionMetadata sectionTitle. */
-                sectionTitle?: (string|null);
+                sectionTitle: string;
 
                 /** BotPlanningStepSectionMetadata sectionBody. */
-                sectionBody?: (string|null);
+                sectionBody: string;
 
                 /** BotPlanningStepSectionMetadata sourcesMetadata. */
                 sourcesMetadata: proto.BotProgressIndicatorMetadata.BotPlanningStepMetadata.BotPlanningSearchSourceMetadata.$Properties[];
@@ -12633,10 +12642,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotPromotionMessageMetadata promotionType. */
-        promotionType?: (proto.BotPromotionMessageMetadata.BotPromotionType|null);
+        promotionType: proto.BotPromotionMessageMetadata.BotPromotionType;
 
         /** BotPromotionMessageMetadata buttonTitle. */
-        buttonTitle?: (string|null);
+        buttonTitle: string;
 
         /**
          * Creates a new BotPromotionMessageMetadata instance using the specified properties.
@@ -12769,10 +12778,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotPromptSuggestion prompt. */
-        prompt?: (string|null);
+        prompt: string;
 
         /** BotPromptSuggestion promptId. */
-        promptId?: (string|null);
+        promptId: string;
 
         /**
          * Creates a new BotPromptSuggestion instance using the specified properties.
@@ -13009,7 +13018,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotPttPromptMetadata transcript. */
-        transcript?: (string|null);
+        transcript: string;
 
         /**
          * Creates a new BotPttPromptMetadata instance using the specified properties.
@@ -13242,13 +13251,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BotFeatureQuotaMetadata featureType. */
-            featureType?: (proto.BotQuotaMetadata.BotFeatureQuotaMetadata.BotFeatureType|null);
+            featureType: proto.BotQuotaMetadata.BotFeatureQuotaMetadata.BotFeatureType;
 
             /** BotFeatureQuotaMetadata remainingQuota. */
-            remainingQuota?: (number|null);
+            remainingQuota: number;
 
             /** BotFeatureQuotaMetadata expirationTimestamp. */
-            expirationTimestamp?: (number|Long|null);
+            expirationTimestamp: (number|Long);
 
             /**
              * Creates a new BotFeatureQuotaMetadata instance using the specified properties.
@@ -13385,16 +13394,16 @@ export namespace proto {
         requestMessageKey?: (proto.MessageKey.$Properties|null);
 
         /** BotReminderMetadata action. */
-        action?: (proto.BotReminderMetadata.ReminderAction|null);
+        action: proto.BotReminderMetadata.ReminderAction;
 
         /** BotReminderMetadata name. */
-        name?: (string|null);
+        name: string;
 
         /** BotReminderMetadata nextTriggerTimestamp. */
-        nextTriggerTimestamp?: (number|Long|null);
+        nextTriggerTimestamp: (number|Long);
 
         /** BotReminderMetadata frequency. */
-        frequency?: (proto.BotReminderMetadata.ReminderFrequency|null);
+        frequency: proto.BotReminderMetadata.ReminderFrequency;
 
         /**
          * Creates a new BotReminderMetadata instance using the specified properties.
@@ -13558,10 +13567,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotRenderingConfigMetadata bloksVersioningId. */
-        bloksVersioningId?: (string|null);
+        bloksVersioningId: string;
 
         /** BotRenderingConfigMetadata pixelDensity. */
-        pixelDensity?: (number|null);
+        pixelDensity: number;
 
         /**
          * Creates a new BotRenderingConfigMetadata instance using the specified properties.
@@ -13797,7 +13806,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** Keyword value. */
-            value?: (string|null);
+            value: string;
 
             /** Keyword associatedPrompts. */
             associatedPrompts: string[];
@@ -13921,10 +13930,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotResolvedToolCallMetadata toolCallId. */
-        toolCallId?: (string|null);
+        toolCallId: string;
 
         /** BotResolvedToolCallMetadata resolutionDataSerialized. */
-        resolutionDataSerialized?: (string|null);
+        resolutionDataSerialized: string;
 
         /**
          * Creates a new BotResolvedToolCallMetadata instance using the specified properties.
@@ -14044,10 +14053,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotSessionMetadata sessionId. */
-        sessionId?: (string|null);
+        sessionId: string;
 
         /** BotSessionMetadata sessionSource. */
-        sessionSource?: (proto.BotSessionSource|null);
+        sessionSource: proto.BotSessionSource;
 
         /**
          * Creates a new BotSessionMetadata instance using the specified properties.
@@ -14312,13 +14321,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** BotSignatureVerificationUseCaseProof version. */
-        version?: (number|null);
+        version: number;
 
         /** BotSignatureVerificationUseCaseProof useCase. */
-        useCase?: (proto.BotSignatureVerificationUseCaseProof.BotSignatureUseCase|null);
+        useCase: proto.BotSignatureVerificationUseCaseProof.BotSignatureUseCase;
 
         /** BotSignatureVerificationUseCaseProof signature. */
-        signature?: (Uint8Array|null);
+        signature: Uint8Array;
 
         /** BotSignatureVerificationUseCaseProof certificateChain. */
         certificateChain: Uint8Array[];
@@ -14474,10 +14483,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** CertificateSKI useCase. */
-            useCase?: (proto.BotSignatureVerificationUseCaseProof.BotSignatureUseCase|null);
+            useCase: proto.BotSignatureVerificationUseCaseProof.BotSignatureUseCase;
 
             /** CertificateSKI ski. */
-            ski?: (Uint8Array|null);
+            ski: Uint8Array;
 
             /**
              * Creates a new CertificateSKI instance using the specified properties.
@@ -14714,25 +14723,25 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BotSourceItem provider. */
-            provider?: (proto.BotSourcesMetadata.BotSourceItem.SourceProvider|null);
+            provider: proto.BotSourcesMetadata.BotSourceItem.SourceProvider;
 
             /** BotSourceItem thumbnailCdnUrl. */
-            thumbnailCdnUrl?: (string|null);
+            thumbnailCdnUrl: string;
 
             /** BotSourceItem sourceProviderUrl. */
-            sourceProviderUrl?: (string|null);
+            sourceProviderUrl: string;
 
             /** BotSourceItem sourceQuery. */
-            sourceQuery?: (string|null);
+            sourceQuery: string;
 
             /** BotSourceItem faviconCdnUrl. */
-            faviconCdnUrl?: (string|null);
+            faviconCdnUrl: string;
 
             /** BotSourceItem citationNumber. */
-            citationNumber?: (number|null);
+            citationNumber: number;
 
             /** BotSourceItem sourceTitle. */
-            sourceTitle?: (string|null);
+            sourceTitle: string;
 
             /**
              * Creates a new BotSourceItem instance using the specified properties.
@@ -14890,13 +14899,13 @@ export namespace proto {
         suggestedPrompts: string[];
 
         /** BotSuggestedPromptMetadata selectedPromptIndex. */
-        selectedPromptIndex?: (number|null);
+        selectedPromptIndex: number;
 
         /** BotSuggestedPromptMetadata promptSuggestions. */
         promptSuggestions?: (proto.BotPromptSuggestions.$Properties|null);
 
         /** BotSuggestedPromptMetadata selectedPromptId. */
-        selectedPromptId?: (string|null);
+        selectedPromptId: string;
 
         /**
          * Creates a new BotSuggestedPromptMetadata instance using the specified properties.
@@ -15144,7 +15153,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MediaDetailsMetadata id. */
-            id?: (string|null);
+            id: string;
 
             /** MediaDetailsMetadata highResMedia. */
             highResMedia?: (proto.BotMediaMetadata.$Properties|null);
@@ -15273,10 +15282,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SideBySideMetadata primaryResponseId. */
-            primaryResponseId?: (string|null);
+            primaryResponseId: string;
 
             /** SideBySideMetadata surveyCtaHasRendered. */
-            surveyCtaHasRendered?: (boolean|null);
+            surveyCtaHasRendered: boolean;
 
             /**
              * Creates a new SideBySideMetadata instance using the specified properties.
@@ -15397,49 +15406,49 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** CallLogRecord callResult. */
-        callResult?: (proto.CallLogRecord.CallResult|null);
+        callResult: proto.CallLogRecord.CallResult;
 
         /** CallLogRecord isDndMode. */
-        isDndMode?: (boolean|null);
+        isDndMode: boolean;
 
         /** CallLogRecord silenceReason. */
-        silenceReason?: (proto.CallLogRecord.SilenceReason|null);
+        silenceReason: proto.CallLogRecord.SilenceReason;
 
         /** CallLogRecord duration. */
-        duration?: (number|Long|null);
+        duration: (number|Long);
 
         /** CallLogRecord startTime. */
-        startTime?: (number|Long|null);
+        startTime: (number|Long);
 
         /** CallLogRecord isIncoming. */
-        isIncoming?: (boolean|null);
+        isIncoming: boolean;
 
         /** CallLogRecord isVideo. */
-        isVideo?: (boolean|null);
+        isVideo: boolean;
 
         /** CallLogRecord isCallLink. */
-        isCallLink?: (boolean|null);
+        isCallLink: boolean;
 
         /** CallLogRecord callLinkToken. */
-        callLinkToken?: (string|null);
+        callLinkToken: string;
 
         /** CallLogRecord scheduledCallId. */
-        scheduledCallId?: (string|null);
+        scheduledCallId: string;
 
         /** CallLogRecord callId. */
-        callId?: (string|null);
+        callId: string;
 
         /** CallLogRecord callCreatorJid. */
-        callCreatorJid?: (string|null);
+        callCreatorJid: string;
 
         /** CallLogRecord groupJid. */
-        groupJid?: (string|null);
+        groupJid: string;
 
         /** CallLogRecord participants. */
         participants: proto.CallLogRecord.ParticipantInfo.$Properties[];
 
         /** CallLogRecord callType. */
-        callType?: (proto.CallLogRecord.CallType|null);
+        callType: proto.CallLogRecord.CallType;
 
         /**
          * Creates a new CallLogRecord instance using the specified properties.
@@ -15647,7 +15656,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** GuestInfo pushName. */
-            pushName?: (string|null);
+            pushName: string;
 
             /**
              * Creates a new GuestInfo instance using the specified properties.
@@ -15764,10 +15773,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ParticipantInfo userJid. */
-            userJid?: (string|null);
+            userJid: string;
 
             /** ParticipantInfo callResult. */
-            callResult?: (proto.CallLogRecord.CallResult|null);
+            callResult: proto.CallLogRecord.CallResult;
 
             /** ParticipantInfo guestInfo. */
             guestInfo?: (proto.CallLogRecord.GuestInfo.$Properties|null);
@@ -16032,10 +16041,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** NoiseCertificate details. */
-            details?: (Uint8Array|null);
+            details: Uint8Array;
 
             /** NoiseCertificate signature. */
-            signature?: (Uint8Array|null);
+            signature: Uint8Array;
 
             /**
              * Creates a new NoiseCertificate instance using the specified properties.
@@ -16154,19 +16163,19 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Details serial. */
-                serial?: (number|null);
+                serial: number;
 
                 /** Details issuerSerial. */
-                issuerSerial?: (number|null);
+                issuerSerial: number;
 
                 /** Details key. */
-                key?: (Uint8Array|null);
+                key: Uint8Array;
 
                 /** Details notBefore. */
-                notBefore?: (number|Long|null);
+                notBefore: (number|Long);
 
                 /** Details notAfter. */
-                notAfter?: (number|Long|null);
+                notAfter: (number|Long);
 
                 /**
                  * Creates a new Details instance using the specified properties.
@@ -16297,7 +16306,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ChatLockSettings hideLockedChats. */
-        hideLockedChats?: (boolean|null);
+        hideLockedChats: boolean;
 
         /** ChatLockSettings secretCode. */
         secretCode?: (proto.UserPassword.$Properties|null);
@@ -16540,10 +16549,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** DraftMessage text. */
-            text?: (string|null);
+            text: string;
 
             /** DraftMessage omittedUrl. */
-            omittedUrl?: (string|null);
+            omittedUrl: string;
 
             /** DraftMessage ctwaContextLinkData. */
             ctwaContextLinkData?: (proto.ChatRowOpaqueData.DraftMessage.CtwaContextLinkData.$Properties|null);
@@ -16552,7 +16561,7 @@ export namespace proto {
             ctwaContext?: (proto.ChatRowOpaqueData.DraftMessage.CtwaContextData.$Properties|null);
 
             /** DraftMessage timestamp. */
-            timestamp?: (number|Long|null);
+            timestamp: (number|Long);
 
             /**
              * Creates a new DraftMessage instance using the specified properties.
@@ -16680,40 +16689,40 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** CtwaContextData conversionSource. */
-                conversionSource?: (string|null);
+                conversionSource: string;
 
                 /** CtwaContextData conversionData. */
-                conversionData?: (Uint8Array|null);
+                conversionData: Uint8Array;
 
                 /** CtwaContextData sourceUrl. */
-                sourceUrl?: (string|null);
+                sourceUrl: string;
 
                 /** CtwaContextData sourceId. */
-                sourceId?: (string|null);
+                sourceId: string;
 
                 /** CtwaContextData sourceType. */
-                sourceType?: (string|null);
+                sourceType: string;
 
                 /** CtwaContextData title. */
-                title?: (string|null);
+                title: string;
 
                 /** CtwaContextData description. */
-                description?: (string|null);
+                description: string;
 
                 /** CtwaContextData thumbnail. */
-                thumbnail?: (string|null);
+                thumbnail: string;
 
                 /** CtwaContextData thumbnailUrl. */
-                thumbnailUrl?: (string|null);
+                thumbnailUrl: string;
 
                 /** CtwaContextData mediaType. */
-                mediaType?: (proto.ChatRowOpaqueData.DraftMessage.CtwaContextData.ContextInfoExternalAdReplyInfoMediaType|null);
+                mediaType: proto.ChatRowOpaqueData.DraftMessage.CtwaContextData.ContextInfoExternalAdReplyInfoMediaType;
 
                 /** CtwaContextData mediaUrl. */
-                mediaUrl?: (string|null);
+                mediaUrl: string;
 
                 /** CtwaContextData isSuspiciousLink. */
-                isSuspiciousLink?: (boolean|null);
+                isSuspiciousLink: boolean;
 
                 /**
                  * Creates a new CtwaContextData instance using the specified properties.
@@ -16876,16 +16885,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** CtwaContextLinkData context. */
-                context?: (string|null);
+                context: string;
 
                 /** CtwaContextLinkData sourceUrl. */
-                sourceUrl?: (string|null);
+                sourceUrl: string;
 
                 /** CtwaContextLinkData icebreaker. */
-                icebreaker?: (string|null);
+                icebreaker: string;
 
                 /** CtwaContextLinkData phone. */
-                phone?: (string|null);
+                phone: string;
 
                 /**
                  * Creates a new CtwaContextLinkData instance using the specified properties.
@@ -17148,28 +17157,28 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ClientPairingProps isChatDbLidMigrated. */
-        isChatDbLidMigrated?: (boolean|null);
+        isChatDbLidMigrated: boolean;
 
         /** ClientPairingProps isSyncdPureLidSession. */
-        isSyncdPureLidSession?: (boolean|null);
+        isSyncdPureLidSession: boolean;
 
         /** ClientPairingProps isSyncdSnapshotRecoveryEnabled. */
-        isSyncdSnapshotRecoveryEnabled?: (boolean|null);
+        isSyncdSnapshotRecoveryEnabled: boolean;
 
         /** ClientPairingProps isHsThumbnailSyncEnabled. */
-        isHsThumbnailSyncEnabled?: (boolean|null);
+        isHsThumbnailSyncEnabled: boolean;
 
         /** ClientPairingProps subscriptionSyncPayload. */
-        subscriptionSyncPayload?: (Uint8Array|null);
+        subscriptionSyncPayload: Uint8Array;
 
         /** ClientPairingProps isBotJidDbMigrated. */
-        isBotJidDbMigrated?: (boolean|null);
+        isBotJidDbMigrated: boolean;
 
         /** ClientPairingProps companionAddPeerPayload. */
-        companionAddPeerPayload?: (Uint8Array|null);
+        companionAddPeerPayload: Uint8Array;
 
         /** ClientPairingProps isCompanionRegistrationFgsEnabled. */
-        isCompanionRegistrationFgsEnabled?: (boolean|null);
+        isCompanionRegistrationFgsEnabled: boolean;
 
         /**
          * Creates a new ClientPairingProps instance using the specified properties.
@@ -17307,10 +17316,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ClientPayload username. */
-        username?: (number|Long|null);
+        username: (number|Long);
 
         /** ClientPayload passive. */
-        passive?: (boolean|null);
+        passive: boolean;
 
         /** ClientPayload userAgent. */
         userAgent?: (proto.ClientPayload.UserAgent.$Properties|null);
@@ -17319,19 +17328,19 @@ export namespace proto {
         webInfo?: (proto.ClientPayload.WebInfo.$Properties|null);
 
         /** ClientPayload pushName. */
-        pushName?: (string|null);
+        pushName: string;
 
         /** ClientPayload sessionId. */
-        sessionId?: (number|null);
+        sessionId: number;
 
         /** ClientPayload shortConnect. */
-        shortConnect?: (boolean|null);
+        shortConnect: boolean;
 
         /** ClientPayload connectType. */
-        connectType?: (proto.ClientPayload.ConnectType|null);
+        connectType: proto.ClientPayload.ConnectType;
 
         /** ClientPayload connectReason. */
-        connectReason?: (proto.ClientPayload.ConnectReason|null);
+        connectReason: proto.ClientPayload.ConnectReason;
 
         /** ClientPayload shards. */
         shards: number[];
@@ -17340,82 +17349,82 @@ export namespace proto {
         dnsSource?: (proto.ClientPayload.DNSSource.$Properties|null);
 
         /** ClientPayload connectAttemptCount. */
-        connectAttemptCount?: (number|null);
+        connectAttemptCount: number;
 
         /** ClientPayload device. */
-        device?: (number|null);
+        device: number;
 
         /** ClientPayload devicePairingData. */
         devicePairingData?: (proto.ClientPayload.DevicePairingRegistrationData.$Properties|null);
 
         /** ClientPayload product. */
-        product?: (proto.ClientPayload.Product|null);
+        product: proto.ClientPayload.Product;
 
         /** ClientPayload fbCat. */
-        fbCat?: (Uint8Array|null);
+        fbCat: Uint8Array;
 
         /** ClientPayload fbUserAgent. */
-        fbUserAgent?: (Uint8Array|null);
+        fbUserAgent: Uint8Array;
 
         /** ClientPayload oc. */
-        oc?: (boolean|null);
+        oc: boolean;
 
         /** ClientPayload lc. */
-        lc?: (number|null);
+        lc: number;
 
         /** ClientPayload iosAppExtension. */
-        iosAppExtension?: (proto.ClientPayload.IOSAppExtension|null);
+        iosAppExtension: proto.ClientPayload.IOSAppExtension;
 
         /** ClientPayload fbAppId. */
-        fbAppId?: (number|Long|null);
+        fbAppId: (number|Long);
 
         /** ClientPayload fbDeviceId. */
-        fbDeviceId?: (Uint8Array|null);
+        fbDeviceId: Uint8Array;
 
         /** ClientPayload pull. */
-        pull?: (boolean|null);
+        pull: boolean;
 
         /** ClientPayload paddingBytes. */
-        paddingBytes?: (Uint8Array|null);
+        paddingBytes: Uint8Array;
 
         /** ClientPayload yearClass. */
-        yearClass?: (number|null);
+        yearClass: number;
 
         /** ClientPayload memClass. */
-        memClass?: (number|null);
+        memClass: number;
 
         /** ClientPayload interopData. */
         interopData?: (proto.ClientPayload.InteropData.$Properties|null);
 
         /** ClientPayload trafficAnonymization. */
-        trafficAnonymization?: (proto.ClientPayload.TrafficAnonymization|null);
+        trafficAnonymization: proto.ClientPayload.TrafficAnonymization;
 
         /** ClientPayload lidDbMigrated. */
-        lidDbMigrated?: (boolean|null);
+        lidDbMigrated: boolean;
 
         /** ClientPayload accountType. */
-        accountType?: (proto.ClientPayload.AccountType|null);
+        accountType: proto.ClientPayload.AccountType;
 
         /** ClientPayload connectionSequenceInfo. */
-        connectionSequenceInfo?: (number|null);
+        connectionSequenceInfo: number;
 
         /** ClientPayload paaLink. */
-        paaLink?: (boolean|null);
+        paaLink: boolean;
 
         /** ClientPayload preacksCount. */
-        preacksCount?: (number|null);
+        preacksCount: number;
 
         /** ClientPayload processingQueueSize. */
-        processingQueueSize?: (number|null);
+        processingQueueSize: number;
 
         /** ClientPayload pairedPeripherals. */
         pairedPeripherals: string[];
 
         /** ClientPayload testIsolationId. */
-        testIsolationId?: (Uint8Array|null);
+        testIsolationId: Uint8Array;
 
         /** ClientPayload messageSts. */
-        messageSts?: (number|Long|null);
+        messageSts: (number|Long);
 
         /** ClientPayload integrationAttestation. */
         integrationAttestation?: (proto.ClientPayload.IntegrationAttestation.$Properties|null);
@@ -17729,10 +17738,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** DNSSource dnsMethod. */
-            dnsMethod?: (proto.ClientPayload.DNSSource.DNSResolutionMethod|null);
+            dnsMethod: proto.ClientPayload.DNSSource.DNSResolutionMethod;
 
             /** DNSSource appCached. */
-            appCached?: (boolean|null);
+            appCached: boolean;
 
             /**
              * Creates a new DNSSource instance using the specified properties.
@@ -17880,28 +17889,28 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** DevicePairingRegistrationData eRegid. */
-            eRegid?: (Uint8Array|null);
+            eRegid: Uint8Array;
 
             /** DevicePairingRegistrationData eKeytype. */
-            eKeytype?: (Uint8Array|null);
+            eKeytype: Uint8Array;
 
             /** DevicePairingRegistrationData eIdent. */
-            eIdent?: (Uint8Array|null);
+            eIdent: Uint8Array;
 
             /** DevicePairingRegistrationData eSkeyId. */
-            eSkeyId?: (Uint8Array|null);
+            eSkeyId: Uint8Array;
 
             /** DevicePairingRegistrationData eSkeyVal. */
-            eSkeyVal?: (Uint8Array|null);
+            eSkeyVal: Uint8Array;
 
             /** DevicePairingRegistrationData eSkeySig. */
-            eSkeySig?: (Uint8Array|null);
+            eSkeySig: Uint8Array;
 
             /** DevicePairingRegistrationData buildHash. */
-            buildHash?: (Uint8Array|null);
+            buildHash: Uint8Array;
 
             /** DevicePairingRegistrationData deviceProps. */
-            deviceProps?: (Uint8Array|null);
+            deviceProps: Uint8Array;
 
             /**
              * Creates a new DevicePairingRegistrationData instance using the specified properties.
@@ -18052,10 +18061,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** IntegrationAttestation staticUnbound. */
-            staticUnbound?: (string|null);
+            staticUnbound: string;
 
             /** IntegrationAttestation onlineSigned. */
-            onlineSigned?: (string|null);
+            onlineSigned: string;
 
             /**
              * Creates a new IntegrationAttestation instance using the specified properties.
@@ -18175,13 +18184,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** InteropData accountId. */
-            accountId?: (number|Long|null);
+            accountId: (number|Long);
 
             /** InteropData token. */
-            token?: (Uint8Array|null);
+            token: Uint8Array;
 
             /** InteropData enableReadReceipts. */
-            enableReadReceipts?: (boolean|null);
+            enableReadReceipts: boolean;
 
             /**
              * Creates a new InteropData instance using the specified properties.
@@ -18333,55 +18342,55 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** UserAgent platform. */
-            platform?: (proto.ClientPayload.UserAgent.Platform|null);
+            platform: proto.ClientPayload.UserAgent.Platform;
 
             /** UserAgent appVersion. */
             appVersion?: (proto.ClientPayload.UserAgent.AppVersion.$Properties|null);
 
             /** UserAgent mcc. */
-            mcc?: (string|null);
+            mcc: string;
 
             /** UserAgent mnc. */
-            mnc?: (string|null);
+            mnc: string;
 
             /** UserAgent osVersion. */
-            osVersion?: (string|null);
+            osVersion: string;
 
             /** UserAgent manufacturer. */
-            manufacturer?: (string|null);
+            manufacturer: string;
 
             /** UserAgent device. */
-            device?: (string|null);
+            device: string;
 
             /** UserAgent osBuildNumber. */
-            osBuildNumber?: (string|null);
+            osBuildNumber: string;
 
             /** UserAgent phoneId. */
-            phoneId?: (string|null);
+            phoneId: string;
 
             /** UserAgent releaseChannel. */
-            releaseChannel?: (proto.ClientPayload.UserAgent.ReleaseChannel|null);
+            releaseChannel: proto.ClientPayload.UserAgent.ReleaseChannel;
 
             /** UserAgent localeLanguageIso6391. */
-            localeLanguageIso6391?: (string|null);
+            localeLanguageIso6391: string;
 
             /** UserAgent localeCountryIso31661Alpha2. */
-            localeCountryIso31661Alpha2?: (string|null);
+            localeCountryIso31661Alpha2: string;
 
             /** UserAgent deviceBoard. */
-            deviceBoard?: (string|null);
+            deviceBoard: string;
 
             /** UserAgent deviceExpId. */
-            deviceExpId?: (string|null);
+            deviceExpId: string;
 
             /** UserAgent deviceType. */
-            deviceType?: (proto.ClientPayload.UserAgent.DeviceType|null);
+            deviceType: proto.ClientPayload.UserAgent.DeviceType;
 
             /** UserAgent deviceModelType. */
-            deviceModelType?: (string|null);
+            deviceModelType: string;
 
             /** UserAgent distributionChannel. */
-            distributionChannel?: (proto.ClientPayload.UserAgent.DistributionChannel|null);
+            distributionChannel: proto.ClientPayload.UserAgent.DistributionChannel;
 
             /**
              * Creates a new UserAgent instance using the specified properties.
@@ -18545,19 +18554,19 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** AppVersion primary. */
-                primary?: (number|null);
+                primary: number;
 
                 /** AppVersion secondary. */
-                secondary?: (number|null);
+                secondary: number;
 
                 /** AppVersion tertiary. */
-                tertiary?: (number|null);
+                tertiary: number;
 
                 /** AppVersion quaternary. */
-                quaternary?: (number|null);
+                quaternary: number;
 
                 /** AppVersion quinary. */
-                quinary?: (number|null);
+                quinary: number;
 
                 /**
                  * Creates a new AppVersion instance using the specified properties.
@@ -18877,22 +18886,22 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** WebInfo refToken. */
-            refToken?: (string|null);
+            refToken: string;
 
             /** WebInfo version. */
-            version?: (string|null);
+            version: string;
 
             /** WebInfo webdPayload. */
             webdPayload?: (proto.ClientPayload.WebInfo.WebdPayload.$Properties|null);
 
             /** WebInfo webSubPlatform. */
-            webSubPlatform?: (proto.ClientPayload.WebInfo.WebSubPlatform|null);
+            webSubPlatform: proto.ClientPayload.WebInfo.WebSubPlatform;
 
             /** WebInfo browser. */
-            browser?: (string|null);
+            browser: string;
 
             /** WebInfo browserVersion. */
-            browserVersion?: (string|null);
+            browserVersion: string;
 
             /**
              * Creates a new WebInfo instance using the specified properties.
@@ -19045,37 +19054,37 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** WebdPayload usesParticipantInKey. */
-                usesParticipantInKey?: (boolean|null);
+                usesParticipantInKey: boolean;
 
                 /** WebdPayload supportsStarredMessages. */
-                supportsStarredMessages?: (boolean|null);
+                supportsStarredMessages: boolean;
 
                 /** WebdPayload supportsDocumentMessages. */
-                supportsDocumentMessages?: (boolean|null);
+                supportsDocumentMessages: boolean;
 
                 /** WebdPayload supportsUrlMessages. */
-                supportsUrlMessages?: (boolean|null);
+                supportsUrlMessages: boolean;
 
                 /** WebdPayload supportsMediaRetry. */
-                supportsMediaRetry?: (boolean|null);
+                supportsMediaRetry: boolean;
 
                 /** WebdPayload supportsE2EImage. */
-                supportsE2EImage?: (boolean|null);
+                supportsE2EImage: boolean;
 
                 /** WebdPayload supportsE2EVideo. */
-                supportsE2EVideo?: (boolean|null);
+                supportsE2EVideo: boolean;
 
                 /** WebdPayload supportsE2EAudio. */
-                supportsE2EAudio?: (boolean|null);
+                supportsE2EAudio: boolean;
 
                 /** WebdPayload supportsE2EDocument. */
-                supportsE2EDocument?: (boolean|null);
+                supportsE2EDocument: boolean;
 
                 /** WebdPayload documentTypes. */
-                documentTypes?: (string|null);
+                documentTypes: string;
 
                 /** WebdPayload features. */
-                features?: (Uint8Array|null);
+                features: Uint8Array;
 
                 /**
                  * Creates a new WebdPayload instance using the specified properties.
@@ -19340,7 +19349,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** CollectionMutations collection. */
-            collection?: (string|null);
+            collection: string;
 
             /** CollectionMutations mutations. */
             mutations: proto.CoexStateSync.Mutation.$Properties[];
@@ -19469,10 +19478,10 @@ export namespace proto {
             value?: (proto.SyncdValue.$Properties|null);
 
             /** Mutation dirtyVersion. */
-            dirtyVersion?: (number|Long|null);
+            dirtyVersion: (number|Long);
 
             /** Mutation operation. */
-            operation?: (proto.SyncdMutation.SyncdOperation|null);
+            operation: proto.SyncdMutation.SyncdOperation;
 
             /**
              * Creates a new Mutation instance using the specified properties.
@@ -19624,7 +19633,7 @@ export namespace proto {
         commentParentKey?: (proto.MessageKey.$Properties|null);
 
         /** CommentMetadata replyCount. */
-        replyCount?: (number|null);
+        replyCount: number;
 
         /**
          * Creates a new CommentMetadata instance using the specified properties.
@@ -19744,7 +19753,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** CompanionCommitment hash. */
-        hash?: (Uint8Array|null);
+        hash: Uint8Array;
 
         /**
          * Creates a new CompanionCommitment instance using the specified properties.
@@ -19861,13 +19870,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** CompanionEphemeralIdentity publicKey. */
-        publicKey?: (Uint8Array|null);
+        publicKey: Uint8Array;
 
         /** CompanionEphemeralIdentity deviceType. */
-        deviceType?: (proto.DeviceProps.PlatformType|null);
+        deviceType: proto.DeviceProps.PlatformType;
 
         /** CompanionEphemeralIdentity ref. */
-        ref?: (string|null);
+        ref: string;
 
         /**
          * Creates a new CompanionEphemeralIdentity instance using the specified properties.
@@ -20107,34 +20116,34 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ContextInfo stanzaId. */
-        stanzaId?: (string|null);
+        stanzaId: string;
 
         /** ContextInfo participant. */
-        participant?: (string|null);
+        participant: string;
 
         /** ContextInfo quotedMessage. */
         quotedMessage?: (proto.Message.$Properties|null);
 
         /** ContextInfo remoteJid. */
-        remoteJid?: (string|null);
+        remoteJid: string;
 
         /** ContextInfo mentionedJid. */
         mentionedJid: string[];
 
         /** ContextInfo conversionSource. */
-        conversionSource?: (string|null);
+        conversionSource: string;
 
         /** ContextInfo conversionData. */
-        conversionData?: (Uint8Array|null);
+        conversionData: Uint8Array;
 
         /** ContextInfo conversionDelaySeconds. */
-        conversionDelaySeconds?: (number|null);
+        conversionDelaySeconds: number;
 
         /** ContextInfo forwardingScore. */
-        forwardingScore?: (number|null);
+        forwardingScore: number;
 
         /** ContextInfo isForwarded. */
-        isForwarded?: (boolean|null);
+        isForwarded: boolean;
 
         /** ContextInfo quotedAd. */
         quotedAd?: (proto.ContextInfo.AdReplyInfo.$Properties|null);
@@ -20143,25 +20152,25 @@ export namespace proto {
         placeholderKey?: (proto.MessageKey.$Properties|null);
 
         /** ContextInfo expiration. */
-        expiration?: (number|null);
+        expiration: number;
 
         /** ContextInfo ephemeralSettingTimestamp. */
-        ephemeralSettingTimestamp?: (number|Long|null);
+        ephemeralSettingTimestamp: (number|Long);
 
         /** ContextInfo ephemeralSharedSecret. */
-        ephemeralSharedSecret?: (Uint8Array|null);
+        ephemeralSharedSecret: Uint8Array;
 
         /** ContextInfo externalAdReply. */
         externalAdReply?: (proto.ContextInfo.ExternalAdReplyInfo.$Properties|null);
 
         /** ContextInfo entryPointConversionSource. */
-        entryPointConversionSource?: (string|null);
+        entryPointConversionSource: string;
 
         /** ContextInfo entryPointConversionApp. */
-        entryPointConversionApp?: (string|null);
+        entryPointConversionApp: string;
 
         /** ContextInfo entryPointConversionDelaySeconds. */
-        entryPointConversionDelaySeconds?: (number|null);
+        entryPointConversionDelaySeconds: number;
 
         /** ContextInfo disappearingMode. */
         disappearingMode?: (proto.DisappearingMode.$Properties|null);
@@ -20170,19 +20179,19 @@ export namespace proto {
         actionLink?: (proto.ActionLink.$Properties|null);
 
         /** ContextInfo groupSubject. */
-        groupSubject?: (string|null);
+        groupSubject: string;
 
         /** ContextInfo parentGroupJid. */
-        parentGroupJid?: (string|null);
+        parentGroupJid: string;
 
         /** ContextInfo trustBannerType. */
-        trustBannerType?: (string|null);
+        trustBannerType: string;
 
         /** ContextInfo trustBannerAction. */
-        trustBannerAction?: (number|null);
+        trustBannerAction: number;
 
         /** ContextInfo isSampled. */
-        isSampled?: (boolean|null);
+        isSampled: boolean;
 
         /** ContextInfo groupMentions. */
         groupMentions: proto.GroupMention.$Properties[];
@@ -20197,64 +20206,64 @@ export namespace proto {
         businessMessageForwardInfo?: (proto.ContextInfo.BusinessMessageForwardInfo.$Properties|null);
 
         /** ContextInfo smbClientCampaignId. */
-        smbClientCampaignId?: (string|null);
+        smbClientCampaignId: string;
 
         /** ContextInfo smbServerCampaignId. */
-        smbServerCampaignId?: (string|null);
+        smbServerCampaignId: string;
 
         /** ContextInfo dataSharingContext. */
         dataSharingContext?: (proto.ContextInfo.DataSharingContext.$Properties|null);
 
         /** ContextInfo alwaysShowAdAttribution. */
-        alwaysShowAdAttribution?: (boolean|null);
+        alwaysShowAdAttribution: boolean;
 
         /** ContextInfo featureEligibilities. */
         featureEligibilities?: (proto.ContextInfo.FeatureEligibilities.$Properties|null);
 
         /** ContextInfo entryPointConversionExternalSource. */
-        entryPointConversionExternalSource?: (string|null);
+        entryPointConversionExternalSource: string;
 
         /** ContextInfo entryPointConversionExternalMedium. */
-        entryPointConversionExternalMedium?: (string|null);
+        entryPointConversionExternalMedium: string;
 
         /** ContextInfo ctwaSignals. */
-        ctwaSignals?: (string|null);
+        ctwaSignals: string;
 
         /** ContextInfo ctwaPayload. */
-        ctwaPayload?: (Uint8Array|null);
+        ctwaPayload: Uint8Array;
 
         /** ContextInfo forwardedAiBotMessageInfo. */
         forwardedAiBotMessageInfo?: (proto.ForwardedAIBotMessageInfo.$Properties|null);
 
         /** ContextInfo statusAttributionType. */
-        statusAttributionType?: (proto.ContextInfo.StatusAttributionType|null);
+        statusAttributionType: proto.ContextInfo.StatusAttributionType;
 
         /** ContextInfo urlTrackingMap. */
         urlTrackingMap?: (proto.UrlTrackingMap.$Properties|null);
 
         /** ContextInfo pairedMediaType. */
-        pairedMediaType?: (proto.ContextInfo.PairedMediaType|null);
+        pairedMediaType: proto.ContextInfo.PairedMediaType;
 
         /** ContextInfo rankingVersion. */
-        rankingVersion?: (number|null);
+        rankingVersion: number;
 
         /** ContextInfo memberLabel. */
         memberLabel?: (proto.MemberLabel.$Properties|null);
 
         /** ContextInfo isQuestion. */
-        isQuestion?: (boolean|null);
+        isQuestion: boolean;
 
         /** ContextInfo statusSourceType. */
-        statusSourceType?: (proto.ContextInfo.StatusSourceType|null);
+        statusSourceType: proto.ContextInfo.StatusSourceType;
 
         /** ContextInfo statusAttributions. */
         statusAttributions: proto.StatusAttribution.$Properties[];
 
         /** ContextInfo isGroupStatus. */
-        isGroupStatus?: (boolean|null);
+        isGroupStatus: boolean;
 
         /** ContextInfo forwardOrigin. */
-        forwardOrigin?: (proto.ContextInfo.ForwardOrigin|null);
+        forwardOrigin: proto.ContextInfo.ForwardOrigin;
 
         /** ContextInfo questionReplyQuotedMessage. */
         questionReplyQuotedMessage?: (proto.ContextInfo.QuestionReplyQuotedMessage.$Properties|null);
@@ -20263,16 +20272,16 @@ export namespace proto {
         statusAudienceMetadata?: (proto.ContextInfo.StatusAudienceMetadata.$Properties|null);
 
         /** ContextInfo nonJidMentions. */
-        nonJidMentions?: (number|null);
+        nonJidMentions: number;
 
         /** ContextInfo quotedType. */
-        quotedType?: (proto.ContextInfo.QuotedType|null);
+        quotedType: proto.ContextInfo.QuotedType;
 
         /** ContextInfo botMessageSharingInfo. */
         botMessageSharingInfo?: (proto.BotMessageSharingInfo.$Properties|null);
 
         /** ContextInfo isSpoiler. */
-        isSpoiler?: (boolean|null);
+        isSpoiler: boolean;
 
         /** ContextInfo mediaDomainInfo. */
         mediaDomainInfo?: (proto.MediaDomainInfo.$Properties|null);
@@ -20281,16 +20290,16 @@ export namespace proto {
         partiallySelectedContent?: (proto.ContextInfo.PartiallySelectedContent.$Properties|null);
 
         /** ContextInfo afterReadDuration. */
-        afterReadDuration?: (number|null);
+        afterReadDuration: number;
 
         /** ContextInfo crossAppSource. */
-        crossAppSource?: (proto.ContextInfo.CrossAppSource|null);
+        crossAppSource: proto.ContextInfo.CrossAppSource;
 
         /** ContextInfo businessInteractionPills. */
         businessInteractionPills?: (proto.ContextInfo.BusinessInteractionPills.$Properties|null);
 
         /** ContextInfo posterStatusId. */
-        posterStatusId?: (string|null);
+        posterStatusId: string;
 
         /** ContextInfo instagramThreadLink. */
         instagramThreadLink?: (proto.ContextInfo.InstagramThreadLink.$Properties|null);
@@ -20302,13 +20311,19 @@ export namespace proto {
         experienceIds: number[];
 
         /** ContextInfo partnerDeepLinkToken. */
-        partnerDeepLinkToken?: (string|null);
+        partnerDeepLinkToken: string;
 
         /** ContextInfo sourceExperienceId. */
-        sourceExperienceId?: (number|null);
+        sourceExperienceId: number;
 
         /** ContextInfo sourceExperienceIds. */
         sourceExperienceIds: number[];
+
+        /** ContextInfo foaMutualsSignature. */
+        foaMutualsSignature: Uint8Array;
+
+        /** ContextInfo forwardReachScore. */
+        forwardReachScore: number;
 
         /**
          * Creates a new ContextInfo instance using the specified properties.
@@ -20598,6 +20613,12 @@ export namespace proto {
             /** ContextInfo sourceExperienceIds */
             sourceExperienceIds?: (number[]|null);
 
+            /** ContextInfo foaMutualsSignature */
+            foaMutualsSignature?: (Uint8Array|null);
+
+            /** ContextInfo forwardReachScore */
+            forwardReachScore?: (number|null);
+
             /** Unknown fields preserved while decoding when enabled */
             $unknowns?: Uint8Array[];
         }
@@ -20672,6 +20693,8 @@ export namespace proto {
           partnerDeepLinkToken?: string|null;
           sourceExperienceId?: number|null;
           sourceExperienceIds?: number[]|null;
+          foaMutualsSignature?: Uint8Array|null;
+          forwardReachScore?: number|null;
           $unknowns?: Uint8Array[];
         };
 
@@ -20695,16 +20718,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AdReplyInfo advertiserName. */
-            advertiserName?: (string|null);
+            advertiserName: string;
 
             /** AdReplyInfo mediaType. */
-            mediaType?: (proto.ContextInfo.AdReplyInfo.MediaType|null);
+            mediaType: proto.ContextInfo.AdReplyInfo.MediaType;
 
             /** AdReplyInfo jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /** AdReplyInfo caption. */
-            caption?: (string|null);
+            caption: string;
 
             /**
              * Creates a new AdReplyInfo instance using the specified properties.
@@ -20843,16 +20866,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BusinessInteractionPills businessJid. */
-            businessJid?: (string|null);
+            businessJid: string;
 
             /** BusinessInteractionPills pills. */
             pills: proto.ContextInfo.BusinessInteractionPills.Pill.$Properties[];
 
             /** BusinessInteractionPills entryPoint. */
-            entryPoint?: (proto.ContextInfo.BusinessInteractionPills.EntryPoint|null);
+            entryPoint: proto.ContextInfo.BusinessInteractionPills.EntryPoint;
 
             /** BusinessInteractionPills signedPayload. */
-            signedPayload?: (Uint8Array|null);
+            signedPayload: Uint8Array;
 
             /** BusinessInteractionPills signatureEnvelope. */
             signatureEnvelope?: (proto.BotSignatureVerificationMetadata.$Properties|null);
@@ -21011,10 +21034,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Pill pillType. */
-                pillType?: (proto.ContextInfo.BusinessInteractionPills.PillType|null);
+                pillType: proto.ContextInfo.BusinessInteractionPills.PillType;
 
                 /** Pill actionUrl. */
-                actionUrl?: (string|null);
+                actionUrl: string;
 
                 /**
                  * Creates a new Pill instance using the specified properties.
@@ -21177,7 +21200,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** SignedPayload verifiedName. */
-                verifiedName?: (string|null);
+                verifiedName: string;
 
                 /** SignedPayload pills. */
                 pills: proto.ContextInfo.BusinessInteractionPills.Pill.$Properties[];
@@ -21300,16 +21323,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** UnauthenticatedBusinessMetadata businessName. */
-                businessName?: (string|null);
+                businessName: string;
 
                 /** UnauthenticatedBusinessMetadata businessCategory. */
-                businessCategory?: (string|null);
+                businessCategory: string;
 
                 /** UnauthenticatedBusinessMetadata businessIsOpen. */
-                businessIsOpen?: (boolean|null);
+                businessIsOpen: boolean;
 
                 /** UnauthenticatedBusinessMetadata businessIsOpenSnapshotMs. */
-                businessIsOpenSnapshotMs?: (number|Long|null);
+                businessIsOpenSnapshotMs: (number|Long);
 
                 /**
                  * Creates a new UnauthenticatedBusinessMetadata instance using the specified properties.
@@ -21436,7 +21459,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BusinessMessageForwardInfo businessOwnerJid. */
-            businessOwnerJid?: (string|null);
+            businessOwnerJid: string;
 
             /**
              * Creates a new BusinessMessageForwardInfo instance using the specified properties.
@@ -21566,16 +21589,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** DataSharingContext showMmDisclosure. */
-            showMmDisclosure?: (boolean|null);
+            showMmDisclosure: boolean;
 
             /** DataSharingContext encryptedSignalTokenConsented. */
-            encryptedSignalTokenConsented?: (string|null);
+            encryptedSignalTokenConsented: string;
 
             /** DataSharingContext parameters. */
             parameters: proto.ContextInfo.DataSharingContext.Parameters.$Properties[];
 
             /** DataSharingContext dataSharingFlags. */
-            dataSharingFlags?: (number|null);
+            dataSharingFlags: number;
 
             /**
              * Creates a new DataSharingContext instance using the specified properties.
@@ -21710,16 +21733,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Parameters key. */
-                key?: (string|null);
+                key: string;
 
                 /** Parameters stringData. */
-                stringData?: (string|null);
+                stringData: string;
 
                 /** Parameters intData. */
-                intData?: (number|Long|null);
+                intData: (number|Long);
 
                 /** Parameters floatData. */
-                floatData?: (number|null);
+                floatData: number;
 
                 /** Parameters contents. */
                 contents?: (proto.ContextInfo.DataSharingContext.Parameters.$Properties|null);
@@ -21852,127 +21875,127 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ExternalAdReplyInfo title. */
-            title?: (string|null);
+            title: string;
 
             /** ExternalAdReplyInfo body. */
-            body?: (string|null);
+            body: string;
 
             /** ExternalAdReplyInfo mediaType. */
-            mediaType?: (proto.ContextInfo.ExternalAdReplyInfo.MediaType|null);
+            mediaType: proto.ContextInfo.ExternalAdReplyInfo.MediaType;
 
             /** ExternalAdReplyInfo thumbnailUrl. */
-            thumbnailUrl?: (string|null);
+            thumbnailUrl: string;
 
             /** ExternalAdReplyInfo mediaUrl. */
-            mediaUrl?: (string|null);
+            mediaUrl: string;
 
             /** ExternalAdReplyInfo thumbnail. */
-            thumbnail?: (Uint8Array|null);
+            thumbnail: Uint8Array;
 
             /** ExternalAdReplyInfo sourceType. */
-            sourceType?: (string|null);
+            sourceType: string;
 
             /** ExternalAdReplyInfo sourceId. */
-            sourceId?: (string|null);
+            sourceId: string;
 
             /** ExternalAdReplyInfo sourceUrl. */
-            sourceUrl?: (string|null);
+            sourceUrl: string;
 
             /** ExternalAdReplyInfo containsAutoReply. */
-            containsAutoReply?: (boolean|null);
+            containsAutoReply: boolean;
 
             /** ExternalAdReplyInfo renderLargerThumbnail. */
-            renderLargerThumbnail?: (boolean|null);
+            renderLargerThumbnail: boolean;
 
             /** ExternalAdReplyInfo showAdAttribution. */
-            showAdAttribution?: (boolean|null);
+            showAdAttribution: boolean;
 
             /** ExternalAdReplyInfo ctwaClid. */
-            ctwaClid?: (string|null);
+            ctwaClid: string;
 
             /** ExternalAdReplyInfo ref. */
-            ref?: (string|null);
+            ref: string;
 
             /** ExternalAdReplyInfo clickToWhatsappCall. */
-            clickToWhatsappCall?: (boolean|null);
+            clickToWhatsappCall: boolean;
 
             /** ExternalAdReplyInfo adContextPreviewDismissed. */
-            adContextPreviewDismissed?: (boolean|null);
+            adContextPreviewDismissed: boolean;
 
             /** ExternalAdReplyInfo sourceApp. */
-            sourceApp?: (string|null);
+            sourceApp: string;
 
             /** ExternalAdReplyInfo automatedGreetingMessageShown. */
-            automatedGreetingMessageShown?: (boolean|null);
+            automatedGreetingMessageShown: boolean;
 
             /** ExternalAdReplyInfo greetingMessageBody. */
-            greetingMessageBody?: (string|null);
+            greetingMessageBody: string;
 
             /** ExternalAdReplyInfo ctaPayload. */
-            ctaPayload?: (string|null);
+            ctaPayload: string;
 
             /** ExternalAdReplyInfo disableNudge. */
-            disableNudge?: (boolean|null);
+            disableNudge: boolean;
 
             /** ExternalAdReplyInfo originalImageUrl. */
-            originalImageUrl?: (string|null);
+            originalImageUrl: string;
 
             /** ExternalAdReplyInfo automatedGreetingMessageCtaType. */
-            automatedGreetingMessageCtaType?: (string|null);
+            automatedGreetingMessageCtaType: string;
 
             /** ExternalAdReplyInfo wtwaAdFormat. */
-            wtwaAdFormat?: (boolean|null);
+            wtwaAdFormat: boolean;
 
             /** ExternalAdReplyInfo adType. */
-            adType?: (proto.ContextInfo.ExternalAdReplyInfo.AdType|null);
+            adType: proto.ContextInfo.ExternalAdReplyInfo.AdType;
 
             /** ExternalAdReplyInfo wtwaWebsiteUrl. */
-            wtwaWebsiteUrl?: (string|null);
+            wtwaWebsiteUrl: string;
 
             /** ExternalAdReplyInfo adPreviewUrl. */
-            adPreviewUrl?: (string|null);
+            adPreviewUrl: string;
 
             /** ExternalAdReplyInfo containsCtwaFlowsAutoReply. */
-            containsCtwaFlowsAutoReply?: (boolean|null);
+            containsCtwaFlowsAutoReply: boolean;
 
             /** ExternalAdReplyInfo agmThumbnailStrategy. */
-            agmThumbnailStrategy?: (number|null);
+            agmThumbnailStrategy: number;
 
             /** ExternalAdReplyInfo agmTitleStrategy. */
-            agmTitleStrategy?: (number|null);
+            agmTitleStrategy: number;
 
             /** ExternalAdReplyInfo agmSubtitleStrategy. */
-            agmSubtitleStrategy?: (number|null);
+            agmSubtitleStrategy: number;
 
             /** ExternalAdReplyInfo agmHeaderInteractionStrategy. */
-            agmHeaderInteractionStrategy?: (number|null);
+            agmHeaderInteractionStrategy: number;
 
             /** ExternalAdReplyInfo containsCtwaFlowsAutoLabel. */
-            containsCtwaFlowsAutoLabel?: (boolean|null);
+            containsCtwaFlowsAutoLabel: boolean;
 
             /** ExternalAdReplyInfo productId. */
-            productId?: (string|null);
+            productId: string;
 
             /** ExternalAdReplyInfo containsCtwaPromo. */
-            containsCtwaPromo?: (boolean|null);
+            containsCtwaPromo: boolean;
 
             /** ExternalAdReplyInfo ctwaPromoResponseId. */
-            ctwaPromoResponseId?: (string|null);
+            ctwaPromoResponseId: string;
 
             /** ExternalAdReplyInfo ctwaPromoOfferId. */
-            ctwaPromoOfferId?: (string|null);
+            ctwaPromoOfferId: string;
 
             /** ExternalAdReplyInfo ctwaPromoAdEntryId. */
-            ctwaPromoAdEntryId?: (string|null);
+            ctwaPromoAdEntryId: string;
 
             /** ExternalAdReplyInfo ctwaPromoResponseExpiresAtSeconds. */
-            ctwaPromoResponseExpiresAtSeconds?: (number|Long|null);
+            ctwaPromoResponseExpiresAtSeconds: (number|Long);
 
             /** ExternalAdReplyInfo ctwaPromoSchemaVersion. */
-            ctwaPromoSchemaVersion?: (number|null);
+            ctwaPromoSchemaVersion: number;
 
             /** ExternalAdReplyInfo ctwaPromoAdgroupId. */
-            ctwaPromoAdgroupId?: (string|null);
+            ctwaPromoAdgroupId: string;
 
             /**
              * Creates a new ExternalAdReplyInfo instance using the specified properties.
@@ -22232,19 +22255,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** FeatureEligibilities cannotBeReactedTo. */
-            cannotBeReactedTo?: (boolean|null);
+            cannotBeReactedTo: boolean;
 
             /** FeatureEligibilities cannotBeRanked. */
-            cannotBeRanked?: (boolean|null);
+            cannotBeRanked: boolean;
 
             /** FeatureEligibilities canRequestFeedback. */
-            canRequestFeedback?: (boolean|null);
+            canRequestFeedback: boolean;
 
             /** FeatureEligibilities canBeReshared. */
-            canBeReshared?: (boolean|null);
+            canBeReshared: boolean;
 
             /** FeatureEligibilities canReceiveMultiReact. */
-            canReceiveMultiReact?: (boolean|null);
+            canReceiveMultiReact: boolean;
 
             /**
              * Creates a new FeatureEligibilities instance using the specified properties.
@@ -22395,22 +22418,22 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ForwardedNewsletterMessageInfo newsletterJid. */
-            newsletterJid?: (string|null);
+            newsletterJid: string;
 
             /** ForwardedNewsletterMessageInfo serverMessageId. */
-            serverMessageId?: (number|null);
+            serverMessageId: number;
 
             /** ForwardedNewsletterMessageInfo newsletterName. */
-            newsletterName?: (string|null);
+            newsletterName: string;
 
             /** ForwardedNewsletterMessageInfo contentType. */
-            contentType?: (proto.ContextInfo.ForwardedNewsletterMessageInfo.ContentType|null);
+            contentType: proto.ContextInfo.ForwardedNewsletterMessageInfo.ContentType;
 
             /** ForwardedNewsletterMessageInfo accessibilityText. */
-            accessibilityText?: (string|null);
+            accessibilityText: string;
 
             /** ForwardedNewsletterMessageInfo profileName. */
-            profileName?: (string|null);
+            profileName: string;
 
             /**
              * Creates a new ForwardedNewsletterMessageInfo instance using the specified properties.
@@ -22555,7 +22578,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** InstagramThreadLink url. */
-            url?: (string|null);
+            url: string;
 
             /**
              * Creates a new InstagramThreadLink instance using the specified properties.
@@ -22721,7 +22744,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PartiallySelectedContent text. */
-            text?: (string|null);
+            text: string;
 
             /**
              * Creates a new PartiallySelectedContent instance using the specified properties.
@@ -22838,7 +22861,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** QuestionReplyQuotedMessage serverQuestionId. */
-            serverQuestionId?: (number|null);
+            serverQuestionId: number;
 
             /** QuestionReplyQuotedMessage quotedQuestion. */
             quotedQuestion?: (proto.Message.$Properties|null);
@@ -23001,16 +23024,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** StatusAudienceMetadata audienceType. */
-            audienceType?: (proto.ContextInfo.StatusAudienceMetadata.AudienceType|null);
+            audienceType: proto.ContextInfo.StatusAudienceMetadata.AudienceType;
 
             /** StatusAudienceMetadata listName. */
-            listName?: (string|null);
+            listName: string;
 
             /** StatusAudienceMetadata listEmoji. */
-            listEmoji?: (string|null);
+            listEmoji: string;
 
             /** StatusAudienceMetadata orgId. */
-            orgId?: (string|null);
+            orgId: string;
 
             /**
              * Creates a new StatusAudienceMetadata instance using the specified properties.
@@ -23174,10 +23197,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** UTMInfo utmSource. */
-            utmSource?: (string|null);
+            utmSource: string;
 
             /** UTMInfo utmCampaign. */
-            utmCampaign?: (string|null);
+            utmCampaign: string;
 
             /**
              * Creates a new UTMInfo instance using the specified properties.
@@ -23304,184 +23327,184 @@ export namespace proto {
         messages: proto.HistorySyncMsg.$Properties[];
 
         /** Conversation newJid. */
-        newJid?: (string|null);
+        newJid: string;
 
         /** Conversation oldJid. */
-        oldJid?: (string|null);
+        oldJid: string;
 
         /** Conversation lastMsgTimestamp. */
-        lastMsgTimestamp?: (number|Long|null);
+        lastMsgTimestamp: (number|Long);
 
         /** Conversation unreadCount. */
-        unreadCount?: (number|null);
+        unreadCount: number;
 
         /** Conversation readOnly. */
-        readOnly?: (boolean|null);
+        readOnly: boolean;
 
         /** Conversation endOfHistoryTransfer. */
-        endOfHistoryTransfer?: (boolean|null);
+        endOfHistoryTransfer: boolean;
 
         /** Conversation ephemeralExpiration. */
-        ephemeralExpiration?: (number|null);
+        ephemeralExpiration: number;
 
         /** Conversation ephemeralSettingTimestamp. */
-        ephemeralSettingTimestamp?: (number|Long|null);
+        ephemeralSettingTimestamp: (number|Long);
 
         /** Conversation endOfHistoryTransferType. */
-        endOfHistoryTransferType?: (proto.Conversation.EndOfHistoryTransferType|null);
+        endOfHistoryTransferType: proto.Conversation.EndOfHistoryTransferType;
 
         /** Conversation conversationTimestamp. */
-        conversationTimestamp?: (number|Long|null);
+        conversationTimestamp: (number|Long);
 
         /** Conversation name. */
-        name?: (string|null);
+        name: string;
 
         /** Conversation pHash. */
-        pHash?: (string|null);
+        pHash: string;
 
         /** Conversation notSpam. */
-        notSpam?: (boolean|null);
+        notSpam: boolean;
 
         /** Conversation archived. */
-        archived?: (boolean|null);
+        archived: boolean;
 
         /** Conversation disappearingMode. */
         disappearingMode?: (proto.DisappearingMode.$Properties|null);
 
         /** Conversation unreadMentionCount. */
-        unreadMentionCount?: (number|null);
+        unreadMentionCount: number;
 
         /** Conversation markedAsUnread. */
-        markedAsUnread?: (boolean|null);
+        markedAsUnread: boolean;
 
         /** Conversation participant. */
         participant: proto.GroupParticipant.$Properties[];
 
         /** Conversation tcToken. */
-        tcToken?: (Uint8Array|null);
+        tcToken: Uint8Array;
 
         /** Conversation tcTokenTimestamp. */
-        tcTokenTimestamp?: (number|Long|null);
+        tcTokenTimestamp: (number|Long);
 
         /** Conversation contactPrimaryIdentityKey. */
-        contactPrimaryIdentityKey?: (Uint8Array|null);
+        contactPrimaryIdentityKey: Uint8Array;
 
         /** Conversation pinned. */
-        pinned?: (number|null);
+        pinned: number;
 
         /** Conversation muteEndTime. */
-        muteEndTime?: (number|Long|null);
+        muteEndTime: (number|Long);
 
         /** Conversation wallpaper. */
         wallpaper?: (proto.WallpaperSettings.$Properties|null);
 
         /** Conversation mediaVisibility. */
-        mediaVisibility?: (proto.MediaVisibility|null);
+        mediaVisibility: proto.MediaVisibility;
 
         /** Conversation tcTokenSenderTimestamp. */
-        tcTokenSenderTimestamp?: (number|Long|null);
+        tcTokenSenderTimestamp: (number|Long);
 
         /** Conversation suspended. */
-        suspended?: (boolean|null);
+        suspended: boolean;
 
         /** Conversation terminated. */
-        terminated?: (boolean|null);
+        terminated: boolean;
 
         /** Conversation createdAt. */
-        createdAt?: (number|Long|null);
+        createdAt: (number|Long);
 
         /** Conversation createdBy. */
-        createdBy?: (string|null);
+        createdBy: string;
 
         /** Conversation description. */
-        description?: (string|null);
+        description: string;
 
         /** Conversation support. */
-        support?: (boolean|null);
+        support: boolean;
 
         /** Conversation isParentGroup. */
-        isParentGroup?: (boolean|null);
+        isParentGroup: boolean;
 
         /** Conversation parentGroupId. */
-        parentGroupId?: (string|null);
+        parentGroupId: string;
 
         /** Conversation isDefaultSubgroup. */
-        isDefaultSubgroup?: (boolean|null);
+        isDefaultSubgroup: boolean;
 
         /** Conversation displayName. */
-        displayName?: (string|null);
+        displayName: string;
 
         /** Conversation pnJid. */
-        pnJid?: (string|null);
+        pnJid: string;
 
         /** Conversation shareOwnPn. */
-        shareOwnPn?: (boolean|null);
+        shareOwnPn: boolean;
 
         /** Conversation pnhDuplicateLidThread. */
-        pnhDuplicateLidThread?: (boolean|null);
+        pnhDuplicateLidThread: boolean;
 
         /** Conversation lidJid. */
-        lidJid?: (string|null);
+        lidJid: string;
 
         /** Conversation username. */
-        username?: (string|null);
+        username: string;
 
         /** Conversation lidOriginType. */
-        lidOriginType?: (string|null);
+        lidOriginType: string;
 
         /** Conversation commentsCount. */
-        commentsCount?: (number|null);
+        commentsCount: number;
 
         /** Conversation locked. */
-        locked?: (boolean|null);
+        locked: boolean;
 
         /** Conversation systemMessageToInsert. */
-        systemMessageToInsert?: (proto.PrivacySystemMessage|null);
+        systemMessageToInsert: proto.PrivacySystemMessage;
 
         /** Conversation capiCreatedGroup. */
-        capiCreatedGroup?: (boolean|null);
+        capiCreatedGroup: boolean;
 
         /** Conversation accountLid. */
-        accountLid?: (string|null);
+        accountLid: string;
 
         /** Conversation limitSharing. */
-        limitSharing?: (boolean|null);
+        limitSharing: boolean;
 
         /** Conversation limitSharingSettingTimestamp. */
-        limitSharingSettingTimestamp?: (number|Long|null);
+        limitSharingSettingTimestamp: (number|Long);
 
         /** Conversation limitSharingTrigger. */
-        limitSharingTrigger?: (proto.LimitSharing.TriggerType|null);
+        limitSharingTrigger: proto.LimitSharing.TriggerType;
 
         /** Conversation limitSharingInitiatedByMe. */
-        limitSharingInitiatedByMe?: (boolean|null);
+        limitSharingInitiatedByMe: boolean;
 
         /** Conversation maibaAiThreadEnabled. */
-        maibaAiThreadEnabled?: (boolean|null);
+        maibaAiThreadEnabled: boolean;
 
         /** Conversation isMarketingMessageThread. */
-        isMarketingMessageThread?: (boolean|null);
+        isMarketingMessageThread: boolean;
 
         /** Conversation isSenderNewAccount. */
-        isSenderNewAccount?: (boolean|null);
+        isSenderNewAccount: boolean;
 
         /** Conversation afterReadDuration. */
-        afterReadDuration?: (number|null);
+        afterReadDuration: number;
 
         /** Conversation isSenderSuspicious. */
-        isSenderSuspicious?: (boolean|null);
+        isSenderSuspicious: boolean;
 
         /** Conversation appealStatus. */
-        appealStatus?: (proto.Conversation.GroupAppealStatus|null);
+        appealStatus: proto.Conversation.GroupAppealStatus;
 
         /** Conversation appealUpdateTime. */
-        appealUpdateTime?: (number|Long|null);
+        appealUpdateTime: (number|Long);
 
         /** Conversation authAgentParentCompanyName. */
-        authAgentParentCompanyName?: (string|null);
+        authAgentParentCompanyName: string;
 
         /** Conversation authAgentObaPhoneNumber. */
-        authAgentObaPhoneNumber?: (string|null);
+        authAgentObaPhoneNumber: string;
 
         /** Conversation identityVerification. */
         identityVerification?: (proto.IdentityVerificationState.$Properties|null);
@@ -23490,10 +23513,19 @@ export namespace proto {
         acp2Setting?: (proto.ACP2Setting.$Properties|null);
 
         /** Conversation acp2HistoryWithheld. */
-        acp2HistoryWithheld?: (boolean|null);
+        acp2HistoryWithheld: boolean;
 
         /** Conversation groupRootKeys. */
         groupRootKeys: proto.GroupRootKey.$Properties[];
+
+        /** Conversation isWorkGroup. */
+        isWorkGroup: boolean;
+
+        /** Conversation nonE2EeType. */
+        nonE2EeType: number;
+
+        /** Conversation contactAccountEncryptionAttestationType. */
+        contactAccountEncryptionAttestationType: proto.NonE2EEAttestation.AccountType;
 
         /**
          * Creates a new Conversation instance using the specified properties.
@@ -23777,6 +23809,15 @@ export namespace proto {
             /** Conversation groupRootKeys */
             groupRootKeys?: (proto.GroupRootKey.$Properties[]|null);
 
+            /** Conversation isWorkGroup */
+            isWorkGroup?: (boolean|null);
+
+            /** Conversation nonE2EeType */
+            nonE2EeType?: (number|null);
+
+            /** Conversation contactAccountEncryptionAttestationType */
+            contactAccountEncryptionAttestationType?: (proto.NonE2EEAttestation.AccountType|null);
+
             /** Unknown fields preserved while decoding when enabled */
             $unknowns?: Uint8Array[];
         }
@@ -23849,6 +23890,9 @@ export namespace proto {
           acp2Setting?: proto.ACP2Setting.$Shape|null;
           acp2HistoryWithheld?: boolean|null;
           groupRootKeys?: proto.GroupRootKey.$Shape[]|null;
+          isWorkGroup?: boolean|null;
+          nonE2EeType?: number|null;
+          contactAccountEncryptionAttestationType?: proto.NonE2EEAttestation.AccountType|null;
           $unknowns?: Uint8Array[];
         };
 
@@ -23905,7 +23949,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** DeviceCapabilities chatLockSupportLevel. */
-        chatLockSupportLevel?: (proto.DeviceCapabilities.ChatLockSupportLevel|null);
+        chatLockSupportLevel: proto.DeviceCapabilities.ChatLockSupportLevel;
 
         /** DeviceCapabilities lidMigration. */
         lidMigration?: (proto.DeviceCapabilities.LIDMigration.$Properties|null);
@@ -23917,7 +23961,7 @@ export namespace proto {
         userHasAvatar?: (proto.DeviceCapabilities.UserHasAvatar.$Properties|null);
 
         /** DeviceCapabilities memberNameTagPrimarySupport. */
-        memberNameTagPrimarySupport?: (proto.DeviceCapabilities.MemberNameTagPrimarySupport|null);
+        memberNameTagPrimarySupport: proto.DeviceCapabilities.MemberNameTagPrimarySupport;
 
         /** DeviceCapabilities aiThread. */
         aiThread?: (proto.DeviceCapabilities.AiThread.$Properties|null);
@@ -24099,10 +24143,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AiFbidMigration chatDbMigrationTimestamp. */
-            chatDbMigrationTimestamp?: (number|Long|null);
+            chatDbMigrationTimestamp: (number|Long);
 
             /** AiFbidMigration supportVersion. */
-            supportVersion?: (number|null);
+            supportVersion: number;
 
             /**
              * Creates a new AiFbidMigration instance using the specified properties.
@@ -24222,7 +24266,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AiThread supportLevel. */
-            supportLevel?: (proto.DeviceCapabilities.AiThread.SupportLevel|null);
+            supportLevel: proto.DeviceCapabilities.AiThread.SupportLevel;
 
             /**
              * Creates a new AiThread instance using the specified properties.
@@ -24352,7 +24396,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BizAiSettingsSync handoffRemovalTimingEnabled. */
-            handoffRemovalTimingEnabled?: (boolean|null);
+            handoffRemovalTimingEnabled: boolean;
 
             /**
              * Creates a new BizAiSettingsSync instance using the specified properties.
@@ -24469,7 +24513,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BizAiWebOnboarding version. */
-            version?: (number|null);
+            version: number;
 
             /**
              * Creates a new BizAiWebOnboarding instance using the specified properties.
@@ -24586,22 +24630,22 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BusinessBroadcast importListEnabled. */
-            importListEnabled?: (boolean|null);
+            importListEnabled: boolean;
 
             /** BusinessBroadcast companionSupportEnabled. */
-            companionSupportEnabled?: (boolean|null);
+            companionSupportEnabled: boolean;
 
             /** BusinessBroadcast campaignSyncEnabled. */
-            campaignSyncEnabled?: (boolean|null);
+            campaignSyncEnabled: boolean;
 
             /** BusinessBroadcast insightsSyncEnabled. */
-            insightsSyncEnabled?: (boolean|null);
+            insightsSyncEnabled: boolean;
 
             /** BusinessBroadcast recipientLimit. */
-            recipientLimit?: (number|null);
+            recipientLimit: number;
 
             /** BusinessBroadcast proCompanionSupportEnabled. */
-            proCompanionSupportEnabled?: (boolean|null);
+            proCompanionSupportEnabled: boolean;
 
             /**
              * Creates a new BusinessBroadcast instance using the specified properties.
@@ -24746,7 +24790,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ContactRefresh refreshSupported. */
-            refreshSupported?: (boolean|null);
+            refreshSupported: boolean;
 
             /**
              * Creates a new ContactRefresh instance using the specified properties.
@@ -24980,7 +25024,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** LIDMigration chatDbMigrationTimestamp. */
-            chatDbMigrationTimestamp?: (number|Long|null);
+            chatDbMigrationTimestamp: (number|Long);
 
             /**
              * Creates a new LIDMigration instance using the specified properties.
@@ -25110,13 +25154,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** NewsletterChatsMigration effectiveMigrated. */
-            effectiveMigrated?: (boolean|null);
+            effectiveMigrated: boolean;
 
             /** NewsletterChatsMigration countdownEndsAt. */
-            countdownEndsAt?: (number|Long|null);
+            countdownEndsAt: (number|Long);
 
             /** NewsletterChatsMigration rolledBack. */
-            rolledBack?: (boolean|null);
+            rolledBack: boolean;
 
             /**
              * Creates a new NewsletterChatsMigration instance using the specified properties.
@@ -25239,7 +25283,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PhoneNumberSharing phoneSharingSupported. */
-            phoneSharingSupported?: (boolean|null);
+            phoneSharingSupported: boolean;
 
             /**
              * Creates a new PhoneNumberSharing instance using the specified properties.
@@ -25483,7 +25527,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** UserHasAvatar userHasAvatar. */
-            userHasAvatar?: (boolean|null);
+            userHasAvatar: boolean;
 
             /**
              * Creates a new UserHasAvatar instance using the specified properties.
@@ -25601,10 +25645,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** DeviceConsistencyCodeMessage generation. */
-        generation?: (number|null);
+        generation: number;
 
         /** DeviceConsistencyCodeMessage signature. */
-        signature?: (Uint8Array|null);
+        signature: Uint8Array;
 
         /**
          * Creates a new DeviceConsistencyCodeMessage instance using the specified properties.
@@ -25724,25 +25768,25 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** DeviceListMetadata senderKeyHash. */
-        senderKeyHash?: (Uint8Array|null);
+        senderKeyHash: Uint8Array;
 
         /** DeviceListMetadata senderTimestamp. */
-        senderTimestamp?: (number|Long|null);
+        senderTimestamp: (number|Long);
 
         /** DeviceListMetadata senderKeyIndexes. */
         senderKeyIndexes: number[];
 
         /** DeviceListMetadata senderAccountType. */
-        senderAccountType?: (proto.ADVEncryptionType|null);
+        senderAccountType: proto.ADVEncryptionType;
 
         /** DeviceListMetadata receiverAccountType. */
-        receiverAccountType?: (proto.ADVEncryptionType|null);
+        receiverAccountType: proto.ADVEncryptionType;
 
         /** DeviceListMetadata recipientKeyHash. */
-        recipientKeyHash?: (Uint8Array|null);
+        recipientKeyHash: Uint8Array;
 
         /** DeviceListMetadata recipientTimestamp. */
-        recipientTimestamp?: (number|Long|null);
+        recipientTimestamp: (number|Long);
 
         /** DeviceListMetadata recipientKeyIndexes. */
         recipientKeyIndexes: number[];
@@ -25883,19 +25927,22 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** DeviceProps os. */
-        os?: (string|null);
+        os: string;
 
         /** DeviceProps version. */
         version?: (proto.DeviceProps.AppVersion.$Properties|null);
 
         /** DeviceProps platformType. */
-        platformType?: (proto.DeviceProps.PlatformType|null);
+        platformType: proto.DeviceProps.PlatformType;
 
         /** DeviceProps requireFullSync. */
-        requireFullSync?: (boolean|null);
+        requireFullSync: boolean;
 
         /** DeviceProps historySyncConfig. */
         historySyncConfig?: (proto.DeviceProps.HistorySyncConfig.$Properties|null);
+
+        /** DeviceProps deviceName. */
+        deviceName: string;
 
         /**
          * Creates a new DeviceProps instance using the specified properties.
@@ -25996,6 +26043,9 @@ export namespace proto {
             /** DeviceProps historySyncConfig */
             historySyncConfig?: (proto.DeviceProps.HistorySyncConfig.$Properties|null);
 
+            /** DeviceProps deviceName */
+            deviceName?: (string|null);
+
             /** Unknown fields preserved while decoding when enabled */
             $unknowns?: Uint8Array[];
         }
@@ -26023,19 +26073,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AppVersion primary. */
-            primary?: (number|null);
+            primary: number;
 
             /** AppVersion secondary. */
-            secondary?: (number|null);
+            secondary: number;
 
             /** AppVersion tertiary. */
-            tertiary?: (number|null);
+            tertiary: number;
 
             /** AppVersion quaternary. */
-            quaternary?: (number|null);
+            quaternary: number;
 
             /** AppVersion quinary. */
-            quinary?: (number|null);
+            quinary: number;
 
             /**
              * Creates a new AppVersion instance using the specified properties.
@@ -26164,85 +26214,85 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** HistorySyncConfig fullSyncDaysLimit. */
-            fullSyncDaysLimit?: (number|null);
+            fullSyncDaysLimit: number;
 
             /** HistorySyncConfig fullSyncSizeMbLimit. */
-            fullSyncSizeMbLimit?: (number|null);
+            fullSyncSizeMbLimit: number;
 
             /** HistorySyncConfig storageQuotaMb. */
-            storageQuotaMb?: (number|null);
+            storageQuotaMb: number;
 
             /** HistorySyncConfig inlineInitialPayloadInE2EeMsg. */
-            inlineInitialPayloadInE2EeMsg?: (boolean|null);
+            inlineInitialPayloadInE2EeMsg: boolean;
 
             /** HistorySyncConfig recentSyncDaysLimit. */
-            recentSyncDaysLimit?: (number|null);
+            recentSyncDaysLimit: number;
 
             /** HistorySyncConfig supportCallLogHistory. */
-            supportCallLogHistory?: (boolean|null);
+            supportCallLogHistory: boolean;
 
             /** HistorySyncConfig supportBotUserAgentChatHistory. */
-            supportBotUserAgentChatHistory?: (boolean|null);
+            supportBotUserAgentChatHistory: boolean;
 
             /** HistorySyncConfig supportCagReactionsAndPolls. */
-            supportCagReactionsAndPolls?: (boolean|null);
+            supportCagReactionsAndPolls: boolean;
 
             /** HistorySyncConfig supportBizHostedMsg. */
-            supportBizHostedMsg?: (boolean|null);
+            supportBizHostedMsg: boolean;
 
             /** HistorySyncConfig supportRecentSyncChunkMessageCountTuning. */
-            supportRecentSyncChunkMessageCountTuning?: (boolean|null);
+            supportRecentSyncChunkMessageCountTuning: boolean;
 
             /** HistorySyncConfig supportHostedGroupMsg. */
-            supportHostedGroupMsg?: (boolean|null);
+            supportHostedGroupMsg: boolean;
 
             /** HistorySyncConfig supportFbidBotChatHistory. */
-            supportFbidBotChatHistory?: (boolean|null);
+            supportFbidBotChatHistory: boolean;
 
             /** HistorySyncConfig supportAddOnHistorySyncMigration. */
-            supportAddOnHistorySyncMigration?: (boolean|null);
+            supportAddOnHistorySyncMigration: boolean;
 
             /** HistorySyncConfig supportMessageAssociation. */
-            supportMessageAssociation?: (boolean|null);
+            supportMessageAssociation: boolean;
 
             /** HistorySyncConfig supportGroupHistory. */
-            supportGroupHistory?: (boolean|null);
+            supportGroupHistory: boolean;
 
             /** HistorySyncConfig onDemandReady. */
-            onDemandReady?: (boolean|null);
+            onDemandReady: boolean;
 
             /** HistorySyncConfig supportGuestChat. */
-            supportGuestChat?: (boolean|null);
+            supportGuestChat: boolean;
 
             /** HistorySyncConfig completeOnDemandReady. */
-            completeOnDemandReady?: (boolean|null);
+            completeOnDemandReady: boolean;
 
             /** HistorySyncConfig thumbnailSyncDaysLimit. */
-            thumbnailSyncDaysLimit?: (number|null);
+            thumbnailSyncDaysLimit: number;
 
             /** HistorySyncConfig initialSyncMaxMessagesPerChat. */
-            initialSyncMaxMessagesPerChat?: (number|null);
+            initialSyncMaxMessagesPerChat: number;
 
             /** HistorySyncConfig supportManusHistory. */
-            supportManusHistory?: (boolean|null);
+            supportManusHistory: boolean;
 
             /** HistorySyncConfig supportHatchHistory. */
-            supportHatchHistory?: (boolean|null);
+            supportHatchHistory: boolean;
 
             /** HistorySyncConfig supportedBotChannelFbids. */
             supportedBotChannelFbids: string[];
 
             /** HistorySyncConfig supportInlineContacts. */
-            supportInlineContacts?: (boolean|null);
+            supportInlineContacts: boolean;
 
             /** HistorySyncConfig supportNewsletter. */
-            supportNewsletter?: (boolean|null);
+            supportNewsletter: boolean;
 
             /** HistorySyncConfig supportUniversalReachChat. */
-            supportUniversalReachChat?: (boolean|null);
+            supportUniversalReachChat: boolean;
 
             /** HistorySyncConfig supportOmittedConversationMetadata. */
-            supportOmittedConversationMetadata?: (boolean|null);
+            supportOmittedConversationMetadata: boolean;
 
             /**
              * Creates a new HistorySyncConfig instance using the specified properties.
@@ -26535,16 +26585,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** DisappearingMode initiator. */
-        initiator?: (proto.DisappearingMode.Initiator|null);
+        initiator: proto.DisappearingMode.Initiator;
 
         /** DisappearingMode trigger. */
-        trigger?: (proto.DisappearingMode.Trigger|null);
+        trigger: proto.DisappearingMode.Trigger;
 
         /** DisappearingMode initiatorDeviceJid. */
-        initiatorDeviceJid?: (string|null);
+        initiatorDeviceJid: string;
 
         /** DisappearingMode initiatedByMe. */
-        initiatedByMe?: (boolean|null);
+        initiatedByMe: boolean;
 
         /**
          * Creates a new DisappearingMode instance using the specified properties.
@@ -26843,7 +26893,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** EmbeddedMessage stanzaId. */
-        stanzaId?: (string|null);
+        stanzaId: string;
 
         /** EmbeddedMessage message. */
         message?: (proto.Message.$Properties|null);
@@ -26970,46 +27020,46 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** EmbeddedMusic musicContentMediaId. */
-        musicContentMediaId?: (string|null);
+        musicContentMediaId: string;
 
         /** EmbeddedMusic songId. */
-        songId?: (string|null);
+        songId: string;
 
         /** EmbeddedMusic author. */
-        author?: (string|null);
+        author: string;
 
         /** EmbeddedMusic title. */
-        title?: (string|null);
+        title: string;
 
         /** EmbeddedMusic artworkDirectPath. */
-        artworkDirectPath?: (string|null);
+        artworkDirectPath: string;
 
         /** EmbeddedMusic artworkSha256. */
-        artworkSha256?: (Uint8Array|null);
+        artworkSha256: Uint8Array;
 
         /** EmbeddedMusic artworkEncSha256. */
-        artworkEncSha256?: (Uint8Array|null);
+        artworkEncSha256: Uint8Array;
 
         /** EmbeddedMusic artistAttribution. */
-        artistAttribution?: (string|null);
+        artistAttribution: string;
 
         /** EmbeddedMusic countryBlocklist. */
-        countryBlocklist?: (Uint8Array|null);
+        countryBlocklist: Uint8Array;
 
         /** EmbeddedMusic isExplicit. */
-        isExplicit?: (boolean|null);
+        isExplicit: boolean;
 
         /** EmbeddedMusic artworkMediaKey. */
-        artworkMediaKey?: (Uint8Array|null);
+        artworkMediaKey: Uint8Array;
 
         /** EmbeddedMusic musicSongStartTimeInMs. */
-        musicSongStartTimeInMs?: (number|Long|null);
+        musicSongStartTimeInMs: (number|Long);
 
         /** EmbeddedMusic derivedContentStartTimeInMs. */
-        derivedContentStartTimeInMs?: (number|Long|null);
+        derivedContentStartTimeInMs: (number|Long);
 
         /** EmbeddedMusic overlapDurationInMs. */
-        overlapDurationInMs?: (number|Long|null);
+        overlapDurationInMs: (number|Long);
 
         /**
          * Creates a new EmbeddedMusic instance using the specified properties.
@@ -27165,10 +27215,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** EncryptedPairingRequest encryptedPayload. */
-        encryptedPayload?: (Uint8Array|null);
+        encryptedPayload: Uint8Array;
 
         /** EncryptedPairingRequest iv. */
-        iv?: (Uint8Array|null);
+        iv: Uint8Array;
 
         /**
          * Creates a new EncryptedPairingRequest instance using the specified properties.
@@ -27288,10 +27338,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** EphemeralSetting duration. */
-        duration?: (number|null);
+        duration: number;
 
         /** EphemeralSetting timestamp. */
-        timestamp?: (number|Long|null);
+        timestamp: (number|Long);
 
         /**
          * Creates a new EphemeralSetting instance using the specified properties.
@@ -27411,7 +27461,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** EventAdditionalMetadata isStale. */
-        isStale?: (boolean|null);
+        isStale: boolean;
 
         /**
          * Creates a new EventAdditionalMetadata instance using the specified properties.
@@ -27528,7 +27578,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** EventInviteAdditionalMetadata isUpdated. */
-        isUpdated?: (boolean|null);
+        isUpdated: boolean;
 
         /**
          * Creates a new EventInviteAdditionalMetadata instance using the specified properties.
@@ -27648,13 +27698,13 @@ export namespace proto {
         eventResponseMessageKey?: (proto.MessageKey.$Properties|null);
 
         /** EventResponse timestampMs. */
-        timestampMs?: (number|Long|null);
+        timestampMs: (number|Long);
 
         /** EventResponse eventResponseMessage. */
         eventResponseMessage?: (proto.Message.EventResponseMessage.$Properties|null);
 
         /** EventResponse unread. */
-        unread?: (boolean|null);
+        unread: boolean;
 
         /**
          * Creates a new EventResponse instance using the specified properties.
@@ -27780,10 +27830,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ExitCode code. */
-        code?: (number|Long|null);
+        code: (number|Long);
 
         /** ExitCode text. */
-        text?: (string|null);
+        text: string;
 
         /**
          * Creates a new ExitCode instance using the specified properties.
@@ -27903,22 +27953,22 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ExternalBlobReference mediaKey. */
-        mediaKey?: (Uint8Array|null);
+        mediaKey: Uint8Array;
 
         /** ExternalBlobReference directPath. */
-        directPath?: (string|null);
+        directPath: string;
 
         /** ExternalBlobReference handle. */
-        handle?: (string|null);
+        handle: string;
 
         /** ExternalBlobReference fileSizeBytes. */
-        fileSizeBytes?: (number|Long|null);
+        fileSizeBytes: (number|Long);
 
         /** ExternalBlobReference fileSha256. */
-        fileSha256?: (Uint8Array|null);
+        fileSha256: Uint8Array;
 
         /** ExternalBlobReference fileEncSha256. */
-        fileEncSha256?: (Uint8Array|null);
+        fileEncSha256: Uint8Array;
 
         /**
          * Creates a new ExternalBlobReference instance using the specified properties.
@@ -28050,13 +28100,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** Field minVersion. */
-        minVersion?: (number|null);
+        minVersion: number;
 
         /** Field maxVersion. */
-        maxVersion?: (number|null);
+        maxVersion: number;
 
         /** Field isMessage. */
-        isMessage?: (boolean|null);
+        isMessage: boolean;
 
         /** Field subfield. */
         subfield: { [k: string]: proto.Field.$Properties };
@@ -28185,13 +28235,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ForwardedAIBotMessageInfo botName. */
-        botName?: (string|null);
+        botName: string;
 
         /** ForwardedAIBotMessageInfo botJid. */
-        botJid?: (string|null);
+        botJid: string;
 
         /** ForwardedAIBotMessageInfo creatorName. */
-        creatorName?: (string|null);
+        creatorName: string;
 
         /**
          * Creates a new ForwardedAIBotMessageInfo instance using the specified properties.
@@ -28317,7 +28367,7 @@ export namespace proto {
         lightThemeWallpaper?: (proto.WallpaperSettings.$Properties|null);
 
         /** GlobalSettings mediaVisibility. */
-        mediaVisibility?: (proto.MediaVisibility|null);
+        mediaVisibility: proto.MediaVisibility;
 
         /** GlobalSettings darkThemeWallpaper. */
         darkThemeWallpaper?: (proto.WallpaperSettings.$Properties|null);
@@ -28332,34 +28382,34 @@ export namespace proto {
         autoDownloadRoaming?: (proto.AutoDownloadSettings.$Properties|null);
 
         /** GlobalSettings showIndividualNotificationsPreview. */
-        showIndividualNotificationsPreview?: (boolean|null);
+        showIndividualNotificationsPreview: boolean;
 
         /** GlobalSettings showGroupNotificationsPreview. */
-        showGroupNotificationsPreview?: (boolean|null);
+        showGroupNotificationsPreview: boolean;
 
         /** GlobalSettings disappearingModeDuration. */
-        disappearingModeDuration?: (number|null);
+        disappearingModeDuration: number;
 
         /** GlobalSettings disappearingModeTimestamp. */
-        disappearingModeTimestamp?: (number|Long|null);
+        disappearingModeTimestamp: (number|Long);
 
         /** GlobalSettings avatarUserSettings. */
         avatarUserSettings?: (proto.AvatarUserSettings.$Properties|null);
 
         /** GlobalSettings fontSize. */
-        fontSize?: (number|null);
+        fontSize: number;
 
         /** GlobalSettings securityNotifications. */
-        securityNotifications?: (boolean|null);
+        securityNotifications: boolean;
 
         /** GlobalSettings autoUnarchiveChats. */
-        autoUnarchiveChats?: (boolean|null);
+        autoUnarchiveChats: boolean;
 
         /** GlobalSettings videoQualityMode. */
-        videoQualityMode?: (number|null);
+        videoQualityMode: number;
 
         /** GlobalSettings photoQualityMode. */
-        photoQualityMode?: (number|null);
+        photoQualityMode: number;
 
         /** GlobalSettings individualNotificationSettings. */
         individualNotificationSettings?: (proto.NotificationSettings.$Properties|null);
@@ -28371,7 +28421,7 @@ export namespace proto {
         chatLockSettings?: (proto.ChatLockSettings.$Properties|null);
 
         /** GlobalSettings chatDbLidMigrationTimestamp. */
-        chatDbLidMigrationTimestamp?: (number|Long|null);
+        chatDbLidMigrationTimestamp: (number|Long);
 
         /**
          * Creates a new GlobalSettings instance using the specified properties.
@@ -28570,7 +28620,7 @@ export namespace proto {
         deprecatedMessageHistoryBundle?: (proto.Message.MessageHistoryBundle.$Properties|null);
 
         /** GroupHistoryBundleInfo processState. */
-        processState?: (proto.GroupHistoryBundleInfo.ProcessState|null);
+        processState: proto.GroupHistoryBundleInfo.ProcessState;
 
         /**
          * Creates a new GroupHistoryBundleInfo instance using the specified properties.
@@ -28719,7 +28769,7 @@ export namespace proto {
         bundleMessageKey?: (proto.MessageKey.$Properties|null);
 
         /** GroupHistoryIndividualMessageInfo editedAfterReceivedAsHistory. */
-        editedAfterReceivedAsHistory?: (boolean|null);
+        editedAfterReceivedAsHistory: boolean;
 
         /**
          * Creates a new GroupHistoryIndividualMessageInfo instance using the specified properties.
@@ -28839,10 +28889,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** GroupMention groupJid. */
-        groupJid?: (string|null);
+        groupJid: string;
 
         /** GroupMention groupSubject. */
-        groupSubject?: (string|null);
+        groupSubject: string;
 
         /**
          * Creates a new GroupMention instance using the specified properties.
@@ -28965,7 +29015,7 @@ export namespace proto {
         userJid: string;
 
         /** GroupParticipant rank. */
-        rank?: (proto.GroupParticipant.Rank|null);
+        rank: proto.GroupParticipant.Rank;
 
         /** GroupParticipant memberLabel. */
         memberLabel?: (proto.MemberLabel.$Properties|null);
@@ -29104,13 +29154,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** GroupRootKey keyId. */
-        keyId?: (string|null);
+        keyId: string;
 
         /** GroupRootKey rootKey. */
-        rootKey?: (Uint8Array|null);
+        rootKey: Uint8Array;
 
         /** GroupRootKey isCurrent. */
-        isCurrent?: (boolean|null);
+        isCurrent: boolean;
 
         /**
          * Creates a new GroupRootKey instance using the specified properties.
@@ -29233,7 +29283,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** GroupRootKeyRequest keyId. */
-        keyId?: (string|null);
+        keyId: string;
 
         /**
          * Creates a new GroupRootKeyRequest instance using the specified properties.
@@ -29467,16 +29517,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** GroupRootKeyShareEntry groupRootKey. */
-        groupRootKey?: (Uint8Array|null);
+        groupRootKey: Uint8Array;
 
         /** GroupRootKeyShareEntry keyId. */
-        keyId?: (string|null);
+        keyId: string;
 
         /** GroupRootKeyShareEntry expiryTimestampMs. */
-        expiryTimestampMs?: (number|Long|null);
+        expiryTimestampMs: (number|Long);
 
         /** GroupRootKeyShareEntry createdTimestampMs. */
-        createdTimestampMs?: (number|Long|null);
+        createdTimestampMs: (number|Long);
 
         /**
          * Creates a new GroupRootKeyShareEntry instance using the specified properties.
@@ -29730,19 +29780,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ClientFinish static. */
-            static?: (Uint8Array|null);
+            static: Uint8Array;
 
             /** ClientFinish payload. */
-            payload?: (Uint8Array|null);
+            payload: Uint8Array;
 
             /** ClientFinish extendedCiphertext. */
-            extendedCiphertext?: (Uint8Array|null);
+            extendedCiphertext: Uint8Array;
 
             /** ClientFinish paddedBytes. */
-            paddedBytes?: (Uint8Array|null);
+            paddedBytes: Uint8Array;
 
             /** ClientFinish simulateXxkemFs. */
-            simulateXxkemFs?: (boolean|null);
+            simulateXxkemFs: boolean;
 
             /**
              * Creates a new ClientFinish instance using the specified properties.
@@ -29871,34 +29921,34 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ClientHello ephemeral. */
-            ephemeral?: (Uint8Array|null);
+            ephemeral: Uint8Array;
 
             /** ClientHello static. */
-            static?: (Uint8Array|null);
+            static: Uint8Array;
 
             /** ClientHello payload. */
-            payload?: (Uint8Array|null);
+            payload: Uint8Array;
 
             /** ClientHello useExtended. */
-            useExtended?: (boolean|null);
+            useExtended: boolean;
 
             /** ClientHello extendedCiphertext. */
-            extendedCiphertext?: (Uint8Array|null);
+            extendedCiphertext: Uint8Array;
 
             /** ClientHello paddedBytes. */
-            paddedBytes?: (Uint8Array|null);
+            paddedBytes: Uint8Array;
 
             /** ClientHello sendServerHelloPaddedBytes. */
-            sendServerHelloPaddedBytes?: (boolean|null);
+            sendServerHelloPaddedBytes: boolean;
 
             /** ClientHello simulateXxkemFs. */
-            simulateXxkemFs?: (boolean|null);
+            simulateXxkemFs: boolean;
 
             /** ClientHello pqMode. */
-            pqMode?: (proto.HandshakeMessage.HandshakePqMode|null);
+            pqMode: proto.HandshakeMessage.HandshakePqMode;
 
             /** ClientHello extendedEphemeral. */
-            extendedEphemeral?: (Uint8Array|null);
+            extendedEphemeral: Uint8Array;
 
             /**
              * Creates a new ClientHello instance using the specified properties.
@@ -30076,22 +30126,22 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ServerHello ephemeral. */
-            ephemeral?: (Uint8Array|null);
+            ephemeral: Uint8Array;
 
             /** ServerHello static. */
-            static?: (Uint8Array|null);
+            static: Uint8Array;
 
             /** ServerHello payload. */
-            payload?: (Uint8Array|null);
+            payload: Uint8Array;
 
             /** ServerHello extendedStatic. */
-            extendedStatic?: (Uint8Array|null);
+            extendedStatic: Uint8Array;
 
             /** ServerHello paddingBytes. */
-            paddingBytes?: (Uint8Array|null);
+            paddingBytes: Uint8Array;
 
             /** ServerHello extendedCiphertext. */
-            extendedCiphertext?: (Uint8Array|null);
+            extendedCiphertext: Uint8Array;
 
             /**
              * Creates a new ServerHello instance using the specified properties.
@@ -30224,13 +30274,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** HatchMetadataSync data. */
-        data?: (Uint8Array|null);
+        data: Uint8Array;
 
         /** HatchMetadataSync timestampMs. */
-        timestampMs?: (number|Long|null);
+        timestampMs: (number|Long);
 
         /** HatchMetadataSync requestId. */
-        requestId?: (string|null);
+        requestId: string;
 
         /**
          * Creates a new HatchMetadataSync instance using the specified properties.
@@ -30362,10 +30412,10 @@ export namespace proto {
         statusV3Messages: proto.WebMessageInfo.$Properties[];
 
         /** HistorySync chunkOrder. */
-        chunkOrder?: (number|null);
+        chunkOrder: number;
 
         /** HistorySync progress. */
-        progress?: (number|null);
+        progress: number;
 
         /** HistorySync pushnames. */
         pushnames: proto.Pushname.$Properties[];
@@ -30374,10 +30424,10 @@ export namespace proto {
         globalSettings?: (proto.GlobalSettings.$Properties|null);
 
         /** HistorySync threadIdUserSecret. */
-        threadIdUserSecret?: (Uint8Array|null);
+        threadIdUserSecret: Uint8Array;
 
         /** HistorySync threadDsTimeframeOffset. */
-        threadDsTimeframeOffset?: (number|null);
+        threadDsTimeframeOffset: number;
 
         /** HistorySync recentStickers. */
         recentStickers: proto.StickerMetadata.$Properties[];
@@ -30389,28 +30439,28 @@ export namespace proto {
         callLogRecords: proto.CallLogRecord.$Properties[];
 
         /** HistorySync aiWaitListState. */
-        aiWaitListState?: (proto.HistorySync.BotAIWaitListState|null);
+        aiWaitListState: proto.HistorySync.BotAIWaitListState;
 
         /** HistorySync phoneNumberToLidMappings. */
         phoneNumberToLidMappings: proto.PhoneNumberToLIDMapping.$Properties[];
 
         /** HistorySync companionMetaNonce. */
-        companionMetaNonce?: (string|null);
+        companionMetaNonce: string;
 
         /** HistorySync shareableChatIdentifierEncryptionKey. */
-        shareableChatIdentifierEncryptionKey?: (Uint8Array|null);
+        shareableChatIdentifierEncryptionKey: Uint8Array;
 
         /** HistorySync accounts. */
         accounts: proto.Account.$Properties[];
 
         /** HistorySync nctSalt. */
-        nctSalt?: (Uint8Array|null);
+        nctSalt: Uint8Array;
 
         /** HistorySync inlineContacts. */
         inlineContacts: proto.InlineContact.$Properties[];
 
         /** HistorySync inlineContactsProvided. */
-        inlineContactsProvided?: (boolean|null);
+        inlineContactsProvided: boolean;
 
         /** HistorySync favoriteStickers. */
         favoriteStickers: proto.StickerMetadata.$Properties[];
@@ -30419,7 +30469,7 @@ export namespace proto {
         omittedConversationMetadata?: (proto.OmittedConversationMetadata.$Properties|null);
 
         /** HistorySync omittedConversationMetadataSnapshotId. */
-        omittedConversationMetadataSnapshotId?: (string|null);
+        omittedConversationMetadataSnapshotId: string;
 
         /**
          * Creates a new HistorySync instance using the specified properties.
@@ -30668,7 +30718,7 @@ export namespace proto {
         message?: (proto.WebMessageInfo.$Properties|null);
 
         /** HistorySyncMsg msgOrderId. */
-        msgOrderId?: (number|Long|null);
+        msgOrderId: (number|Long);
 
         /**
          * Creates a new HistorySyncMsg instance using the specified properties.
@@ -30792,7 +30842,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** HydratedTemplateButton index. */
-        index?: (number|null);
+        index: number;
 
         /** HydratedTemplateButton quickReplyButton. */
         quickReplyButton?: (proto.HydratedTemplateButton.HydratedQuickReplyButton.$Properties|null);
@@ -30940,10 +30990,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** HydratedCallButton displayText. */
-            displayText?: (string|null);
+            displayText: string;
 
             /** HydratedCallButton phoneNumber. */
-            phoneNumber?: (string|null);
+            phoneNumber: string;
 
             /**
              * Creates a new HydratedCallButton instance using the specified properties.
@@ -31063,10 +31113,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** HydratedQuickReplyButton displayText. */
-            displayText?: (string|null);
+            displayText: string;
 
             /** HydratedQuickReplyButton id. */
-            id?: (string|null);
+            id: string;
 
             /**
              * Creates a new HydratedQuickReplyButton instance using the specified properties.
@@ -31186,16 +31236,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** HydratedURLButton displayText. */
-            displayText?: (string|null);
+            displayText: string;
 
             /** HydratedURLButton url. */
-            url?: (string|null);
+            url: string;
 
             /** HydratedURLButton consentedUsersUrl. */
-            consentedUsersUrl?: (string|null);
+            consentedUsersUrl: string;
 
             /** HydratedURLButton webviewPresentation. */
-            webviewPresentation?: (proto.HydratedTemplateButton.HydratedURLButton.WebviewPresentationType|null);
+            webviewPresentation: proto.HydratedTemplateButton.HydratedURLButton.WebviewPresentationType;
 
             /**
              * Creates a new HydratedURLButton instance using the specified properties.
@@ -31335,10 +31385,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** IdentityKeyPairStructure publicKey. */
-        publicKey?: (Uint8Array|null);
+        publicKey: Uint8Array;
 
         /** IdentityKeyPairStructure privateKey. */
-        privateKey?: (Uint8Array|null);
+        privateKey: Uint8Array;
 
         /**
          * Creates a new IdentityKeyPairStructure instance using the specified properties.
@@ -31458,10 +31508,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** IdentityVerificationState verified. */
-        verified?: (boolean|null);
+        verified: boolean;
 
         /** IdentityVerificationState actionSeq. */
-        actionSeq?: (number|Long|null);
+        actionSeq: (number|Long);
 
         /**
          * Creates a new IdentityVerificationState instance using the specified properties.
@@ -31581,58 +31631,58 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** InThreadSurveyMetadata tessaSessionId. */
-        tessaSessionId?: (string|null);
+        tessaSessionId: string;
 
         /** InThreadSurveyMetadata simonSessionId. */
-        simonSessionId?: (string|null);
+        simonSessionId: string;
 
         /** InThreadSurveyMetadata simonSurveyId. */
-        simonSurveyId?: (string|null);
+        simonSurveyId: string;
 
         /** InThreadSurveyMetadata tessaRootId. */
-        tessaRootId?: (string|null);
+        tessaRootId: string;
 
         /** InThreadSurveyMetadata requestId. */
-        requestId?: (string|null);
+        requestId: string;
 
         /** InThreadSurveyMetadata tessaEvent. */
-        tessaEvent?: (string|null);
+        tessaEvent: string;
 
         /** InThreadSurveyMetadata invitationHeaderText. */
-        invitationHeaderText?: (string|null);
+        invitationHeaderText: string;
 
         /** InThreadSurveyMetadata invitationBodyText. */
-        invitationBodyText?: (string|null);
+        invitationBodyText: string;
 
         /** InThreadSurveyMetadata invitationCtaText. */
-        invitationCtaText?: (string|null);
+        invitationCtaText: string;
 
         /** InThreadSurveyMetadata invitationCtaUrl. */
-        invitationCtaUrl?: (string|null);
+        invitationCtaUrl: string;
 
         /** InThreadSurveyMetadata surveyTitle. */
-        surveyTitle?: (string|null);
+        surveyTitle: string;
 
         /** InThreadSurveyMetadata questions. */
         questions: proto.InThreadSurveyMetadata.InThreadSurveyQuestion.$Properties[];
 
         /** InThreadSurveyMetadata surveyContinueButtonText. */
-        surveyContinueButtonText?: (string|null);
+        surveyContinueButtonText: string;
 
         /** InThreadSurveyMetadata surveySubmitButtonText. */
-        surveySubmitButtonText?: (string|null);
+        surveySubmitButtonText: string;
 
         /** InThreadSurveyMetadata privacyStatementFull. */
-        privacyStatementFull?: (string|null);
+        privacyStatementFull: string;
 
         /** InThreadSurveyMetadata privacyStatementParts. */
         privacyStatementParts: proto.InThreadSurveyMetadata.InThreadSurveyPrivacyStatementPart.$Properties[];
 
         /** InThreadSurveyMetadata feedbackToastText. */
-        feedbackToastText?: (string|null);
+        feedbackToastText: string;
 
         /** InThreadSurveyMetadata startQuestionIndex. */
-        startQuestionIndex?: (number|null);
+        startQuestionIndex: number;
 
         /**
          * Creates a new InThreadSurveyMetadata instance using the specified properties.
@@ -31799,13 +31849,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** InThreadSurveyOption stringValue. */
-            stringValue?: (string|null);
+            stringValue: string;
 
             /** InThreadSurveyOption numericValue. */
-            numericValue?: (number|null);
+            numericValue: number;
 
             /** InThreadSurveyOption textTranslated. */
-            textTranslated?: (string|null);
+            textTranslated: string;
 
             /**
              * Creates a new InThreadSurveyOption instance using the specified properties.
@@ -31928,10 +31978,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** InThreadSurveyPrivacyStatementPart text. */
-            text?: (string|null);
+            text: string;
 
             /** InThreadSurveyPrivacyStatementPart url. */
-            url?: (string|null);
+            url: string;
 
             /**
              * Creates a new InThreadSurveyPrivacyStatementPart instance using the specified properties.
@@ -32051,10 +32101,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** InThreadSurveyQuestion questionText. */
-            questionText?: (string|null);
+            questionText: string;
 
             /** InThreadSurveyQuestion questionId. */
-            questionId?: (string|null);
+            questionId: string;
 
             /** InThreadSurveyQuestion questionOptions. */
             questionOptions: proto.InThreadSurveyMetadata.InThreadSurveyOption.$Properties[];
@@ -32181,19 +32231,19 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** InlineContact pnJid. */
-        pnJid?: (string|null);
+        pnJid: string;
 
         /** InlineContact lidJid. */
-        lidJid?: (string|null);
+        lidJid: string;
 
         /** InlineContact fullName. */
-        fullName?: (string|null);
+        fullName: string;
 
         /** InlineContact firstName. */
-        firstName?: (string|null);
+        firstName: string;
 
         /** InlineContact username. */
-        username?: (string|null);
+        username: string;
 
         /**
          * Creates a new InlineContact instance using the specified properties.
@@ -32325,13 +32375,13 @@ export namespace proto {
         polygonVertices: proto.Point.$Properties[];
 
         /** InteractiveAnnotation shouldSkipConfirmation. */
-        shouldSkipConfirmation?: (boolean|null);
+        shouldSkipConfirmation: boolean;
 
         /** InteractiveAnnotation embeddedContent. */
         embeddedContent?: (proto.EmbeddedContent.$Properties|null);
 
         /** InteractiveAnnotation statusLinkType. */
-        statusLinkType?: (proto.InteractiveAnnotation.StatusLinkType|null);
+        statusLinkType: proto.InteractiveAnnotation.StatusLinkType;
 
         /** InteractiveAnnotation location. */
         location?: (proto.Location.$Properties|null);
@@ -32512,7 +32562,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** InteractiveMessageAdditionalMetadata isGalaxyFlowCompleted. */
-        isGalaxyFlowCompleted?: (boolean|null);
+        isGalaxyFlowCompleted: boolean;
 
         /**
          * Creates a new InteractiveMessageAdditionalMetadata instance using the specified properties.
@@ -32629,22 +32679,22 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** KeepInChat keepType. */
-        keepType?: (proto.KeepType|null);
+        keepType: proto.KeepType;
 
         /** KeepInChat serverTimestamp. */
-        serverTimestamp?: (number|Long|null);
+        serverTimestamp: (number|Long);
 
         /** KeepInChat key. */
         key?: (proto.MessageKey.$Properties|null);
 
         /** KeepInChat deviceJid. */
-        deviceJid?: (string|null);
+        deviceJid: string;
 
         /** KeepInChat clientTimestampMs. */
-        clientTimestampMs?: (number|Long|null);
+        clientTimestampMs: (number|Long);
 
         /** KeepInChat serverTimestampMs. */
-        serverTimestampMs?: (number|Long|null);
+        serverTimestampMs: (number|Long);
 
         /**
          * Creates a new KeepInChat instance using the specified properties.
@@ -32789,19 +32839,19 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** KeyExchangeMessage id. */
-        id?: (number|null);
+        id: number;
 
         /** KeyExchangeMessage baseKey. */
-        baseKey?: (Uint8Array|null);
+        baseKey: Uint8Array;
 
         /** KeyExchangeMessage ratchetKey. */
-        ratchetKey?: (Uint8Array|null);
+        ratchetKey: Uint8Array;
 
         /** KeyExchangeMessage identityKey. */
-        identityKey?: (Uint8Array|null);
+        identityKey: Uint8Array;
 
         /** KeyExchangeMessage baseKeySignature. */
-        baseKeySignature?: (Uint8Array|null);
+        baseKeySignature: Uint8Array;
 
         /**
          * Creates a new KeyExchangeMessage instance using the specified properties.
@@ -32930,7 +32980,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** KeyId id. */
-        id?: (Uint8Array|null);
+        id: Uint8Array;
 
         /**
          * Creates a new KeyId instance using the specified properties.
@@ -33047,7 +33097,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** LIDMigrationMappingSyncMessage encodedMappingPayload. */
-        encodedMappingPayload?: (Uint8Array|null);
+        encodedMappingPayload: Uint8Array;
 
         /**
          * Creates a new LIDMigrationMappingSyncMessage instance using the specified properties.
@@ -33287,16 +33337,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** LimitSharing sharingLimited. */
-        sharingLimited?: (boolean|null);
+        sharingLimited: boolean;
 
         /** LimitSharing trigger. */
-        trigger?: (proto.LimitSharing.TriggerType|null);
+        trigger: proto.LimitSharing.TriggerType;
 
         /** LimitSharing limitSharingSettingTimestamp. */
-        limitSharingSettingTimestamp?: (number|Long|null);
+        limitSharingSettingTimestamp: (number|Long);
 
         /** LimitSharing initiatedByMe. */
-        initiatedByMe?: (boolean|null);
+        initiatedByMe: boolean;
 
         /**
          * Creates a new LimitSharing instance using the specified properties.
@@ -33438,13 +33488,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** LocalizedName lg. */
-        lg?: (string|null);
+        lg: string;
 
         /** LocalizedName lc. */
-        lc?: (string|null);
+        lc: string;
 
         /** LocalizedName verifiedName. */
-        verifiedName?: (string|null);
+        verifiedName: string;
 
         /**
          * Creates a new LocalizedName instance using the specified properties.
@@ -33567,13 +33617,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** Location degreesLatitude. */
-        degreesLatitude?: (number|null);
+        degreesLatitude: number;
 
         /** Location degreesLongitude. */
-        degreesLongitude?: (number|null);
+        degreesLongitude: number;
 
         /** Location name. */
-        name?: (string|null);
+        name: string;
 
         /**
          * Creates a new Location instance using the specified properties.
@@ -33696,7 +33746,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MediaData localPath. */
-        localPath?: (string|null);
+        localPath: string;
 
         /**
          * Creates a new MediaData instance using the specified properties.
@@ -33813,10 +33863,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MediaDomainInfo mediaKeyDomain. */
-        mediaKeyDomain?: (proto.MediaKeyDomain|null);
+        mediaKeyDomain: proto.MediaKeyDomain;
 
         /** MediaDomainInfo e2EeMediaKey. */
-        e2EeMediaKey?: (Uint8Array|null);
+        e2EeMediaKey: Uint8Array;
 
         /**
          * Creates a new MediaDomainInfo instance using the specified properties.
@@ -33949,13 +33999,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MediaNotifyMessage expressPathUrl. */
-        expressPathUrl?: (string|null);
+        expressPathUrl: string;
 
         /** MediaNotifyMessage fileEncSha256. */
-        fileEncSha256?: (Uint8Array|null);
+        fileEncSha256: Uint8Array;
 
         /** MediaNotifyMessage fileLength. */
-        fileLength?: (number|Long|null);
+        fileLength: (number|Long);
 
         /**
          * Creates a new MediaNotifyMessage instance using the specified properties.
@@ -34078,16 +34128,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MediaRetryNotification stanzaId. */
-        stanzaId?: (string|null);
+        stanzaId: string;
 
         /** MediaRetryNotification directPath. */
-        directPath?: (string|null);
+        directPath: string;
 
         /** MediaRetryNotification result. */
-        result?: (proto.MediaRetryNotification.ResultType|null);
+        result: proto.MediaRetryNotification.ResultType;
 
         /** MediaRetryNotification messageSecret. */
-        messageSecret?: (Uint8Array|null);
+        messageSecret: Uint8Array;
 
         /**
          * Creates a new MediaRetryNotification instance using the specified properties.
@@ -34242,13 +34292,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MemberLabel label. */
-        label?: (string|null);
+        label: string;
 
         /** MemberLabel labelTimestamp. */
-        labelTimestamp?: (number|Long|null);
+        labelTimestamp: (number|Long);
 
         /** MemberLabel showAdminBadge. */
-        showAdminBadge?: (boolean|null);
+        showAdminBadge: boolean;
 
         /**
          * Creates a new MemberLabel instance using the specified properties.
@@ -34371,13 +34421,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MembershipFormKeyFingerprintVerification requestId. */
-        requestId?: (string|null);
+        requestId: string;
 
         /** MembershipFormKeyFingerprintVerification keyId. */
-        keyId?: (string|null);
+        keyId: string;
 
         /** MembershipFormKeyFingerprintVerification keyFingerprint. */
-        keyFingerprint?: (Uint8Array|null);
+        keyFingerprint: Uint8Array;
 
         /**
          * Creates a new MembershipFormKeyFingerprintVerification instance using the specified properties.
@@ -34500,7 +34550,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** Message conversation. */
-        conversation?: (string|null);
+        conversation: string;
 
         /** Message senderKeyDistributionMessage. */
         senderKeyDistributionMessage?: (proto.Message.SenderKeyDistributionMessage.$Properties|null);
@@ -34852,6 +34902,12 @@ export namespace proto {
 
         /** Message vpcRequestMessage. */
         vpcRequestMessage?: (proto.Message.VpcRequestMessage.$Properties|null);
+
+        /** Message instantVideoMessage. */
+        instantVideoMessage?: (proto.Message.VideoMessage.$Properties|null);
+
+        /** Message paymentDetailsMessage. */
+        paymentDetailsMessage?: (proto.Message.PaymentDetailsMessage.$Properties|null);
 
         /**
          * Creates a new Message instance using the specified properties.
@@ -35291,6 +35347,12 @@ export namespace proto {
             /** Message vpcRequestMessage */
             vpcRequestMessage?: (proto.Message.VpcRequestMessage.$Properties|null);
 
+            /** Message instantVideoMessage */
+            instantVideoMessage?: (proto.Message.VideoMessage.$Properties|null);
+
+            /** Message paymentDetailsMessage */
+            paymentDetailsMessage?: (proto.Message.PaymentDetailsMessage.$Properties|null);
+
             /** Unknown fields preserved while decoding when enabled */
             $unknowns?: Uint8Array[];
         }
@@ -35415,6 +35477,8 @@ export namespace proto {
           botGroupParticipantMessage?: proto.Message.FutureProofMessage.$Shape|null;
           requestLocationUpdateMessage?: proto.Message.RequestLocationUpdateMessage.$Shape|null;
           vpcRequestMessage?: proto.Message.VpcRequestMessage.$Shape|null;
+          instantVideoMessage?: proto.Message.VideoMessage.$Shape|null;
+          paymentDetailsMessage?: proto.Message.PaymentDetailsMessage.$Shape|null;
           $unknowns?: Uint8Array[];
         };
 
@@ -35438,10 +35502,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AlbumMessage expectedImageCount. */
-            expectedImageCount?: (number|null);
+            expectedImageCount: number;
 
             /** AlbumMessage expectedVideoCount. */
-            expectedVideoCount?: (number|null);
+            expectedVideoCount: number;
 
             /** AlbumMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
@@ -35575,7 +35639,7 @@ export namespace proto {
             collectionNames: string[];
 
             /** AppStateFatalExceptionNotification timestamp. */
-            timestamp?: (number|Long|null);
+            timestamp: (number|Long);
 
             /**
              * Creates a new AppStateFatalExceptionNotification instance using the specified properties.
@@ -35818,13 +35882,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AppStateSyncKeyData keyData. */
-            keyData?: (Uint8Array|null);
+            keyData: Uint8Array;
 
             /** AppStateSyncKeyData fingerprint. */
             fingerprint?: (proto.Message.AppStateSyncKeyFingerprint.$Properties|null);
 
             /** AppStateSyncKeyData timestamp. */
-            timestamp?: (number|Long|null);
+            timestamp: (number|Long);
 
             /**
              * Creates a new AppStateSyncKeyData instance using the specified properties.
@@ -35947,10 +36011,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AppStateSyncKeyFingerprint rawId. */
-            rawId?: (number|null);
+            rawId: number;
 
             /** AppStateSyncKeyFingerprint currentIndex. */
-            currentIndex?: (number|null);
+            currentIndex: number;
 
             /** AppStateSyncKeyFingerprint deviceIndexes. */
             deviceIndexes: number[];
@@ -36076,7 +36140,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AppStateSyncKeyId keyId. */
-            keyId?: (Uint8Array|null);
+            keyId: Uint8Array;
 
             /**
              * Creates a new AppStateSyncKeyId instance using the specified properties.
@@ -36427,52 +36491,52 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AudioMessage url. */
-            url?: (string|null);
+            url: string;
 
             /** AudioMessage mimetype. */
-            mimetype?: (string|null);
+            mimetype: string;
 
             /** AudioMessage fileSha256. */
-            fileSha256?: (Uint8Array|null);
+            fileSha256: Uint8Array;
 
             /** AudioMessage fileLength. */
-            fileLength?: (number|Long|null);
+            fileLength: (number|Long);
 
             /** AudioMessage seconds. */
-            seconds?: (number|null);
+            seconds: number;
 
             /** AudioMessage ptt. */
-            ptt?: (boolean|null);
+            ptt: boolean;
 
             /** AudioMessage mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** AudioMessage fileEncSha256. */
-            fileEncSha256?: (Uint8Array|null);
+            fileEncSha256: Uint8Array;
 
             /** AudioMessage directPath. */
-            directPath?: (string|null);
+            directPath: string;
 
             /** AudioMessage mediaKeyTimestamp. */
-            mediaKeyTimestamp?: (number|Long|null);
+            mediaKeyTimestamp: (number|Long);
 
             /** AudioMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** AudioMessage streamingSidecar. */
-            streamingSidecar?: (Uint8Array|null);
+            streamingSidecar: Uint8Array;
 
             /** AudioMessage waveform. */
-            waveform?: (Uint8Array|null);
+            waveform: Uint8Array;
 
             /** AudioMessage backgroundArgb. */
-            backgroundArgb?: (number|null);
+            backgroundArgb: number;
 
             /** AudioMessage viewOnce. */
-            viewOnce?: (boolean|null);
+            viewOnce: boolean;
 
             /** AudioMessage accessibilityLabel. */
-            accessibilityLabel?: (string|null);
+            accessibilityLabel: string;
 
             /**
              * Creates a new AudioMessage instance using the specified properties.
@@ -36652,16 +36716,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BCallMessage sessionId. */
-            sessionId?: (string|null);
+            sessionId: string;
 
             /** BCallMessage mediaType. */
-            mediaType?: (proto.Message.BCallMessage.MediaType|null);
+            mediaType: proto.Message.BCallMessage.MediaType;
 
             /** BCallMessage masterKey. */
-            masterKey?: (Uint8Array|null);
+            masterKey: Uint8Array;
 
             /** BCallMessage caption. */
-            caption?: (string|null);
+            caption: string;
 
             /**
              * Creates a new BCallMessage instance using the specified properties.
@@ -36800,10 +36864,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BotHistoryShareSyncMetadata botJid. */
-            botJid?: (string|null);
+            botJid: string;
 
             /** BotHistoryShareSyncMetadata historyShareCutoffTimestamp. */
-            historyShareCutoffTimestamp?: (number|Long|null);
+            historyShareCutoffTimestamp: (number|Long);
 
             /** BotHistoryShareSyncMetadata historyShareMessages. */
             historyShareMessages: proto.Message.HistoryShareMessageEntry.$Properties[];
@@ -36929,10 +36993,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ButtonsMessage contentText. */
-            contentText?: (string|null);
+            contentText: string;
 
             /** ButtonsMessage footerText. */
-            footerText?: (string|null);
+            footerText: string;
 
             /** ButtonsMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
@@ -36941,7 +37005,7 @@ export namespace proto {
             buttons: proto.Message.ButtonsMessage.Button.$Properties[];
 
             /** ButtonsMessage headerType. */
-            headerType?: (proto.Message.ButtonsMessage.HeaderType|null);
+            headerType: proto.Message.ButtonsMessage.HeaderType;
 
             /** ButtonsMessage text. */
             text?: (string|null);
@@ -37119,13 +37183,13 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Button buttonId. */
-                buttonId?: (string|null);
+                buttonId: string;
 
                 /** Button buttonText. */
                 buttonText?: (proto.Message.ButtonsMessage.Button.ButtonText.$Properties|null);
 
                 /** Button type. */
-                type?: (proto.Message.ButtonsMessage.Button.Type|null);
+                type: proto.Message.ButtonsMessage.Button.Type;
 
                 /** Button nativeFlowInfo. */
                 nativeFlowInfo?: (proto.Message.ButtonsMessage.Button.NativeFlowInfo.$Properties|null);
@@ -37253,7 +37317,7 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** ButtonText displayText. */
-                    displayText?: (string|null);
+                    displayText: string;
 
                     /**
                      * Creates a new ButtonText instance using the specified properties.
@@ -37370,10 +37434,10 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** NativeFlowInfo name. */
-                    name?: (string|null);
+                    name: string;
 
                     /** NativeFlowInfo paramsJson. */
-                    paramsJson?: (string|null);
+                    paramsJson: string;
 
                     /**
                      * Creates a new NativeFlowInfo instance using the specified properties.
@@ -37533,13 +37597,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ButtonsResponseMessage selectedButtonId. */
-            selectedButtonId?: (string|null);
+            selectedButtonId: string;
 
             /** ButtonsResponseMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** ButtonsResponseMessage type. */
-            type?: (proto.Message.ButtonsResponseMessage.Type|null);
+            type: proto.Message.ButtonsResponseMessage.Type;
 
             /** ButtonsResponseMessage selectedDisplayText. */
             selectedDisplayText?: (string|null);
@@ -37692,40 +37756,40 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** Call callKey. */
-            callKey?: (Uint8Array|null);
+            callKey: Uint8Array;
 
             /** Call conversionSource. */
-            conversionSource?: (string|null);
+            conversionSource: string;
 
             /** Call conversionData. */
-            conversionData?: (Uint8Array|null);
+            conversionData: Uint8Array;
 
             /** Call conversionDelaySeconds. */
-            conversionDelaySeconds?: (number|null);
+            conversionDelaySeconds: number;
 
             /** Call ctwaSignals. */
-            ctwaSignals?: (string|null);
+            ctwaSignals: string;
 
             /** Call ctwaPayload. */
-            ctwaPayload?: (Uint8Array|null);
+            ctwaPayload: Uint8Array;
 
             /** Call contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** Call nativeFlowCallButtonPayload. */
-            nativeFlowCallButtonPayload?: (string|null);
+            nativeFlowCallButtonPayload: string;
 
             /** Call deeplinkPayload. */
-            deeplinkPayload?: (string|null);
+            deeplinkPayload: string;
 
             /** Call messageContextInfo. */
             messageContextInfo?: (proto.MessageContextInfo.$Properties|null);
 
             /** Call callEntryPoint. */
-            callEntryPoint?: (number|null);
+            callEntryPoint: number;
 
             /** Call callReason. */
-            callReason?: (string|null);
+            callReason: string;
 
             /**
              * Creates a new Call instance using the specified properties.
@@ -37889,16 +37953,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** CallLogMessage isVideo. */
-            isVideo?: (boolean|null);
+            isVideo: boolean;
 
             /** CallLogMessage callOutcome. */
-            callOutcome?: (proto.Message.CallLogMessage.CallOutcome|null);
+            callOutcome: proto.Message.CallLogMessage.CallOutcome;
 
             /** CallLogMessage durationSecs. */
-            durationSecs?: (number|Long|null);
+            durationSecs: (number|Long);
 
             /** CallLogMessage callType. */
-            callType?: (proto.Message.CallLogMessage.CallType|null);
+            callType: proto.Message.CallLogMessage.CallType;
 
             /** CallLogMessage participants. */
             participants: proto.Message.CallLogMessage.CallParticipant.$Properties[];
@@ -38057,10 +38121,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** CallParticipant jid. */
-                jid?: (string|null);
+                jid: string;
 
                 /** CallParticipant callOutcome. */
-                callOutcome?: (proto.Message.CallLogMessage.CallOutcome|null);
+                callOutcome: proto.Message.CallLogMessage.CallOutcome;
 
                 /**
                  * Creates a new CallParticipant instance using the specified properties.
@@ -38311,10 +38375,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** Chat displayName. */
-            displayName?: (string|null);
+            displayName: string;
 
             /** Chat id. */
-            id?: (string|null);
+            id: string;
 
             /**
              * Creates a new Chat instance using the specified properties.
@@ -38434,10 +38498,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ChatAnimatedWallpaper animatedWallpaperId. */
-            animatedWallpaperId?: (string|null);
+            animatedWallpaperId: string;
 
             /** ChatAnimatedWallpaper dimLevel. */
-            dimLevel?: (number|null);
+            dimLevel: number;
 
             /**
              * Creates a new ChatAnimatedWallpaper instance using the specified properties.
@@ -38557,19 +38621,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ChatCustomImageWallpaper directPath. */
-            directPath?: (string|null);
+            directPath: string;
 
             /** ChatCustomImageWallpaper mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** ChatCustomImageWallpaper fileEncSha256. */
-            fileEncSha256?: (Uint8Array|null);
+            fileEncSha256: Uint8Array;
 
             /** ChatCustomImageWallpaper fileSha256. */
-            fileSha256?: (Uint8Array|null);
+            fileSha256: Uint8Array;
 
             /** ChatCustomImageWallpaper dimLevel. */
-            dimLevel?: (number|null);
+            dimLevel: number;
 
             /**
              * Creates a new ChatCustomImageWallpaper instance using the specified properties.
@@ -38698,7 +38762,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ChatDefaultWallpaper isDoodleEnabled. */
-            isDoodleEnabled?: (boolean|null);
+            isDoodleEnabled: boolean;
 
             /**
              * Creates a new ChatDefaultWallpaper instance using the specified properties.
@@ -38815,19 +38879,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ChatSolidColorWallpaper backgroundLightArgb. */
-            backgroundLightArgb?: (number|null);
+            backgroundLightArgb: number;
 
             /** ChatSolidColorWallpaper backgroundDarkArgb. */
-            backgroundDarkArgb?: (number|null);
+            backgroundDarkArgb: number;
 
             /** ChatSolidColorWallpaper isDoodleEnabled. */
-            isDoodleEnabled?: (boolean|null);
+            isDoodleEnabled: boolean;
 
             /** ChatSolidColorWallpaper doodleLightArgb. */
-            doodleLightArgb?: (number|null);
+            doodleLightArgb: number;
 
             /** ChatSolidColorWallpaper doodleDarkArgb. */
-            doodleDarkArgb?: (number|null);
+            doodleDarkArgb: number;
 
             /**
              * Creates a new ChatSolidColorWallpaper instance using the specified properties.
@@ -38956,10 +39020,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ChatStockImageWallpaper stockImageId. */
-            stockImageId?: (string|null);
+            stockImageId: string;
 
             /** ChatStockImageWallpaper dimLevel. */
-            dimLevel?: (number|null);
+            dimLevel: number;
 
             /**
              * Creates a new ChatStockImageWallpaper instance using the specified properties.
@@ -39079,13 +39143,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ChatThemeSetting settingTimestampMs. */
-            settingTimestampMs?: (number|Long|null);
+            settingTimestampMs: (number|Long);
 
             /** ChatThemeSetting clearTheme. */
-            clearTheme?: (boolean|null);
+            clearTheme: boolean;
 
             /** ChatThemeSetting colorSchemeId. */
-            colorSchemeId?: (string|null);
+            colorSchemeId: string;
 
             /** ChatThemeSetting defaultWallpaper. */
             defaultWallpaper?: (proto.Message.ChatDefaultWallpaper.$Properties|null);
@@ -39256,22 +39320,22 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** CloudAPIThreadControlNotification status. */
-            status?: (proto.Message.CloudAPIThreadControlNotification.CloudAPIThreadControl|null);
+            status: proto.Message.CloudAPIThreadControlNotification.CloudAPIThreadControl;
 
             /** CloudAPIThreadControlNotification senderNotificationTimestampMs. */
-            senderNotificationTimestampMs?: (number|Long|null);
+            senderNotificationTimestampMs: (number|Long);
 
             /** CloudAPIThreadControlNotification consumerLid. */
-            consumerLid?: (string|null);
+            consumerLid: string;
 
             /** CloudAPIThreadControlNotification consumerPhoneNumber. */
-            consumerPhoneNumber?: (string|null);
+            consumerPhoneNumber: string;
 
             /** CloudAPIThreadControlNotification notificationContent. */
             notificationContent?: (proto.Message.CloudAPIThreadControlNotification.CloudAPIThreadControlNotificationContent.$Properties|null);
 
             /** CloudAPIThreadControlNotification shouldSuppressNotification. */
-            shouldSuppressNotification?: (boolean|null);
+            shouldSuppressNotification: boolean;
 
             /**
              * Creates a new CloudAPIThreadControlNotification instance using the specified properties.
@@ -39418,10 +39482,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** CloudAPIThreadControlNotificationContent handoffNotificationText. */
-                handoffNotificationText?: (string|null);
+                handoffNotificationText: string;
 
                 /** CloudAPIThreadControlNotificationContent extraJson. */
-                extraJson?: (string|null);
+                extraJson: string;
 
                 /**
                  * Creates a new CloudAPIThreadControlNotificationContent instance using the specified properties.
@@ -39542,10 +39606,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** CoexConnectionDescriptor providerId. */
-            providerId?: (number|Long|null);
+            providerId: (number|Long);
 
             /** CoexConnectionDescriptor product. */
-            product?: (string|null);
+            product: string;
 
             /**
              * Creates a new CoexConnectionDescriptor instance using the specified properties.
@@ -39792,16 +39856,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ConditionalRevealMessage encPayload. */
-            encPayload?: (Uint8Array|null);
+            encPayload: Uint8Array;
 
             /** ConditionalRevealMessage encIv. */
-            encIv?: (Uint8Array|null);
+            encIv: Uint8Array;
 
             /** ConditionalRevealMessage conditionalRevealMessageType. */
-            conditionalRevealMessageType?: (proto.Message.ConditionalRevealMessage.ConditionalRevealMessageType|null);
+            conditionalRevealMessageType: proto.Message.ConditionalRevealMessage.ConditionalRevealMessageType;
 
             /** ConditionalRevealMessage revealKeyId. */
-            revealKeyId?: (string|null);
+            revealKeyId: string;
 
             /**
              * Creates a new ConditionalRevealMessage instance using the specified properties.
@@ -39937,16 +40001,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ContactMessage displayName. */
-            displayName?: (string|null);
+            displayName: string;
 
             /** ContactMessage vcard. */
-            vcard?: (string|null);
+            vcard: string;
 
             /** ContactMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** ContactMessage isSelfContact. */
-            isSelfContact?: (boolean|null);
+            isSelfContact: boolean;
 
             /**
              * Creates a new ContactMessage instance using the specified properties.
@@ -40078,7 +40142,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ContactsArrayMessage displayName. */
-            displayName?: (string|null);
+            displayName: string;
 
             /** ContactsArrayMessage contacts. */
             contacts: proto.Message.ContactMessage.$Properties[];
@@ -40329,13 +40393,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** DeviceSentMessage destinationJid. */
-            destinationJid?: (string|null);
+            destinationJid: string;
 
             /** DeviceSentMessage message. */
             message?: (proto.Message.$Properties|null);
 
             /** DeviceSentMessage phash. */
-            phash?: (string|null);
+            phash: string;
 
             /**
              * Creates a new DeviceSentMessage instance using the specified properties.
@@ -40463,67 +40527,67 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** DocumentMessage url. */
-            url?: (string|null);
+            url: string;
 
             /** DocumentMessage mimetype. */
-            mimetype?: (string|null);
+            mimetype: string;
 
             /** DocumentMessage title. */
-            title?: (string|null);
+            title: string;
 
             /** DocumentMessage fileSha256. */
-            fileSha256?: (Uint8Array|null);
+            fileSha256: Uint8Array;
 
             /** DocumentMessage fileLength. */
-            fileLength?: (number|Long|null);
+            fileLength: (number|Long);
 
             /** DocumentMessage pageCount. */
-            pageCount?: (number|null);
+            pageCount: number;
 
             /** DocumentMessage mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** DocumentMessage fileName. */
-            fileName?: (string|null);
+            fileName: string;
 
             /** DocumentMessage fileEncSha256. */
-            fileEncSha256?: (Uint8Array|null);
+            fileEncSha256: Uint8Array;
 
             /** DocumentMessage directPath. */
-            directPath?: (string|null);
+            directPath: string;
 
             /** DocumentMessage mediaKeyTimestamp. */
-            mediaKeyTimestamp?: (number|Long|null);
+            mediaKeyTimestamp: (number|Long);
 
             /** DocumentMessage contactVcard. */
-            contactVcard?: (boolean|null);
+            contactVcard: boolean;
 
             /** DocumentMessage thumbnailDirectPath. */
-            thumbnailDirectPath?: (string|null);
+            thumbnailDirectPath: string;
 
             /** DocumentMessage thumbnailSha256. */
-            thumbnailSha256?: (Uint8Array|null);
+            thumbnailSha256: Uint8Array;
 
             /** DocumentMessage thumbnailEncSha256. */
-            thumbnailEncSha256?: (Uint8Array|null);
+            thumbnailEncSha256: Uint8Array;
 
             /** DocumentMessage jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /** DocumentMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** DocumentMessage thumbnailHeight. */
-            thumbnailHeight?: (number|null);
+            thumbnailHeight: number;
 
             /** DocumentMessage thumbnailWidth. */
-            thumbnailWidth?: (number|null);
+            thumbnailWidth: number;
 
             /** DocumentMessage caption. */
-            caption?: (string|null);
+            caption: string;
 
             /** DocumentMessage accessibilityLabel. */
-            accessibilityLabel?: (string|null);
+            accessibilityLabel: string;
 
             /**
              * Creates a new DocumentMessage instance using the specified properties.
@@ -40726,10 +40790,10 @@ export namespace proto {
             targetMessageKey?: (proto.MessageKey.$Properties|null);
 
             /** EncCommentMessage encPayload. */
-            encPayload?: (Uint8Array|null);
+            encPayload: Uint8Array;
 
             /** EncCommentMessage encIv. */
-            encIv?: (Uint8Array|null);
+            encIv: Uint8Array;
 
             /**
              * Creates a new EncCommentMessage instance using the specified properties.
@@ -40855,10 +40919,10 @@ export namespace proto {
             eventCreationMessageKey?: (proto.MessageKey.$Properties|null);
 
             /** EncEventResponseMessage encPayload. */
-            encPayload?: (Uint8Array|null);
+            encPayload: Uint8Array;
 
             /** EncEventResponseMessage encIv. */
-            encIv?: (Uint8Array|null);
+            encIv: Uint8Array;
 
             /**
              * Creates a new EncEventResponseMessage instance using the specified properties.
@@ -40984,10 +41048,10 @@ export namespace proto {
             targetMessageKey?: (proto.MessageKey.$Properties|null);
 
             /** EncReactionMessage encPayload. */
-            encPayload?: (Uint8Array|null);
+            encPayload: Uint8Array;
 
             /** EncReactionMessage encIv. */
-            encIv?: (Uint8Array|null);
+            encIv: Uint8Array;
 
             /**
              * Creates a new EncReactionMessage instance using the specified properties.
@@ -41113,40 +41177,40 @@ export namespace proto {
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** EventInviteMessage eventId. */
-            eventId?: (string|null);
+            eventId: string;
 
             /** EventInviteMessage eventTitle. */
-            eventTitle?: (string|null);
+            eventTitle: string;
 
             /** EventInviteMessage jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /** EventInviteMessage startTime. */
-            startTime?: (number|Long|null);
+            startTime: (number|Long);
 
             /** EventInviteMessage caption. */
-            caption?: (string|null);
+            caption: string;
 
             /** EventInviteMessage isCanceled. */
-            isCanceled?: (boolean|null);
+            isCanceled: boolean;
 
             /** EventInviteMessage endTime. */
-            endTime?: (number|Long|null);
+            endTime: (number|Long);
 
             /** EventInviteMessage callLink. */
-            callLink?: (string|null);
+            callLink: string;
 
             /** EventInviteMessage coverImageHandle. */
-            coverImageHandle?: (string|null);
+            coverImageHandle: string;
 
             /** EventInviteMessage locationName. */
-            locationName?: (string|null);
+            locationName: string;
 
             /** EventInviteMessage lastUpdatedTsUsec. */
-            lastUpdatedTsUsec?: (number|Long|null);
+            lastUpdatedTsUsec: (number|Long);
 
             /** EventInviteMessage status. */
-            status?: (proto.Message.EventInviteMessage.EventStatus|null);
+            status: proto.Message.EventInviteMessage.EventStatus;
 
             /**
              * Creates a new EventInviteMessage instance using the specified properties.
@@ -41342,37 +41406,37 @@ export namespace proto {
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** EventMessage isCanceled. */
-            isCanceled?: (boolean|null);
+            isCanceled: boolean;
 
             /** EventMessage name. */
-            name?: (string|null);
+            name: string;
 
             /** EventMessage description. */
-            description?: (string|null);
+            description: string;
 
             /** EventMessage location. */
             location?: (proto.Message.LocationMessage.$Properties|null);
 
             /** EventMessage joinLink. */
-            joinLink?: (string|null);
+            joinLink: string;
 
             /** EventMessage startTime. */
-            startTime?: (number|Long|null);
+            startTime: (number|Long);
 
             /** EventMessage endTime. */
-            endTime?: (number|Long|null);
+            endTime: (number|Long);
 
             /** EventMessage extraGuestsAllowed. */
-            extraGuestsAllowed?: (boolean|null);
+            extraGuestsAllowed: boolean;
 
             /** EventMessage isScheduleCall. */
-            isScheduleCall?: (boolean|null);
+            isScheduleCall: boolean;
 
             /** EventMessage hasReminder. */
-            hasReminder?: (boolean|null);
+            hasReminder: boolean;
 
             /** EventMessage reminderOffsetSec. */
-            reminderOffsetSec?: (number|Long|null);
+            reminderOffsetSec: (number|Long);
 
             /**
              * Creates a new EventMessage instance using the specified properties.
@@ -41536,13 +41600,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** EventResponseMessage response. */
-            response?: (proto.Message.EventResponseMessage.EventResponseType|null);
+            response: proto.Message.EventResponseMessage.EventResponseType;
 
             /** EventResponseMessage timestampMs. */
-            timestampMs?: (number|Long|null);
+            timestampMs: (number|Long);
 
             /** EventResponseMessage extraGuestCount. */
-            extraGuestCount?: (number|null);
+            extraGuestCount: number;
 
             /**
              * Creates a new EventResponseMessage instance using the specified properties.
@@ -41681,79 +41745,79 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ExtendedTextMessage text. */
-            text?: (string|null);
+            text: string;
 
             /** ExtendedTextMessage matchedText. */
-            matchedText?: (string|null);
+            matchedText: string;
 
             /** ExtendedTextMessage description. */
-            description?: (string|null);
+            description: string;
 
             /** ExtendedTextMessage title. */
-            title?: (string|null);
+            title: string;
 
             /** ExtendedTextMessage textArgb. */
-            textArgb?: (number|null);
+            textArgb: number;
 
             /** ExtendedTextMessage backgroundArgb. */
-            backgroundArgb?: (number|null);
+            backgroundArgb: number;
 
             /** ExtendedTextMessage font. */
-            font?: (proto.Message.ExtendedTextMessage.FontType|null);
+            font: proto.Message.ExtendedTextMessage.FontType;
 
             /** ExtendedTextMessage previewType. */
-            previewType?: (proto.Message.ExtendedTextMessage.PreviewType|null);
+            previewType: proto.Message.ExtendedTextMessage.PreviewType;
 
             /** ExtendedTextMessage jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /** ExtendedTextMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** ExtendedTextMessage doNotPlayInline. */
-            doNotPlayInline?: (boolean|null);
+            doNotPlayInline: boolean;
 
             /** ExtendedTextMessage thumbnailDirectPath. */
-            thumbnailDirectPath?: (string|null);
+            thumbnailDirectPath: string;
 
             /** ExtendedTextMessage thumbnailSha256. */
-            thumbnailSha256?: (Uint8Array|null);
+            thumbnailSha256: Uint8Array;
 
             /** ExtendedTextMessage thumbnailEncSha256. */
-            thumbnailEncSha256?: (Uint8Array|null);
+            thumbnailEncSha256: Uint8Array;
 
             /** ExtendedTextMessage mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** ExtendedTextMessage mediaKeyTimestamp. */
-            mediaKeyTimestamp?: (number|Long|null);
+            mediaKeyTimestamp: (number|Long);
 
             /** ExtendedTextMessage thumbnailHeight. */
-            thumbnailHeight?: (number|null);
+            thumbnailHeight: number;
 
             /** ExtendedTextMessage thumbnailWidth. */
-            thumbnailWidth?: (number|null);
+            thumbnailWidth: number;
 
             /** ExtendedTextMessage inviteLinkGroupType. */
-            inviteLinkGroupType?: (proto.Message.ExtendedTextMessage.InviteLinkGroupType|null);
+            inviteLinkGroupType: proto.Message.ExtendedTextMessage.InviteLinkGroupType;
 
             /** ExtendedTextMessage inviteLinkParentGroupSubjectV2. */
-            inviteLinkParentGroupSubjectV2?: (string|null);
+            inviteLinkParentGroupSubjectV2: string;
 
             /** ExtendedTextMessage inviteLinkParentGroupThumbnailV2. */
-            inviteLinkParentGroupThumbnailV2?: (Uint8Array|null);
+            inviteLinkParentGroupThumbnailV2: Uint8Array;
 
             /** ExtendedTextMessage inviteLinkGroupTypeV2. */
-            inviteLinkGroupTypeV2?: (proto.Message.ExtendedTextMessage.InviteLinkGroupType|null);
+            inviteLinkGroupTypeV2: proto.Message.ExtendedTextMessage.InviteLinkGroupType;
 
             /** ExtendedTextMessage viewOnce. */
-            viewOnce?: (boolean|null);
+            viewOnce: boolean;
 
             /** ExtendedTextMessage videoHeight. */
-            videoHeight?: (number|null);
+            videoHeight: number;
 
             /** ExtendedTextMessage videoWidth. */
-            videoWidth?: (number|null);
+            videoWidth: number;
 
             /** ExtendedTextMessage faviconMmsMetadata. */
             faviconMmsMetadata?: (proto.Message.MMSThumbnailMetadata.$Properties|null);
@@ -41768,7 +41832,7 @@ export namespace proto {
             endCardTiles: proto.Message.VideoEndCard.$Properties[];
 
             /** ExtendedTextMessage videoContentUrl. */
-            videoContentUrl?: (string|null);
+            videoContentUrl: string;
 
             /** ExtendedTextMessage musicMetadata. */
             musicMetadata?: (proto.EmbeddedMusic.$Properties|null);
@@ -42084,10 +42148,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** FullHistorySyncOnDemandConfig historyFromTimestamp. */
-            historyFromTimestamp?: (number|Long|null);
+            historyFromTimestamp: (number|Long);
 
             /** FullHistorySyncOnDemandConfig historyDurationDays. */
-            historyDurationDays?: (number|null);
+            historyDurationDays: number;
 
             /**
              * Creates a new FullHistorySyncOnDemandConfig instance using the specified properties.
@@ -42207,13 +42271,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** FullHistorySyncOnDemandRequestMetadata requestId. */
-            requestId?: (string|null);
+            requestId: string;
 
             /** FullHistorySyncOnDemandRequestMetadata businessProduct. */
-            businessProduct?: (string|null);
+            businessProduct: string;
 
             /** FullHistorySyncOnDemandRequestMetadata opaqueClientData. */
-            opaqueClientData?: (Uint8Array|null);
+            opaqueClientData: Uint8Array;
 
             /** FullHistorySyncOnDemandRequestMetadata connection. */
             connection?: (proto.Message.CoexConnectionDescriptor.$Properties|null);
@@ -42462,28 +42526,28 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** GroupInviteMessage groupJid. */
-            groupJid?: (string|null);
+            groupJid: string;
 
             /** GroupInviteMessage inviteCode. */
-            inviteCode?: (string|null);
+            inviteCode: string;
 
             /** GroupInviteMessage inviteExpiration. */
-            inviteExpiration?: (number|Long|null);
+            inviteExpiration: (number|Long);
 
             /** GroupInviteMessage groupName. */
-            groupName?: (string|null);
+            groupName: string;
 
             /** GroupInviteMessage jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /** GroupInviteMessage caption. */
-            caption?: (string|null);
+            caption: string;
 
             /** GroupInviteMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** GroupInviteMessage groupType. */
-            groupType?: (proto.Message.GroupInviteMessage.GroupType|null);
+            groupType: proto.Message.GroupInviteMessage.GroupType;
 
             /**
              * Creates a new GroupInviteMessage instance using the specified properties.
@@ -42641,28 +42705,28 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** HighlyStructuredMessage namespace. */
-            namespace?: (string|null);
+            namespace: string;
 
             /** HighlyStructuredMessage elementName. */
-            elementName?: (string|null);
+            elementName: string;
 
             /** HighlyStructuredMessage params. */
             params: string[];
 
             /** HighlyStructuredMessage fallbackLg. */
-            fallbackLg?: (string|null);
+            fallbackLg: string;
 
             /** HighlyStructuredMessage fallbackLc. */
-            fallbackLc?: (string|null);
+            fallbackLc: string;
 
             /** HighlyStructuredMessage localizableParams. */
             localizableParams: proto.Message.HighlyStructuredMessage.HSMLocalizableParameter.$Properties[];
 
             /** HighlyStructuredMessage deterministicLg. */
-            deterministicLg?: (string|null);
+            deterministicLg: string;
 
             /** HighlyStructuredMessage deterministicLc. */
-            deterministicLc?: (string|null);
+            deterministicLc: string;
 
             /** HighlyStructuredMessage hydratedHsm. */
             hydratedHsm?: (proto.Message.TemplateMessage.$Properties|null);
@@ -42816,7 +42880,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** HSMLocalizableParameter default. */
-                default?: (string|null);
+                default: string;
 
                 /** HSMLocalizableParameter currency. */
                 currency?: (proto.Message.HighlyStructuredMessage.HSMLocalizableParameter.HSMCurrency.$Properties|null);
@@ -42957,10 +43021,10 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** HSMCurrency currencyCode. */
-                    currencyCode?: (string|null);
+                    currencyCode: string;
 
                     /** HSMCurrency amount1000. */
-                    amount1000?: (number|Long|null);
+                    amount1000: (number|Long);
 
                     /**
                      * Creates a new HSMCurrency instance using the specified properties.
@@ -43214,25 +43278,25 @@ export namespace proto {
                         $unknowns?: Uint8Array[];
 
                         /** HSMDateTimeComponent dayOfWeek. */
-                        dayOfWeek?: (proto.Message.HighlyStructuredMessage.HSMLocalizableParameter.HSMDateTime.HSMDateTimeComponent.DayOfWeekType|null);
+                        dayOfWeek: proto.Message.HighlyStructuredMessage.HSMLocalizableParameter.HSMDateTime.HSMDateTimeComponent.DayOfWeekType;
 
                         /** HSMDateTimeComponent year. */
-                        year?: (number|null);
+                        year: number;
 
                         /** HSMDateTimeComponent month. */
-                        month?: (number|null);
+                        month: number;
 
                         /** HSMDateTimeComponent dayOfMonth. */
-                        dayOfMonth?: (number|null);
+                        dayOfMonth: number;
 
                         /** HSMDateTimeComponent hour. */
-                        hour?: (number|null);
+                        hour: number;
 
                         /** HSMDateTimeComponent minute. */
-                        minute?: (number|null);
+                        minute: number;
 
                         /** HSMDateTimeComponent calendar. */
-                        calendar?: (proto.Message.HighlyStructuredMessage.HSMLocalizableParameter.HSMDateTime.HSMDateTimeComponent.CalendarType|null);
+                        calendar: proto.Message.HighlyStructuredMessage.HSMLocalizableParameter.HSMDateTime.HSMDateTimeComponent.CalendarType;
 
                         /**
                          * Creates a new HSMDateTimeComponent instance using the specified properties.
@@ -43402,7 +43466,7 @@ export namespace proto {
                         $unknowns?: Uint8Array[];
 
                         /** HSMDateTimeUnixEpoch timestamp. */
-                        timestamp?: (number|Long|null);
+                        timestamp: (number|Long);
 
                         /**
                          * Creates a new HSMDateTimeUnixEpoch instance using the specified properties.
@@ -43522,10 +43586,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** HistoryShareMessageEntry stanzaId. */
-            stanzaId?: (string|null);
+            stanzaId: string;
 
             /** HistoryShareMessageEntry messageSecretProof. */
-            messageSecretProof?: (Uint8Array|null);
+            messageSecretProof: Uint8Array;
 
             /**
              * Creates a new HistoryShareMessageEntry instance using the specified properties.
@@ -43645,7 +43709,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** HistorySyncMessageAccessStatus completeAccessGranted. */
-            completeAccessGranted?: (boolean|null);
+            completeAccessGranted: boolean;
 
             /**
              * Creates a new HistorySyncMessageAccessStatus instance using the specified properties.
@@ -43762,46 +43826,46 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** HistorySyncNotification fileSha256. */
-            fileSha256?: (Uint8Array|null);
+            fileSha256: Uint8Array;
 
             /** HistorySyncNotification fileLength. */
-            fileLength?: (number|Long|null);
+            fileLength: (number|Long);
 
             /** HistorySyncNotification mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** HistorySyncNotification fileEncSha256. */
-            fileEncSha256?: (Uint8Array|null);
+            fileEncSha256: Uint8Array;
 
             /** HistorySyncNotification directPath. */
-            directPath?: (string|null);
+            directPath: string;
 
             /** HistorySyncNotification syncType. */
-            syncType?: (proto.Message.HistorySyncType|null);
+            syncType: proto.Message.HistorySyncType;
 
             /** HistorySyncNotification chunkOrder. */
-            chunkOrder?: (number|null);
+            chunkOrder: number;
 
             /** HistorySyncNotification originalMessageId. */
-            originalMessageId?: (string|null);
+            originalMessageId: string;
 
             /** HistorySyncNotification progress. */
-            progress?: (number|null);
+            progress: number;
 
             /** HistorySyncNotification oldestMsgInChunkTimestampSec. */
-            oldestMsgInChunkTimestampSec?: (number|Long|null);
+            oldestMsgInChunkTimestampSec: (number|Long);
 
             /** HistorySyncNotification initialHistBootstrapInlinePayload. */
-            initialHistBootstrapInlinePayload?: (Uint8Array|null);
+            initialHistBootstrapInlinePayload: Uint8Array;
 
             /** HistorySyncNotification peerDataRequestSessionId. */
-            peerDataRequestSessionId?: (string|null);
+            peerDataRequestSessionId: string;
 
             /** HistorySyncNotification fullHistorySyncOnDemandRequestMetadata. */
             fullHistorySyncOnDemandRequestMetadata?: (proto.Message.FullHistorySyncOnDemandRequestMetadata.$Properties|null);
 
             /** HistorySyncNotification encHandle. */
-            encHandle?: (string|null);
+            encHandle: string;
 
             /** HistorySyncNotification messageAccessStatus. */
             messageAccessStatus?: (proto.Message.HistorySyncMessageAccessStatus.$Properties|null);
@@ -43997,94 +44061,94 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ImageMessage url. */
-            url?: (string|null);
+            url: string;
 
             /** ImageMessage mimetype. */
-            mimetype?: (string|null);
+            mimetype: string;
 
             /** ImageMessage caption. */
-            caption?: (string|null);
+            caption: string;
 
             /** ImageMessage fileSha256. */
-            fileSha256?: (Uint8Array|null);
+            fileSha256: Uint8Array;
 
             /** ImageMessage fileLength. */
-            fileLength?: (number|Long|null);
+            fileLength: (number|Long);
 
             /** ImageMessage height. */
-            height?: (number|null);
+            height: number;
 
             /** ImageMessage width. */
-            width?: (number|null);
+            width: number;
 
             /** ImageMessage mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** ImageMessage fileEncSha256. */
-            fileEncSha256?: (Uint8Array|null);
+            fileEncSha256: Uint8Array;
 
             /** ImageMessage interactiveAnnotations. */
             interactiveAnnotations: proto.InteractiveAnnotation.$Properties[];
 
             /** ImageMessage directPath. */
-            directPath?: (string|null);
+            directPath: string;
 
             /** ImageMessage mediaKeyTimestamp. */
-            mediaKeyTimestamp?: (number|Long|null);
+            mediaKeyTimestamp: (number|Long);
 
             /** ImageMessage jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /** ImageMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** ImageMessage firstScanSidecar. */
-            firstScanSidecar?: (Uint8Array|null);
+            firstScanSidecar: Uint8Array;
 
             /** ImageMessage firstScanLength. */
-            firstScanLength?: (number|null);
+            firstScanLength: number;
 
             /** ImageMessage experimentGroupId. */
-            experimentGroupId?: (number|null);
+            experimentGroupId: number;
 
             /** ImageMessage scansSidecar. */
-            scansSidecar?: (Uint8Array|null);
+            scansSidecar: Uint8Array;
 
             /** ImageMessage scanLengths. */
             scanLengths: number[];
 
             /** ImageMessage midQualityFileSha256. */
-            midQualityFileSha256?: (Uint8Array|null);
+            midQualityFileSha256: Uint8Array;
 
             /** ImageMessage midQualityFileEncSha256. */
-            midQualityFileEncSha256?: (Uint8Array|null);
+            midQualityFileEncSha256: Uint8Array;
 
             /** ImageMessage viewOnce. */
-            viewOnce?: (boolean|null);
+            viewOnce: boolean;
 
             /** ImageMessage thumbnailDirectPath. */
-            thumbnailDirectPath?: (string|null);
+            thumbnailDirectPath: string;
 
             /** ImageMessage thumbnailSha256. */
-            thumbnailSha256?: (Uint8Array|null);
+            thumbnailSha256: Uint8Array;
 
             /** ImageMessage thumbnailEncSha256. */
-            thumbnailEncSha256?: (Uint8Array|null);
+            thumbnailEncSha256: Uint8Array;
 
             /** ImageMessage staticUrl. */
-            staticUrl?: (string|null);
+            staticUrl: string;
 
             /** ImageMessage annotations. */
             annotations: proto.InteractiveAnnotation.$Properties[];
 
             /** ImageMessage imageSourceType. */
-            imageSourceType?: (proto.Message.ImageMessage.ImageSourceType|null);
+            imageSourceType: proto.Message.ImageMessage.ImageSourceType;
 
             /** ImageMessage accessibilityLabel. */
-            accessibilityLabel?: (string|null);
+            accessibilityLabel: string;
 
             /** ImageMessage qrUrl. */
-            qrUrl?: (string|null);
+            qrUrl: string;
 
             /**
              * Creates a new ImageMessage instance using the specified properties.
@@ -44336,7 +44400,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** InitialSecurityNotificationSettingSync securityNotificationEnabled. */
-            securityNotificationEnabled?: (boolean|null);
+            securityNotificationEnabled: boolean;
 
             /**
              * Creates a new InitialSecurityNotificationSettingSync instance using the specified properties.
@@ -44662,16 +44726,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** BloksWidget uuid. */
-                uuid?: (string|null);
+                uuid: string;
 
                 /** BloksWidget data. */
-                data?: (string|null);
+                data: string;
 
                 /** BloksWidget type. */
-                type?: (string|null);
+                type: string;
 
                 /** BloksWidget fallback. */
-                fallback?: (string|null);
+                fallback: string;
 
                 /**
                  * Creates a new BloksWidget instance using the specified properties.
@@ -44797,7 +44861,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Body text. */
-                text?: (string|null);
+                text: string;
 
                 /**
                  * Creates a new Body instance using the specified properties.
@@ -44917,10 +44981,10 @@ export namespace proto {
                 cards: proto.Message.InteractiveMessage.$Properties[];
 
                 /** CarouselMessage messageVersion. */
-                messageVersion?: (number|null);
+                messageVersion: number;
 
                 /** CarouselMessage carouselCardType. */
-                carouselCardType?: (proto.Message.InteractiveMessage.CarouselMessage.CarouselCardType|null);
+                carouselCardType: proto.Message.InteractiveMessage.CarouselMessage.CarouselCardType;
 
                 /**
                  * Creates a new CarouselMessage instance using the specified properties.
@@ -45061,13 +45125,13 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** CollectionMessage bizJid. */
-                bizJid?: (string|null);
+                bizJid: string;
 
                 /** CollectionMessage id. */
-                id?: (string|null);
+                id: string;
 
                 /** CollectionMessage messageVersion. */
-                messageVersion?: (number|null);
+                messageVersion: number;
 
                 /**
                  * Creates a new CollectionMessage instance using the specified properties.
@@ -45190,10 +45254,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Footer text. */
-                text?: (string|null);
+                text: string;
 
                 /** Footer hasMediaAttachment. */
-                hasMediaAttachment?: (boolean|null);
+                hasMediaAttachment: boolean;
 
                 /** Footer audioMessage. */
                 audioMessage?: (proto.Message.AudioMessage.$Properties|null);
@@ -45332,13 +45396,13 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Header title. */
-                title?: (string|null);
+                title: string;
 
                 /** Header subtitle. */
-                subtitle?: (string|null);
+                subtitle: string;
 
                 /** Header hasMediaAttachment. */
-                hasMediaAttachment?: (boolean|null);
+                hasMediaAttachment: boolean;
 
                 /** Header bloksWidget. */
                 bloksWidget?: (proto.Message.InteractiveMessage.BloksWidget.$Properties|null);
@@ -45526,10 +45590,10 @@ export namespace proto {
                 buttons: proto.Message.InteractiveMessage.NativeFlowMessage.NativeFlowButton.$Properties[];
 
                 /** NativeFlowMessage messageParamsJson. */
-                messageParamsJson?: (string|null);
+                messageParamsJson: string;
 
                 /** NativeFlowMessage messageVersion. */
-                messageVersion?: (number|null);
+                messageVersion: number;
 
                 /**
                  * Creates a new NativeFlowMessage instance using the specified properties.
@@ -45651,10 +45715,10 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** NativeFlowButton name. */
-                    name?: (string|null);
+                    name: string;
 
                     /** NativeFlowButton buttonParamsJson. */
-                    buttonParamsJson?: (string|null);
+                    buttonParamsJson: string;
 
                     /**
                      * Creates a new NativeFlowButton instance using the specified properties.
@@ -45775,13 +45839,13 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** ShopMessage id. */
-                id?: (string|null);
+                id: string;
 
                 /** ShopMessage surface. */
-                surface?: (proto.Message.InteractiveMessage.ShopMessage.Surface|null);
+                surface: proto.Message.InteractiveMessage.ShopMessage.Surface;
 
                 /** ShopMessage messageVersion. */
-                messageVersion?: (number|null);
+                messageVersion: number;
 
                 /**
                  * Creates a new ShopMessage instance using the specified properties.
@@ -46062,10 +46126,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Body text. */
-                text?: (string|null);
+                text: string;
 
                 /** Body format. */
-                format?: (proto.Message.InteractiveResponseMessage.Body.Format|null);
+                format: proto.Message.InteractiveResponseMessage.Body.Format;
 
                 /**
                  * Creates a new Body instance using the specified properties.
@@ -46195,13 +46259,13 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** NativeFlowResponseMessage name. */
-                name?: (string|null);
+                name: string;
 
                 /** NativeFlowResponseMessage paramsJson. */
-                paramsJson?: (string|null);
+                paramsJson: string;
 
                 /** NativeFlowResponseMessage version. */
-                version?: (number|null);
+                version: number;
 
                 /**
                  * Creates a new NativeFlowResponseMessage instance using the specified properties.
@@ -46325,34 +46389,34 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** InvoiceMessage note. */
-            note?: (string|null);
+            note: string;
 
             /** InvoiceMessage token. */
-            token?: (string|null);
+            token: string;
 
             /** InvoiceMessage attachmentType. */
-            attachmentType?: (proto.Message.InvoiceMessage.AttachmentType|null);
+            attachmentType: proto.Message.InvoiceMessage.AttachmentType;
 
             /** InvoiceMessage attachmentMimetype. */
-            attachmentMimetype?: (string|null);
+            attachmentMimetype: string;
 
             /** InvoiceMessage attachmentMediaKey. */
-            attachmentMediaKey?: (Uint8Array|null);
+            attachmentMediaKey: Uint8Array;
 
             /** InvoiceMessage attachmentMediaKeyTimestamp. */
-            attachmentMediaKeyTimestamp?: (number|Long|null);
+            attachmentMediaKeyTimestamp: (number|Long);
 
             /** InvoiceMessage attachmentFileSha256. */
-            attachmentFileSha256?: (Uint8Array|null);
+            attachmentFileSha256: Uint8Array;
 
             /** InvoiceMessage attachmentFileEncSha256. */
-            attachmentFileEncSha256?: (Uint8Array|null);
+            attachmentFileEncSha256: Uint8Array;
 
             /** InvoiceMessage attachmentDirectPath. */
-            attachmentDirectPath?: (string|null);
+            attachmentDirectPath: string;
 
             /** InvoiceMessage attachmentJpegThumbnail. */
-            attachmentJpegThumbnail?: (Uint8Array|null);
+            attachmentJpegThumbnail: Uint8Array;
 
             /**
              * Creates a new InvoiceMessage instance using the specified properties.
@@ -46509,10 +46573,10 @@ export namespace proto {
             key?: (proto.MessageKey.$Properties|null);
 
             /** KeepInChatMessage keepType. */
-            keepType?: (proto.KeepType|null);
+            keepType: proto.KeepType;
 
             /** KeepInChatMessage timestampMs. */
-            timestampMs?: (number|Long|null);
+            timestampMs: (number|Long);
 
             /**
              * Creates a new KeepInChatMessage instance using the specified properties.
@@ -46641,25 +46705,28 @@ export namespace proto {
             urlMetadata?: (proto.Message.URLMetadata.$Properties|null);
 
             /** LinkPreviewMetadata fbExperimentId. */
-            fbExperimentId?: (number|null);
+            fbExperimentId: number;
 
             /** LinkPreviewMetadata linkMediaDuration. */
-            linkMediaDuration?: (number|null);
+            linkMediaDuration: number;
 
             /** LinkPreviewMetadata socialMediaPostType. */
-            socialMediaPostType?: (proto.Message.LinkPreviewMetadata.SocialMediaPostType|null);
+            socialMediaPostType: proto.Message.LinkPreviewMetadata.SocialMediaPostType;
 
             /** LinkPreviewMetadata linkInlineVideoMuted. */
-            linkInlineVideoMuted?: (boolean|null);
+            linkInlineVideoMuted: boolean;
 
             /** LinkPreviewMetadata videoContentUrl. */
-            videoContentUrl?: (string|null);
+            videoContentUrl: string;
 
             /** LinkPreviewMetadata musicMetadata. */
             musicMetadata?: (proto.EmbeddedMusic.$Properties|null);
 
             /** LinkPreviewMetadata videoContentCaption. */
-            videoContentCaption?: (string|null);
+            videoContentCaption: string;
+
+            /** LinkPreviewMetadata videoId. */
+            videoId: string;
 
             /**
              * Creates a new LinkPreviewMetadata instance using the specified properties.
@@ -46772,6 +46839,9 @@ export namespace proto {
                 /** LinkPreviewMetadata videoContentCaption */
                 videoContentCaption?: (string|null);
 
+                /** LinkPreviewMetadata videoId */
+                videoId?: (string|null);
+
                 /** Unknown fields preserved while decoding when enabled */
                 $unknowns?: Uint8Array[];
             }
@@ -46822,16 +46892,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ListMessage title. */
-            title?: (string|null);
+            title: string;
 
             /** ListMessage description. */
-            description?: (string|null);
+            description: string;
 
             /** ListMessage buttonText. */
-            buttonText?: (string|null);
+            buttonText: string;
 
             /** ListMessage listType. */
-            listType?: (proto.Message.ListMessage.ListType|null);
+            listType: proto.Message.ListMessage.ListType;
 
             /** ListMessage sections. */
             sections: proto.Message.ListMessage.Section.$Properties[];
@@ -46840,7 +46910,7 @@ export namespace proto {
             productListInfo?: (proto.Message.ListMessage.ProductListInfo.$Properties|null);
 
             /** ListMessage footerText. */
-            footerText?: (string|null);
+            footerText: string;
 
             /** ListMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
@@ -47003,7 +47073,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Product productId. */
-                productId?: (string|null);
+                productId: string;
 
                 /**
                  * Creates a new Product instance using the specified properties.
@@ -47120,10 +47190,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** ProductListHeaderImage productId. */
-                productId?: (string|null);
+                productId: string;
 
                 /** ProductListHeaderImage jpegThumbnail. */
-                jpegThumbnail?: (Uint8Array|null);
+                jpegThumbnail: Uint8Array;
 
                 /**
                  * Creates a new ProductListHeaderImage instance using the specified properties.
@@ -47249,7 +47319,7 @@ export namespace proto {
                 headerImage?: (proto.Message.ListMessage.ProductListHeaderImage.$Properties|null);
 
                 /** ProductListInfo businessOwnerJid. */
-                businessOwnerJid?: (string|null);
+                businessOwnerJid: string;
 
                 /**
                  * Creates a new ProductListInfo instance using the specified properties.
@@ -47372,7 +47442,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** ProductSection title. */
-                title?: (string|null);
+                title: string;
 
                 /** ProductSection products. */
                 products: proto.Message.ListMessage.Product.$Properties[];
@@ -47495,13 +47565,13 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Row title. */
-                title?: (string|null);
+                title: string;
 
                 /** Row description. */
-                description?: (string|null);
+                description: string;
 
                 /** Row rowId. */
-                rowId?: (string|null);
+                rowId: string;
 
                 /**
                  * Creates a new Row instance using the specified properties.
@@ -47624,7 +47694,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Section title. */
-                title?: (string|null);
+                title: string;
 
                 /** Section rows. */
                 rows: proto.Message.ListMessage.Row.$Properties[];
@@ -47748,10 +47818,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ListResponseMessage title. */
-            title?: (string|null);
+            title: string;
 
             /** ListResponseMessage listType. */
-            listType?: (proto.Message.ListResponseMessage.ListType|null);
+            listType: proto.Message.ListResponseMessage.ListType;
 
             /** ListResponseMessage singleSelectReply. */
             singleSelectReply?: (proto.Message.ListResponseMessage.SingleSelectReply.$Properties|null);
@@ -47760,7 +47830,7 @@ export namespace proto {
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** ListResponseMessage description. */
-            description?: (string|null);
+            description: string;
 
             /**
              * Creates a new ListResponseMessage instance using the specified properties.
@@ -47905,7 +47975,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** SingleSelectReply selectedRowId. */
-                selectedRowId?: (string|null);
+                selectedRowId: string;
 
                 /**
                  * Creates a new SingleSelectReply instance using the specified properties.
@@ -48023,31 +48093,31 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** LiveLocationMessage degreesLatitude. */
-            degreesLatitude?: (number|null);
+            degreesLatitude: number;
 
             /** LiveLocationMessage degreesLongitude. */
-            degreesLongitude?: (number|null);
+            degreesLongitude: number;
 
             /** LiveLocationMessage accuracyInMeters. */
-            accuracyInMeters?: (number|null);
+            accuracyInMeters: number;
 
             /** LiveLocationMessage speedInMps. */
-            speedInMps?: (number|null);
+            speedInMps: number;
 
             /** LiveLocationMessage degreesClockwiseFromMagneticNorth. */
-            degreesClockwiseFromMagneticNorth?: (number|null);
+            degreesClockwiseFromMagneticNorth: number;
 
             /** LiveLocationMessage caption. */
-            caption?: (string|null);
+            caption: string;
 
             /** LiveLocationMessage sequenceNumber. */
-            sequenceNumber?: (number|Long|null);
+            sequenceNumber: (number|Long);
 
             /** LiveLocationMessage timeOffset. */
-            timeOffset?: (number|null);
+            timeOffset: number;
 
             /** LiveLocationMessage jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /** LiveLocationMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
@@ -48206,37 +48276,37 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** LocationMessage degreesLatitude. */
-            degreesLatitude?: (number|null);
+            degreesLatitude: number;
 
             /** LocationMessage degreesLongitude. */
-            degreesLongitude?: (number|null);
+            degreesLongitude: number;
 
             /** LocationMessage name. */
-            name?: (string|null);
+            name: string;
 
             /** LocationMessage address. */
-            address?: (string|null);
+            address: string;
 
             /** LocationMessage url. */
-            url?: (string|null);
+            url: string;
 
             /** LocationMessage isLive. */
-            isLive?: (boolean|null);
+            isLive: boolean;
 
             /** LocationMessage accuracyInMeters. */
-            accuracyInMeters?: (number|null);
+            accuracyInMeters: number;
 
             /** LocationMessage speedInMps. */
-            speedInMps?: (number|null);
+            speedInMps: number;
 
             /** LocationMessage degreesClockwiseFromMagneticNorth. */
-            degreesClockwiseFromMagneticNorth?: (number|null);
+            degreesClockwiseFromMagneticNorth: number;
 
             /** LocationMessage comment. */
-            comment?: (string|null);
+            comment: string;
 
             /** LocationMessage jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /** LocationMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
@@ -48403,25 +48473,25 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MMSThumbnailMetadata thumbnailDirectPath. */
-            thumbnailDirectPath?: (string|null);
+            thumbnailDirectPath: string;
 
             /** MMSThumbnailMetadata thumbnailSha256. */
-            thumbnailSha256?: (Uint8Array|null);
+            thumbnailSha256: Uint8Array;
 
             /** MMSThumbnailMetadata thumbnailEncSha256. */
-            thumbnailEncSha256?: (Uint8Array|null);
+            thumbnailEncSha256: Uint8Array;
 
             /** MMSThumbnailMetadata mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** MMSThumbnailMetadata mediaKeyTimestamp. */
-            mediaKeyTimestamp?: (number|Long|null);
+            mediaKeyTimestamp: (number|Long);
 
             /** MMSThumbnailMetadata thumbnailHeight. */
-            thumbnailHeight?: (number|null);
+            thumbnailHeight: number;
 
             /** MMSThumbnailMetadata thumbnailWidth. */
-            thumbnailWidth?: (number|null);
+            thumbnailWidth: number;
 
             /**
              * Creates a new MMSThumbnailMetadata instance using the specified properties.
@@ -48556,16 +48626,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MarkAsVerifiedAction userJidString. */
-            userJidString?: (string|null);
+            userJidString: string;
 
             /** MarkAsVerifiedAction verified. */
-            verified?: (boolean|null);
+            verified: boolean;
 
             /** MarkAsVerifiedAction verifiedIdentityKey. */
-            verifiedIdentityKey?: (Uint8Array|null);
+            verifiedIdentityKey: Uint8Array;
 
             /** MarkAsVerifiedAction actionSeq. */
-            actionSeq?: (number|Long|null);
+            actionSeq: (number|Long);
 
             /**
              * Creates a new MarkAsVerifiedAction instance using the specified properties.
@@ -48691,22 +48761,22 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MessageHistoryBundle mimetype. */
-            mimetype?: (string|null);
+            mimetype: string;
 
             /** MessageHistoryBundle fileSha256. */
-            fileSha256?: (Uint8Array|null);
+            fileSha256: Uint8Array;
 
             /** MessageHistoryBundle mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** MessageHistoryBundle fileEncSha256. */
-            fileEncSha256?: (Uint8Array|null);
+            fileEncSha256: Uint8Array;
 
             /** MessageHistoryBundle directPath. */
-            directPath?: (string|null);
+            directPath: string;
 
             /** MessageHistoryBundle mediaKeyTimestamp. */
-            mediaKeyTimestamp?: (number|Long|null);
+            mediaKeyTimestamp: (number|Long);
 
             /** MessageHistoryBundle contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
@@ -48863,19 +48933,19 @@ export namespace proto {
             historyReceivers: string[];
 
             /** MessageHistoryMetadata oldestMessageTimestampInWindow. */
-            oldestMessageTimestampInWindow?: (number|Long|null);
+            oldestMessageTimestampInWindow: (number|Long);
 
             /** MessageHistoryMetadata messageCount. */
-            messageCount?: (number|Long|null);
+            messageCount: (number|Long);
 
             /** MessageHistoryMetadata nonHistoryReceivers. */
             nonHistoryReceivers: string[];
 
             /** MessageHistoryMetadata oldestMessageTimestampInBundle. */
-            oldestMessageTimestampInBundle?: (number|Long|null);
+            oldestMessageTimestampInBundle: (number|Long);
 
             /** MessageHistoryMetadata includesChatTheme. */
-            includesChatTheme?: (boolean|null);
+            includesChatTheme: boolean;
 
             /**
              * Creates a new MessageHistoryMetadata instance using the specified properties.
@@ -49144,13 +49214,13 @@ export namespace proto {
             embeddedMusic?: (proto.EmbeddedMusic.$Properties|null);
 
             /** MusicMessage songUri. */
-            songUri?: (string|null);
+            songUri: string;
 
             /** MusicMessage artworkUri. */
-            artworkUri?: (string|null);
+            artworkUri: string;
 
             /** MusicMessage style. */
-            style?: (number|null);
+            style: number;
 
             /** MusicMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
@@ -49411,13 +49481,13 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** Line startTimeInMs. */
-                    startTimeInMs?: (number|Long|null);
+                    startTimeInMs: (number|Long);
 
                     /** Line endTimeInMs. */
-                    endTimeInMs?: (number|Long|null);
+                    endTimeInMs: (number|Long);
 
                     /** Line text. */
-                    text?: (string|null);
+                    text: string;
 
                     /** Line wordOffsets. */
                     wordOffsets: proto.Message.MusicMessage.Lyrics.Line.WordOffset.$Properties[];
@@ -49545,16 +49615,16 @@ export namespace proto {
                         $unknowns?: Uint8Array[];
 
                         /** WordOffset startIndex. */
-                        startIndex?: (number|null);
+                        startIndex: number;
 
                         /** WordOffset endIndex. */
-                        endIndex?: (number|null);
+                        endIndex: number;
 
                         /** WordOffset startOffsetMs. */
-                        startOffsetMs?: (number|Long|null);
+                        startOffsetMs: (number|Long);
 
                         /** WordOffset endOffsetMs. */
-                        endOffsetMs?: (number|Long|null);
+                        endOffsetMs: (number|Long);
 
                         /**
                          * Creates a new WordOffset instance using the specified properties.
@@ -49699,19 +49769,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** NewsletterAdminInviteMessage newsletterJid. */
-            newsletterJid?: (string|null);
+            newsletterJid: string;
 
             /** NewsletterAdminInviteMessage newsletterName. */
-            newsletterName?: (string|null);
+            newsletterName: string;
 
             /** NewsletterAdminInviteMessage jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /** NewsletterAdminInviteMessage caption. */
-            caption?: (string|null);
+            caption: string;
 
             /** NewsletterAdminInviteMessage inviteExpiration. */
-            inviteExpiration?: (number|Long|null);
+            inviteExpiration: (number|Long);
 
             /** NewsletterAdminInviteMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
@@ -49854,16 +49924,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** NewsletterFollowerInviteMessage newsletterJid. */
-            newsletterJid?: (string|null);
+            newsletterJid: string;
 
             /** NewsletterFollowerInviteMessage newsletterName. */
-            newsletterName?: (string|null);
+            newsletterName: string;
 
             /** NewsletterFollowerInviteMessage jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /** NewsletterFollowerInviteMessage caption. */
-            caption?: (string|null);
+            caption: string;
 
             /** NewsletterFollowerInviteMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
@@ -50002,49 +50072,49 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** OrderMessage orderId. */
-            orderId?: (string|null);
+            orderId: string;
 
             /** OrderMessage thumbnail. */
-            thumbnail?: (Uint8Array|null);
+            thumbnail: Uint8Array;
 
             /** OrderMessage itemCount. */
-            itemCount?: (number|null);
+            itemCount: number;
 
             /** OrderMessage status. */
-            status?: (proto.Message.OrderMessage.OrderStatus|null);
+            status: proto.Message.OrderMessage.OrderStatus;
 
             /** OrderMessage surface. */
-            surface?: (proto.Message.OrderMessage.OrderSurface|null);
+            surface: proto.Message.OrderMessage.OrderSurface;
 
             /** OrderMessage message. */
-            message?: (string|null);
+            message: string;
 
             /** OrderMessage orderTitle. */
-            orderTitle?: (string|null);
+            orderTitle: string;
 
             /** OrderMessage sellerJid. */
-            sellerJid?: (string|null);
+            sellerJid: string;
 
             /** OrderMessage token. */
-            token?: (string|null);
+            token: string;
 
             /** OrderMessage totalAmount1000. */
-            totalAmount1000?: (number|Long|null);
+            totalAmount1000: (number|Long);
 
             /** OrderMessage totalCurrencyCode. */
-            totalCurrencyCode?: (string|null);
+            totalCurrencyCode: string;
 
             /** OrderMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** OrderMessage messageVersion. */
-            messageVersion?: (number|null);
+            messageVersion: number;
 
             /** OrderMessage orderRequestMessageId. */
             orderRequestMessageId?: (proto.MessageKey.$Properties|null);
 
             /** OrderMessage catalogType. */
-            catalogType?: (string|null);
+            catalogType: string;
 
             /**
              * Creates a new OrderMessage instance using the specified properties.
@@ -50221,6 +50291,195 @@ export namespace proto {
         }
 
         /**
+         * Properties of a PaymentDetailsMessage.
+         * @deprecated Use proto.Message.PaymentDetailsMessage.$Properties instead.
+         */
+        interface IPaymentDetailsMessage extends proto.Message.PaymentDetailsMessage.$Properties {
+        }
+
+        /** Represents a PaymentDetailsMessage. */
+        class PaymentDetailsMessage {
+
+            /**
+             * Constructs a new PaymentDetailsMessage.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.Message.PaymentDetailsMessage.$Properties);
+
+            /** Unknown fields preserved while decoding when enabled */
+            $unknowns?: Uint8Array[];
+
+            /** PaymentDetailsMessage serviceType. */
+            serviceType: proto.Message.PaymentDetailsMessage.ServiceType;
+
+            /** PaymentDetailsMessage amount. */
+            amount?: (proto.Money.$Properties|null);
+
+            /** PaymentDetailsMessage payeeName. */
+            payeeName: string;
+
+            /** PaymentDetailsMessage payerName. */
+            payerName: string;
+
+            /** PaymentDetailsMessage transactionTimestampMs. */
+            transactionTimestampMs: (number|Long);
+
+            /** PaymentDetailsMessage transactionId. */
+            transactionId: string;
+
+            /** PaymentDetailsMessage status. */
+            status: proto.Message.PaymentDetailsMessage.Status;
+
+            /** PaymentDetailsMessage contextInfo. */
+            contextInfo?: (proto.ContextInfo.$Properties|null);
+
+            /**
+             * Creates a new PaymentDetailsMessage instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns PaymentDetailsMessage instance
+             */
+            static create(properties: proto.Message.PaymentDetailsMessage.$Shape): proto.Message.PaymentDetailsMessage & proto.Message.PaymentDetailsMessage.$Shape;
+            static create(properties?: proto.Message.PaymentDetailsMessage.$Properties): proto.Message.PaymentDetailsMessage;
+
+            /**
+             * Encodes the specified PaymentDetailsMessage message. Does not implicitly {@link proto.Message.PaymentDetailsMessage.verify|verify} messages.
+             * @param message PaymentDetailsMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            static encode(message: proto.Message.PaymentDetailsMessage.$Properties, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified PaymentDetailsMessage message, length delimited. Does not implicitly {@link proto.Message.PaymentDetailsMessage.verify|verify} messages.
+             * @param message PaymentDetailsMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            static encodeDelimited(message: proto.Message.PaymentDetailsMessage.$Properties, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a PaymentDetailsMessage message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns {proto.Message.PaymentDetailsMessage & proto.Message.PaymentDetailsMessage.$Shape} PaymentDetailsMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.PaymentDetailsMessage & proto.Message.PaymentDetailsMessage.$Shape;
+
+            /**
+             * Decodes a PaymentDetailsMessage message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns {proto.Message.PaymentDetailsMessage & proto.Message.PaymentDetailsMessage.$Shape} PaymentDetailsMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.PaymentDetailsMessage & proto.Message.PaymentDetailsMessage.$Shape;
+
+            /**
+             * Verifies a PaymentDetailsMessage message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a PaymentDetailsMessage message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns PaymentDetailsMessage
+             */
+            static fromObject(object: { [k: string]: any }): proto.Message.PaymentDetailsMessage;
+
+            /**
+             * Creates a plain object from a PaymentDetailsMessage message. Also converts values to other types if specified.
+             * @param message PaymentDetailsMessage
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            static toObject(message: proto.Message.PaymentDetailsMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this PaymentDetailsMessage to JSON.
+             * @returns JSON object
+             */
+            toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the type url for PaymentDetailsMessage
+             * @param [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+             * @returns The type url
+             */
+            static getTypeUrl(prefix?: string): string;
+        }
+
+        namespace PaymentDetailsMessage {
+
+            /** Properties of a PaymentDetailsMessage. */
+            interface $Properties {
+
+                /** PaymentDetailsMessage serviceType */
+                serviceType?: (proto.Message.PaymentDetailsMessage.ServiceType|null);
+
+                /** PaymentDetailsMessage amount */
+                amount?: (proto.Money.$Properties|null);
+
+                /** PaymentDetailsMessage payeeName */
+                payeeName?: (string|null);
+
+                /** PaymentDetailsMessage payerName */
+                payerName?: (string|null);
+
+                /** PaymentDetailsMessage transactionTimestampMs */
+                transactionTimestampMs?: (number|Long|null);
+
+                /** PaymentDetailsMessage transactionId */
+                transactionId?: (string|null);
+
+                /** PaymentDetailsMessage status */
+                status?: (proto.Message.PaymentDetailsMessage.Status|null);
+
+                /** PaymentDetailsMessage contextInfo */
+                contextInfo?: (proto.ContextInfo.$Properties|null);
+
+                /** Unknown fields preserved while decoding when enabled */
+                $unknowns?: Uint8Array[];
+            }
+
+            /** Shape of a PaymentDetailsMessage. */
+            type $Shape = {
+              serviceType?: proto.Message.PaymentDetailsMessage.ServiceType|null;
+              amount?: proto.Money.$Shape|null;
+              payeeName?: string|null;
+              payerName?: string|null;
+              transactionTimestampMs?: number|Long|null;
+              transactionId?: string|null;
+              status?: proto.Message.PaymentDetailsMessage.Status|null;
+              contextInfo?: proto.ContextInfo.$Shape|null;
+              $unknowns?: Uint8Array[];
+            };
+
+            /** ServiceType enum. */
+            enum ServiceType {
+
+                /** UNKNOWN value */
+                UNKNOWN = 0,
+
+                /** UPI value */
+                UPI = 1
+            }
+
+            /** Status enum. */
+            enum Status {
+
+                /** STATUS_UNKNOWN value */
+                STATUS_UNKNOWN = 0,
+
+                /** SUCCESS value */
+                SUCCESS = 1
+            }
+        }
+
+        /**
          * Properties of a PaymentExtendedMetadata.
          * @deprecated Use proto.Message.PaymentExtendedMetadata.$Properties instead.
          */
@@ -50240,13 +50499,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PaymentExtendedMetadata type. */
-            type?: (number|null);
+            type: number;
 
             /** PaymentExtendedMetadata platform. */
-            platform?: (string|null);
+            platform: string;
 
             /** PaymentExtendedMetadata messageParamsJson. */
-            messageParamsJson?: (string|null);
+            messageParamsJson: string;
 
             /**
              * Creates a new PaymentExtendedMetadata instance using the specified properties.
@@ -50369,19 +50628,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PaymentInviteMessage serviceType. */
-            serviceType?: (proto.Message.PaymentInviteMessage.ServiceType|null);
+            serviceType: proto.Message.PaymentInviteMessage.ServiceType;
 
             /** PaymentInviteMessage expiryTimestamp. */
-            expiryTimestamp?: (number|Long|null);
+            expiryTimestamp: (number|Long);
 
             /** PaymentInviteMessage incentiveEligible. */
-            incentiveEligible?: (boolean|null);
+            incentiveEligible: boolean;
 
             /** PaymentInviteMessage referralId. */
-            referralId?: (string|null);
+            referralId: string;
 
             /** PaymentInviteMessage inviteType. */
-            inviteType?: (proto.Message.PaymentInviteMessage.InviteType|null);
+            inviteType: proto.Message.PaymentInviteMessage.InviteType;
 
             /**
              * Creates a new PaymentInviteMessage instance using the specified properties.
@@ -50667,7 +50926,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** PaymentLinkButton displayText. */
-                displayText?: (string|null);
+                displayText: string;
 
                 /**
                  * Creates a new PaymentLinkButton instance using the specified properties.
@@ -50784,7 +51043,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** PaymentLinkHeader headerType. */
-                headerType?: (proto.Message.PaymentLinkMetadata.PaymentLinkHeader.PaymentLinkHeaderType|null);
+                headerType: proto.Message.PaymentLinkMetadata.PaymentLinkHeader.PaymentLinkHeaderType;
 
                 /**
                  * Creates a new PaymentLinkHeader instance using the specified properties.
@@ -50911,7 +51170,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** PaymentLinkProvider paramsJson. */
-                paramsJson?: (string|null);
+                paramsJson: string;
 
                 /**
                  * Creates a new PaymentLinkProvider instance using the specified properties.
@@ -51029,28 +51288,28 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PaymentReminderMessage reminderId. */
-            reminderId?: (string|null);
+            reminderId: string;
 
             /** PaymentReminderMessage instanceId. */
-            instanceId?: (string|null);
+            instanceId: string;
 
             /** PaymentReminderMessage description. */
-            description?: (string|null);
+            description: string;
 
             /** PaymentReminderMessage frequency. */
-            frequency?: (proto.Message.PaymentReminderMessage.ReminderFrequency|null);
+            frequency: proto.Message.PaymentReminderMessage.ReminderFrequency;
 
             /** PaymentReminderMessage status. */
-            status?: (proto.Message.PaymentReminderMessage.ReminderStatus|null);
+            status: proto.Message.PaymentReminderMessage.ReminderStatus;
 
             /** PaymentReminderMessage payeeVpa. */
-            payeeVpa?: (string|null);
+            payeeVpa: string;
 
             /** PaymentReminderMessage payeeJid. */
-            payeeJid?: (string|null);
+            payeeJid: string;
 
             /** PaymentReminderMessage payerJid. */
-            payerJid?: (string|null);
+            payerJid: string;
 
             /** PaymentReminderMessage amount. */
             amount?: (proto.Money.$Properties|null);
@@ -51235,7 +51494,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PeerDataOperationRequestMessage peerDataOperationRequestType. */
-            peerDataOperationRequestType?: (proto.Message.PeerDataOperationRequestType|null);
+            peerDataOperationRequestType: proto.Message.PeerDataOperationRequestType;
 
             /** PeerDataOperationRequestMessage requestStickerReupload. */
             requestStickerReupload: proto.Message.PeerDataOperationRequestMessage.RequestStickerReupload.$Properties[];
@@ -51423,7 +51682,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** BizBroadcastInsightsContactListRequest campaignId. */
-                campaignId?: (string|null);
+                campaignId: string;
 
                 /**
                  * Creates a new BizBroadcastInsightsContactListRequest instance using the specified properties.
@@ -51540,7 +51799,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** BizBroadcastInsightsRefreshRequest campaignId. */
-                campaignId?: (string|null);
+                campaignId: string;
 
                 /**
                  * Creates a new BizBroadcastInsightsRefreshRequest instance using the specified properties.
@@ -51657,7 +51916,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** CompanionCanonicalUserNonceFetchRequest registrationTraceId. */
-                registrationTraceId?: (string|null);
+                registrationTraceId: string;
 
                 /**
                  * Creates a new CompanionCanonicalUserNonceFetchRequest instance using the specified properties.
@@ -51903,19 +52162,19 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** GalaxyFlowAction type. */
-                type?: (proto.Message.PeerDataOperationRequestMessage.GalaxyFlowAction.GalaxyFlowActionType|null);
+                type: proto.Message.PeerDataOperationRequestMessage.GalaxyFlowAction.GalaxyFlowActionType;
 
                 /** GalaxyFlowAction flowId. */
-                flowId?: (string|null);
+                flowId: string;
 
                 /** GalaxyFlowAction stanzaId. */
-                stanzaId?: (string|null);
+                stanzaId: string;
 
                 /** GalaxyFlowAction galaxyFlowDownloadRequestId. */
-                galaxyFlowDownloadRequestId?: (string|null);
+                galaxyFlowDownloadRequestId: string;
 
                 /** GalaxyFlowAction agmId. */
-                agmId?: (string|null);
+                agmId: string;
 
                 /**
                  * Creates a new GalaxyFlowAction instance using the specified properties.
@@ -52054,16 +52313,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** HistorySyncChunkRetryRequest syncType. */
-                syncType?: (proto.Message.HistorySyncType|null);
+                syncType: proto.Message.HistorySyncType;
 
                 /** HistorySyncChunkRetryRequest chunkOrder. */
-                chunkOrder?: (number|null);
+                chunkOrder: number;
 
                 /** HistorySyncChunkRetryRequest chunkNotificationId. */
-                chunkNotificationId?: (string|null);
+                chunkNotificationId: string;
 
                 /** HistorySyncChunkRetryRequest regenerateChunk. */
-                regenerateChunk?: (boolean|null);
+                regenerateChunk: boolean;
 
                 /**
                  * Creates a new HistorySyncChunkRetryRequest instance using the specified properties.
@@ -52189,28 +52448,28 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** HistorySyncOnDemandRequest chatJid. */
-                chatJid?: (string|null);
+                chatJid: string;
 
                 /** HistorySyncOnDemandRequest oldestMsgId. */
-                oldestMsgId?: (string|null);
+                oldestMsgId: string;
 
                 /** HistorySyncOnDemandRequest oldestMsgFromMe. */
-                oldestMsgFromMe?: (boolean|null);
+                oldestMsgFromMe: boolean;
 
                 /** HistorySyncOnDemandRequest onDemandMsgCount. */
-                onDemandMsgCount?: (number|null);
+                onDemandMsgCount: number;
 
                 /** HistorySyncOnDemandRequest oldestMsgTimestampMs. */
-                oldestMsgTimestampMs?: (number|Long|null);
+                oldestMsgTimestampMs: (number|Long);
 
                 /** HistorySyncOnDemandRequest accountLid. */
-                accountLid?: (string|null);
+                accountLid: string;
 
                 /** HistorySyncOnDemandRequest supportInlineResponse. */
-                supportInlineResponse?: (boolean|null);
+                supportInlineResponse: boolean;
 
                 /** HistorySyncOnDemandRequest mode. */
-                mode?: (proto.Message.PeerDataOperationRequestMessage.HistorySyncOnDemandRequest.Mode|null);
+                mode: proto.Message.PeerDataOperationRequestMessage.HistorySyncOnDemandRequest.Mode;
 
                 /**
                  * Creates a new HistorySyncOnDemandRequest instance using the specified properties.
@@ -52475,10 +52734,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** RecentConversationsOnDemandRequest conversationCount. */
-                conversationCount?: (number|null);
+                conversationCount: number;
 
                 /** RecentConversationsOnDemandRequest messagesPerConversation. */
-                messagesPerConversation?: (number|null);
+                messagesPerConversation: number;
 
                 /**
                  * Creates a new RecentConversationsOnDemandRequest instance using the specified properties.
@@ -52598,7 +52857,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** RequestStickerReupload fileSha256. */
-                fileSha256?: (string|null);
+                fileSha256: string;
 
                 /**
                  * Creates a new RequestStickerReupload instance using the specified properties.
@@ -52715,10 +52974,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** RequestUrlPreview url. */
-                url?: (string|null);
+                url: string;
 
                 /** RequestUrlPreview includeHqThumbnail. */
-                includeHqThumbnail?: (boolean|null);
+                includeHqThumbnail: boolean;
 
                 /**
                  * Creates a new RequestUrlPreview instance using the specified properties.
@@ -52838,10 +53097,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** SyncDCollectionFatalRecoveryRequest collectionName. */
-                collectionName?: (string|null);
+                collectionName: string;
 
                 /** SyncDCollectionFatalRecoveryRequest timestamp. */
-                timestamp?: (number|Long|null);
+                timestamp: (number|Long);
 
                 /**
                  * Creates a new SyncDCollectionFatalRecoveryRequest instance using the specified properties.
@@ -52962,10 +53221,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PeerDataOperationRequestResponseMessage peerDataOperationRequestType. */
-            peerDataOperationRequestType?: (proto.Message.PeerDataOperationRequestType|null);
+            peerDataOperationRequestType: proto.Message.PeerDataOperationRequestType;
 
             /** PeerDataOperationRequestResponseMessage stanzaId. */
-            stanzaId?: (string|null);
+            stanzaId: string;
 
             /** PeerDataOperationRequestResponseMessage peerDataOperationResult. */
             peerDataOperationResult: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.$Properties[];
@@ -53095,7 +53354,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** PeerDataOperationResult mediaUploadResult. */
-                mediaUploadResult?: (proto.MediaRetryNotification.ResultType|null);
+                mediaUploadResult: proto.MediaRetryNotification.ResultType;
 
                 /** PeerDataOperationResult stickerMessage. */
                 stickerMessage?: (proto.Message.StickerMessage.$Properties|null);
@@ -53298,10 +53557,10 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** BizBroadcastInsightsContactListResponse campaignId. */
-                    campaignId?: (string|null);
+                    campaignId: string;
 
                     /** BizBroadcastInsightsContactListResponse timestampMs. */
-                    timestampMs?: (number|Long|null);
+                    timestampMs: (number|Long);
 
                     /** BizBroadcastInsightsContactListResponse contacts. */
                     contacts: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactState.$Properties[];
@@ -53427,10 +53686,10 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** BizBroadcastInsightsContactState contactJid. */
-                    contactJid?: (string|null);
+                    contactJid: string;
 
                     /** BizBroadcastInsightsContactState state. */
-                    state?: (proto.Message.InsightDeliveryState|null);
+                    state: proto.Message.InsightDeliveryState;
 
                     /**
                      * Creates a new BizBroadcastInsightsContactState instance using the specified properties.
@@ -53550,13 +53809,13 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** CompanionCanonicalUserNonceFetchResponse nonce. */
-                    nonce?: (string|null);
+                    nonce: string;
 
                     /** CompanionCanonicalUserNonceFetchResponse waFbid. */
-                    waFbid?: (string|null);
+                    waFbid: string;
 
                     /** CompanionCanonicalUserNonceFetchResponse forceRefresh. */
-                    forceRefresh?: (boolean|null);
+                    forceRefresh: boolean;
 
                     /**
                      * Creates a new CompanionCanonicalUserNonceFetchResponse instance using the specified properties.
@@ -53679,7 +53938,7 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** CompanionMetaNonceFetchResponse nonce. */
-                    nonce?: (string|null);
+                    nonce: string;
 
                     /**
                      * Creates a new CompanionMetaNonceFetchResponse instance using the specified properties.
@@ -53799,13 +54058,13 @@ export namespace proto {
                     coveredRequestIds: string[];
 
                     /** ContactRefreshResponse collectionVersion. */
-                    collectionVersion?: (number|Long|null);
+                    collectionVersion: (number|Long);
 
                     /** ContactRefreshResponse primaryDurationMs. */
-                    primaryDurationMs?: (number|Long|null);
+                    primaryDurationMs: (number|Long);
 
                     /** ContactRefreshResponse uniqueContactCount. */
-                    uniqueContactCount?: (number|null);
+                    uniqueContactCount: number;
 
                     /**
                      * Creates a new ContactRefreshResponse instance using the specified properties.
@@ -53931,34 +54190,34 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** FlowResponsesCsvBundle flowId. */
-                    flowId?: (string|null);
+                    flowId: string;
 
                     /** FlowResponsesCsvBundle galaxyFlowDownloadRequestId. */
-                    galaxyFlowDownloadRequestId?: (string|null);
+                    galaxyFlowDownloadRequestId: string;
 
                     /** FlowResponsesCsvBundle fileName. */
-                    fileName?: (string|null);
+                    fileName: string;
 
                     /** FlowResponsesCsvBundle mimetype. */
-                    mimetype?: (string|null);
+                    mimetype: string;
 
                     /** FlowResponsesCsvBundle fileSha256. */
-                    fileSha256?: (Uint8Array|null);
+                    fileSha256: Uint8Array;
 
                     /** FlowResponsesCsvBundle mediaKey. */
-                    mediaKey?: (Uint8Array|null);
+                    mediaKey: Uint8Array;
 
                     /** FlowResponsesCsvBundle fileEncSha256. */
-                    fileEncSha256?: (Uint8Array|null);
+                    fileEncSha256: Uint8Array;
 
                     /** FlowResponsesCsvBundle directPath. */
-                    directPath?: (string|null);
+                    directPath: string;
 
                     /** FlowResponsesCsvBundle mediaKeyTimestamp. */
-                    mediaKeyTimestamp?: (number|Long|null);
+                    mediaKeyTimestamp: (number|Long);
 
                     /** FlowResponsesCsvBundle fileLength. */
-                    fileLength?: (number|Long|null);
+                    fileLength: (number|Long);
 
                     /**
                      * Creates a new FlowResponsesCsvBundle instance using the specified properties.
@@ -54105,7 +54364,7 @@ export namespace proto {
                     requestMetadata?: (proto.Message.FullHistorySyncOnDemandRequestMetadata.$Properties|null);
 
                     /** FullHistorySyncOnDemandRequestResponse responseCode. */
-                    responseCode?: (proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.FullHistorySyncOnDemandResponseCode|null);
+                    responseCode: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.FullHistorySyncOnDemandResponseCode;
 
                     /**
                      * Creates a new FullHistorySyncOnDemandRequestResponse instance using the specified properties.
@@ -54253,19 +54512,19 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** HistorySyncChunkRetryResponse syncType. */
-                    syncType?: (proto.Message.HistorySyncType|null);
+                    syncType: proto.Message.HistorySyncType;
 
                     /** HistorySyncChunkRetryResponse chunkOrder. */
-                    chunkOrder?: (number|null);
+                    chunkOrder: number;
 
                     /** HistorySyncChunkRetryResponse requestId. */
-                    requestId?: (string|null);
+                    requestId: string;
 
                     /** HistorySyncChunkRetryResponse responseCode. */
-                    responseCode?: (proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.HistorySyncChunkRetryResponseCode|null);
+                    responseCode: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.HistorySyncChunkRetryResponseCode;
 
                     /** HistorySyncChunkRetryResponse canRecover. */
-                    canRecover?: (boolean|null);
+                    canRecover: boolean;
 
                     /**
                      * Creates a new HistorySyncChunkRetryResponse instance using the specified properties.
@@ -54416,22 +54675,22 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** LinkPreviewResponse url. */
-                    url?: (string|null);
+                    url: string;
 
                     /** LinkPreviewResponse title. */
-                    title?: (string|null);
+                    title: string;
 
                     /** LinkPreviewResponse description. */
-                    description?: (string|null);
+                    description: string;
 
                     /** LinkPreviewResponse thumbData. */
-                    thumbData?: (Uint8Array|null);
+                    thumbData: Uint8Array;
 
                     /** LinkPreviewResponse matchText. */
-                    matchText?: (string|null);
+                    matchText: string;
 
                     /** LinkPreviewResponse previewType. */
-                    previewType?: (string|null);
+                    previewType: string;
 
                     /** LinkPreviewResponse hqThumbnail. */
                     hqThumbnail?: (proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.LinkPreviewResponse.LinkPreviewHighQualityThumbnail.$Properties|null);
@@ -54574,25 +54833,25 @@ export namespace proto {
                         $unknowns?: Uint8Array[];
 
                         /** LinkPreviewHighQualityThumbnail directPath. */
-                        directPath?: (string|null);
+                        directPath: string;
 
                         /** LinkPreviewHighQualityThumbnail thumbHash. */
-                        thumbHash?: (string|null);
+                        thumbHash: string;
 
                         /** LinkPreviewHighQualityThumbnail encThumbHash. */
-                        encThumbHash?: (string|null);
+                        encThumbHash: string;
 
                         /** LinkPreviewHighQualityThumbnail mediaKey. */
-                        mediaKey?: (Uint8Array|null);
+                        mediaKey: Uint8Array;
 
                         /** LinkPreviewHighQualityThumbnail mediaKeyTimestampMs. */
-                        mediaKeyTimestampMs?: (number|Long|null);
+                        mediaKeyTimestampMs: (number|Long);
 
                         /** LinkPreviewHighQualityThumbnail thumbWidth. */
-                        thumbWidth?: (number|null);
+                        thumbWidth: number;
 
                         /** LinkPreviewHighQualityThumbnail thumbHeight. */
-                        thumbHeight?: (number|null);
+                        thumbHeight: number;
 
                         /**
                          * Creates a new LinkPreviewHighQualityThumbnail instance using the specified properties.
@@ -54727,19 +54986,19 @@ export namespace proto {
                         $unknowns?: Uint8Array[];
 
                         /** PaymentLinkPreviewMetadata isBusinessVerified. */
-                        isBusinessVerified?: (boolean|null);
+                        isBusinessVerified: boolean;
 
                         /** PaymentLinkPreviewMetadata providerName. */
-                        providerName?: (string|null);
+                        providerName: string;
 
                         /** PaymentLinkPreviewMetadata amount. */
-                        amount?: (string|null);
+                        amount: string;
 
                         /** PaymentLinkPreviewMetadata offset. */
-                        offset?: (string|null);
+                        offset: string;
 
                         /** PaymentLinkPreviewMetadata currency. */
-                        currency?: (string|null);
+                        currency: string;
 
                         /**
                          * Creates a new PaymentLinkPreviewMetadata instance using the specified properties.
@@ -54869,7 +55128,7 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** PlaceholderMessageResendResponse webMessageInfoBytes. */
-                    webMessageInfoBytes?: (Uint8Array|null);
+                    webMessageInfoBytes: Uint8Array;
 
                     /**
                      * Creates a new PlaceholderMessageResendResponse instance using the specified properties.
@@ -54986,10 +55245,10 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** SyncDSnapshotFatalRecoveryResponse collectionSnapshot. */
-                    collectionSnapshot?: (Uint8Array|null);
+                    collectionSnapshot: Uint8Array;
 
                     /** SyncDSnapshotFatalRecoveryResponse isCompressed. */
-                    isCompressed?: (boolean|null);
+                    isCompressed: boolean;
 
                     /**
                      * Creates a new SyncDSnapshotFatalRecoveryResponse instance using the specified properties.
@@ -55109,10 +55368,10 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** WaffleNonceFetchResponse nonce. */
-                    nonce?: (string|null);
+                    nonce: string;
 
                     /** WaffleNonceFetchResponse waEntFbid. */
-                    waEntFbid?: (string|null);
+                    waEntFbid: string;
 
                     /**
                      * Creates a new WaffleNonceFetchResponse instance using the specified properties.
@@ -55289,10 +55548,10 @@ export namespace proto {
             key?: (proto.MessageKey.$Properties|null);
 
             /** PinInChatMessage type. */
-            type?: (proto.Message.PinInChatMessage.Type|null);
+            type: proto.Message.PinInChatMessage.Type;
 
             /** PinInChatMessage senderTimestampMs. */
-            senderTimestampMs?: (number|Long|null);
+            senderTimestampMs: (number|Long);
 
             /**
              * Creates a new PinInChatMessage instance using the specified properties.
@@ -55428,7 +55687,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PlaceholderMessage type. */
-            type?: (proto.Message.PlaceholderMessage.PlaceholderType|null);
+            type: proto.Message.PlaceholderMessage.PlaceholderType;
 
             /**
              * Creates a new PlaceholderMessage instance using the specified properties.
@@ -55694,37 +55953,37 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PollCreationMessage encKey. */
-            encKey?: (Uint8Array|null);
+            encKey: Uint8Array;
 
             /** PollCreationMessage name. */
-            name?: (string|null);
+            name: string;
 
             /** PollCreationMessage options. */
             options: proto.Message.PollCreationMessage.Option.$Properties[];
 
             /** PollCreationMessage selectableOptionsCount. */
-            selectableOptionsCount?: (number|null);
+            selectableOptionsCount: number;
 
             /** PollCreationMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** PollCreationMessage pollContentType. */
-            pollContentType?: (proto.Message.PollContentType|null);
+            pollContentType: proto.Message.PollContentType;
 
             /** PollCreationMessage pollType. */
-            pollType?: (proto.Message.PollType|null);
+            pollType: proto.Message.PollType;
 
             /** PollCreationMessage correctAnswer. */
             correctAnswer?: (proto.Message.PollCreationMessage.Option.$Properties|null);
 
             /** PollCreationMessage endTime. */
-            endTime?: (number|Long|null);
+            endTime: (number|Long);
 
             /** PollCreationMessage hideParticipantName. */
-            hideParticipantName?: (boolean|null);
+            hideParticipantName: boolean;
 
             /** PollCreationMessage allowAddOption. */
-            allowAddOption?: (boolean|null);
+            allowAddOption: boolean;
 
             /**
              * Creates a new PollCreationMessage instance using the specified properties.
@@ -55883,10 +56142,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Option optionName. */
-                optionName?: (string|null);
+                optionName: string;
 
                 /** Option optionHash. */
-                optionHash?: (string|null);
+                optionHash: string;
 
                 /**
                  * Creates a new Option instance using the specified properties.
@@ -56007,10 +56266,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PollEncValue encPayload. */
-            encPayload?: (Uint8Array|null);
+            encPayload: Uint8Array;
 
             /** PollEncValue encIv. */
-            encIv?: (Uint8Array|null);
+            encIv: Uint8Array;
 
             /**
              * Creates a new PollEncValue instance using the specified properties.
@@ -56130,7 +56389,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PollResultSnapshotMessage name. */
-            name?: (string|null);
+            name: string;
 
             /** PollResultSnapshotMessage pollVotes. */
             pollVotes: proto.Message.PollResultSnapshotMessage.PollVote.$Properties[];
@@ -56139,7 +56398,7 @@ export namespace proto {
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** PollResultSnapshotMessage pollType. */
-            pollType?: (proto.Message.PollType|null);
+            pollType: proto.Message.PollType;
 
             /**
              * Creates a new PollResultSnapshotMessage instance using the specified properties.
@@ -56270,10 +56529,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** PollVote optionName. */
-                optionName?: (string|null);
+                optionName: string;
 
                 /** PollVote optionVoteCount. */
-                optionVoteCount?: (number|Long|null);
+                optionVoteCount: (number|Long);
 
                 /**
                  * Creates a new PollVote instance using the specified properties.
@@ -56413,7 +56672,7 @@ export namespace proto {
             metadata?: (proto.Message.PollUpdateMessageMetadata.$Properties|null);
 
             /** PollUpdateMessage senderTimestampMs. */
-            senderTimestampMs?: (number|Long|null);
+            senderTimestampMs: (number|Long);
 
             /**
              * Creates a new PollUpdateMessage instance using the specified properties.
@@ -56539,10 +56798,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PollUpdateMessageMetadata pollNameHash. */
-            pollNameHash?: (Uint8Array|null);
+            pollNameHash: Uint8Array;
 
             /** PollUpdateMessageMetadata lastEditStanzaId. */
-            lastEditStanzaId?: (string|null);
+            lastEditStanzaId: string;
 
             /**
              * Creates a new PollUpdateMessageMetadata instance using the specified properties.
@@ -56782,16 +57041,16 @@ export namespace proto {
             product?: (proto.Message.ProductMessage.ProductSnapshot.$Properties|null);
 
             /** ProductMessage businessOwnerJid. */
-            businessOwnerJid?: (string|null);
+            businessOwnerJid: string;
 
             /** ProductMessage catalog. */
             catalog?: (proto.Message.ProductMessage.CatalogSnapshot.$Properties|null);
 
             /** ProductMessage body. */
-            body?: (string|null);
+            body: string;
 
             /** ProductMessage footer. */
-            footer?: (string|null);
+            footer: string;
 
             /** ProductMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
@@ -56936,10 +57195,10 @@ export namespace proto {
                 catalogImage?: (proto.Message.ImageMessage.$Properties|null);
 
                 /** CatalogSnapshot title. */
-                title?: (string|null);
+                title: string;
 
                 /** CatalogSnapshot description. */
-                description?: (string|null);
+                description: string;
 
                 /**
                  * Creates a new CatalogSnapshot instance using the specified properties.
@@ -57070,37 +57329,37 @@ export namespace proto {
                 productImage?: (proto.Message.ImageMessage.$Properties|null);
 
                 /** ProductSnapshot productId. */
-                productId?: (string|null);
+                productId: string;
 
                 /** ProductSnapshot title. */
-                title?: (string|null);
+                title: string;
 
                 /** ProductSnapshot description. */
-                description?: (string|null);
+                description: string;
 
                 /** ProductSnapshot currencyCode. */
-                currencyCode?: (string|null);
+                currencyCode: string;
 
                 /** ProductSnapshot priceAmount1000. */
-                priceAmount1000?: (number|Long|null);
+                priceAmount1000: (number|Long);
 
                 /** ProductSnapshot retailerId. */
-                retailerId?: (string|null);
+                retailerId: string;
 
                 /** ProductSnapshot url. */
-                url?: (string|null);
+                url: string;
 
                 /** ProductSnapshot productImageCount. */
-                productImageCount?: (number|null);
+                productImageCount: number;
 
                 /** ProductSnapshot firstImageId. */
-                firstImageId?: (string|null);
+                firstImageId: string;
 
                 /** ProductSnapshot salePriceAmount1000. */
-                salePriceAmount1000?: (number|Long|null);
+                salePriceAmount1000: (number|Long);
 
                 /** ProductSnapshot signedUrl. */
-                signedUrl?: (string|null);
+                signedUrl: string;
 
                 /**
                  * Creates a new ProductSnapshot instance using the specified properties.
@@ -57268,13 +57527,13 @@ export namespace proto {
             key?: (proto.MessageKey.$Properties|null);
 
             /** ProtocolMessage type. */
-            type?: (proto.Message.ProtocolMessage.Type|null);
+            type: proto.Message.ProtocolMessage.Type;
 
             /** ProtocolMessage ephemeralExpiration. */
-            ephemeralExpiration?: (number|null);
+            ephemeralExpiration: number;
 
             /** ProtocolMessage ephemeralSettingTimestamp. */
-            ephemeralSettingTimestamp?: (number|Long|null);
+            ephemeralSettingTimestamp: (number|Long);
 
             /** ProtocolMessage historySyncNotification. */
             historySyncNotification?: (proto.Message.HistorySyncNotification.$Properties|null);
@@ -57298,7 +57557,7 @@ export namespace proto {
             editedMessage?: (proto.Message.$Properties|null);
 
             /** ProtocolMessage timestampMs. */
-            timestampMs?: (number|Long|null);
+            timestampMs: (number|Long);
 
             /** ProtocolMessage peerDataOperationRequestMessage. */
             peerDataOperationRequestMessage?: (proto.Message.PeerDataOperationRequestMessage.$Properties|null);
@@ -57310,7 +57569,7 @@ export namespace proto {
             botFeedbackMessage?: (proto.BotFeedbackMessage.$Properties|null);
 
             /** ProtocolMessage invokerJid. */
-            invokerJid?: (string|null);
+            invokerJid: string;
 
             /** ProtocolMessage requestWelcomeMessageMetadata. */
             requestWelcomeMessageMetadata?: (proto.Message.RequestWelcomeMessageMetadata.$Properties|null);
@@ -57328,7 +57587,7 @@ export namespace proto {
             limitSharing?: (proto.LimitSharing.$Properties|null);
 
             /** ProtocolMessage aiPsiMetadata. */
-            aiPsiMetadata?: (Uint8Array|null);
+            aiPsiMetadata: Uint8Array;
 
             /** ProtocolMessage aiQueryFanout. */
             aiQueryFanout?: (proto.AIQueryFanout.$Properties|null);
@@ -57340,7 +57599,7 @@ export namespace proto {
             aiMediaCollectionMessage?: (proto.AIMediaCollectionMessage.$Properties|null);
 
             /** ProtocolMessage afterReadDuration. */
-            afterReadDuration?: (number|null);
+            afterReadDuration: number;
 
             /** ProtocolMessage chatThemeSetting. */
             chatThemeSetting?: (proto.Message.ChatThemeSetting.$Properties|null);
@@ -57758,7 +58017,7 @@ export namespace proto {
             key?: (proto.MessageKey.$Properties|null);
 
             /** QuestionResponseMessage text. */
-            text?: (string|null);
+            text: string;
 
             /**
              * Creates a new QuestionResponseMessage instance using the specified properties.
@@ -57881,13 +58140,13 @@ export namespace proto {
             key?: (proto.MessageKey.$Properties|null);
 
             /** ReactionMessage text. */
-            text?: (string|null);
+            text: string;
 
             /** ReactionMessage groupingKey. */
-            groupingKey?: (string|null);
+            groupingKey: string;
 
             /** ReactionMessage senderTimestampMs. */
-            senderTimestampMs?: (number|Long|null);
+            senderTimestampMs: (number|Long);
 
             /**
              * Creates a new ReactionMessage instance using the specified properties.
@@ -58136,10 +58395,10 @@ export namespace proto {
             key?: (proto.MessageKey.$Properties|null);
 
             /** RequestLocationUpdateMessage updateType. */
-            updateType?: (proto.Message.RequestLocationUpdateMessage.UpdateType|null);
+            updateType: proto.Message.RequestLocationUpdateMessage.UpdateType;
 
             /** RequestLocationUpdateMessage senderTimestampMs. */
-            senderTimestampMs?: (number|Long|null);
+            senderTimestampMs: (number|Long);
 
             /**
              * Creates a new RequestLocationUpdateMessage instance using the specified properties.
@@ -58275,16 +58534,16 @@ export namespace proto {
             noteMessage?: (proto.Message.$Properties|null);
 
             /** RequestPaymentMessage currencyCodeIso4217. */
-            currencyCodeIso4217?: (string|null);
+            currencyCodeIso4217: string;
 
             /** RequestPaymentMessage amount1000. */
-            amount1000?: (number|Long|null);
+            amount1000: (number|Long);
 
             /** RequestPaymentMessage requestFrom. */
-            requestFrom?: (string|null);
+            requestFrom: string;
 
             /** RequestPaymentMessage expiryTimestamp. */
-            expiryTimestamp?: (number|Long|null);
+            expiryTimestamp: (number|Long);
 
             /** RequestPaymentMessage amount. */
             amount?: (proto.Money.$Properties|null);
@@ -58554,10 +58813,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** RequestWelcomeMessageMetadata localChatState. */
-            localChatState?: (proto.Message.RequestWelcomeMessageMetadata.LocalChatState|null);
+            localChatState: proto.Message.RequestWelcomeMessageMetadata.LocalChatState;
 
             /** RequestWelcomeMessageMetadata welcomeTrigger. */
-            welcomeTrigger?: (proto.Message.RequestWelcomeMessageMetadata.WelcomeTrigger|null);
+            welcomeTrigger: proto.Message.RequestWelcomeMessageMetadata.WelcomeTrigger;
 
             /** RequestWelcomeMessageMetadata botAgentMetadata. */
             botAgentMetadata?: (proto.BotAgentMetadata.$Properties|null);
@@ -58703,7 +58962,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** RootSecretDistributeMessage chatJid. */
-            chatJid?: (string|null);
+            chatJid: string;
 
             /**
              * Creates a new RootSecretDistributeMessage instance using the specified properties.
@@ -58820,13 +59079,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ScheduledCallCreationMessage scheduledTimestampMs. */
-            scheduledTimestampMs?: (number|Long|null);
+            scheduledTimestampMs: (number|Long);
 
             /** ScheduledCallCreationMessage callType. */
-            callType?: (proto.Message.ScheduledCallCreationMessage.CallType|null);
+            callType: proto.Message.ScheduledCallCreationMessage.CallType;
 
             /** ScheduledCallCreationMessage title. */
-            title?: (string|null);
+            title: string;
 
             /**
              * Creates a new ScheduledCallCreationMessage instance using the specified properties.
@@ -58965,7 +59224,7 @@ export namespace proto {
             key?: (proto.MessageKey.$Properties|null);
 
             /** ScheduledCallEditMessage editType. */
-            editType?: (proto.Message.ScheduledCallEditMessage.EditType|null);
+            editType: proto.Message.ScheduledCallEditMessage.EditType;
 
             /**
              * Creates a new ScheduledCallEditMessage instance using the specified properties.
@@ -59098,16 +59357,16 @@ export namespace proto {
             targetMessageKey?: (proto.MessageKey.$Properties|null);
 
             /** SecretEncryptedMessage encPayload. */
-            encPayload?: (Uint8Array|null);
+            encPayload: Uint8Array;
 
             /** SecretEncryptedMessage encIv. */
-            encIv?: (Uint8Array|null);
+            encIv: Uint8Array;
 
             /** SecretEncryptedMessage secretEncType. */
-            secretEncType?: (proto.Message.SecretEncryptedMessage.SecretEncType|null);
+            secretEncType: proto.Message.SecretEncryptedMessage.SecretEncType;
 
             /** SecretEncryptedMessage remoteKeyId. */
-            remoteKeyId?: (string|null);
+            remoteKeyId: string;
 
             /**
              * Creates a new SecretEncryptedMessage instance using the specified properties.
@@ -59267,7 +59526,7 @@ export namespace proto {
             background?: (proto.PaymentBackground.$Properties|null);
 
             /** SendPaymentMessage transactionData. */
-            transactionData?: (string|null);
+            transactionData: string;
 
             /**
              * Creates a new SendPaymentMessage instance using the specified properties.
@@ -59399,10 +59658,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SenderKeyDistributionMessage groupId. */
-            groupId?: (string|null);
+            groupId: string;
 
             /** SenderKeyDistributionMessage axolotlSenderKeyDistributionMessage. */
-            axolotlSenderKeyDistributionMessage?: (Uint8Array|null);
+            axolotlSenderKeyDistributionMessage: Uint8Array;
 
             /**
              * Creates a new SenderKeyDistributionMessage instance using the specified properties.
@@ -59522,13 +59781,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SharedDeviceContactHashKey epoch. */
-            epoch?: (number|null);
+            epoch: number;
 
             /** SharedDeviceContactHashKey kind. */
-            kind?: (proto.Message.SharedDeviceContactHashKey.Kind|null);
+            kind: proto.Message.SharedDeviceContactHashKey.Kind;
 
             /** SharedDeviceContactHashKey keyData. */
-            keyData?: (Uint8Array|null);
+            keyData: Uint8Array;
 
             /**
              * Creates a new SharedDeviceContactHashKey instance using the specified properties.
@@ -59664,7 +59923,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SharedDeviceContactHashKeyRequest knownEpoch. */
-            knownEpoch?: (number|null);
+            knownEpoch: number;
 
             /**
              * Creates a new SharedDeviceContactHashKeyRequest instance using the specified properties.
@@ -59898,22 +60157,22 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SplitPaymentMessage splitId. */
-            splitId?: (string|null);
+            splitId: string;
 
             /** SplitPaymentMessage totalAmount. */
             totalAmount?: (proto.Money.$Properties|null);
 
             /** SplitPaymentMessage description. */
-            description?: (string|null);
+            description: string;
 
             /** SplitPaymentMessage requesterJid. */
-            requesterJid?: (string|null);
+            requesterJid: string;
 
             /** SplitPaymentMessage participants. */
             participants: proto.Message.SplitPaymentParticipant.$Properties[];
 
             /** SplitPaymentMessage createdAtMs. */
-            createdAtMs?: (number|Long|null);
+            createdAtMs: (number|Long);
 
             /** SplitPaymentMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
@@ -60060,13 +60319,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SplitPaymentParticipant jid. */
-            jid?: (string|null);
+            jid: string;
 
             /** SplitPaymentParticipant amount. */
             amount?: (proto.Money.$Properties|null);
 
             /** SplitPaymentParticipant status. */
-            status?: (proto.Message.SplitPaymentParticipant.SplitPaymentStatus|null);
+            status: proto.Message.SplitPaymentParticipant.SplitPaymentStatus;
 
             /**
              * Creates a new SplitPaymentParticipant instance using the specified properties.
@@ -60199,10 +60458,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SplitPaymentUpdateMessage splitId. */
-            splitId?: (string|null);
+            splitId: string;
 
             /** SplitPaymentUpdateMessage participantJid. */
-            participantJid?: (string|null);
+            participantJid: string;
 
             /**
              * Creates a new SplitPaymentUpdateMessage instance using the specified properties.
@@ -60322,7 +60581,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** StatusLinkPreviewMetadata style. */
-            style?: (proto.Message.StatusLinkPreviewMetadata.Style|null);
+            style: proto.Message.StatusLinkPreviewMetadata.Style;
 
             /**
              * Creates a new StatusLinkPreviewMetadata instance using the specified properties.
@@ -60461,7 +60720,7 @@ export namespace proto {
             originalMessageKey?: (proto.MessageKey.$Properties|null);
 
             /** StatusNotificationMessage type. */
-            type?: (proto.Message.StatusNotificationMessage.StatusNotificationType|null);
+            type: proto.Message.StatusNotificationMessage.StatusNotificationType;
 
             /**
              * Creates a new StatusNotificationMessage instance using the specified properties.
@@ -60606,7 +60865,7 @@ export namespace proto {
             key?: (proto.MessageKey.$Properties|null);
 
             /** StatusQuestionAnswerMessage text. */
-            text?: (string|null);
+            text: string;
 
             /**
              * Creates a new StatusQuestionAnswerMessage instance using the specified properties.
@@ -60726,13 +60985,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** StatusQuotedMessage type. */
-            type?: (proto.Message.StatusQuotedMessage.StatusQuotedMessageType|null);
+            type: proto.Message.StatusQuotedMessage.StatusQuotedMessageType;
 
             /** StatusQuotedMessage text. */
-            text?: (string|null);
+            text: string;
 
             /** StatusQuotedMessage thumbnail. */
-            thumbnail?: (Uint8Array|null);
+            thumbnail: Uint8Array;
 
             /** StatusQuotedMessage originalStatusId. */
             originalStatusId?: (proto.MessageKey.$Properties|null);
@@ -60871,10 +61130,10 @@ export namespace proto {
             key?: (proto.MessageKey.$Properties|null);
 
             /** StatusStickerInteractionMessage stickerKey. */
-            stickerKey?: (string|null);
+            stickerKey: string;
 
             /** StatusStickerInteractionMessage type. */
-            type?: (proto.Message.StatusStickerInteractionMessage.StatusStickerType|null);
+            type: proto.Message.StatusStickerInteractionMessage.StatusStickerType;
 
             /**
              * Creates a new StatusStickerInteractionMessage instance using the specified properties.
@@ -61007,70 +61266,70 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** StickerMessage url. */
-            url?: (string|null);
+            url: string;
 
             /** StickerMessage fileSha256. */
-            fileSha256?: (Uint8Array|null);
+            fileSha256: Uint8Array;
 
             /** StickerMessage fileEncSha256. */
-            fileEncSha256?: (Uint8Array|null);
+            fileEncSha256: Uint8Array;
 
             /** StickerMessage mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** StickerMessage mimetype. */
-            mimetype?: (string|null);
+            mimetype: string;
 
             /** StickerMessage height. */
-            height?: (number|null);
+            height: number;
 
             /** StickerMessage width. */
-            width?: (number|null);
+            width: number;
 
             /** StickerMessage directPath. */
-            directPath?: (string|null);
+            directPath: string;
 
             /** StickerMessage fileLength. */
-            fileLength?: (number|Long|null);
+            fileLength: (number|Long);
 
             /** StickerMessage mediaKeyTimestamp. */
-            mediaKeyTimestamp?: (number|Long|null);
+            mediaKeyTimestamp: (number|Long);
 
             /** StickerMessage firstFrameLength. */
-            firstFrameLength?: (number|null);
+            firstFrameLength: number;
 
             /** StickerMessage firstFrameSidecar. */
-            firstFrameSidecar?: (Uint8Array|null);
+            firstFrameSidecar: Uint8Array;
 
             /** StickerMessage isAnimated. */
-            isAnimated?: (boolean|null);
+            isAnimated: boolean;
 
             /** StickerMessage pngThumbnail. */
-            pngThumbnail?: (Uint8Array|null);
+            pngThumbnail: Uint8Array;
 
             /** StickerMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** StickerMessage stickerSentTs. */
-            stickerSentTs?: (number|Long|null);
+            stickerSentTs: (number|Long);
 
             /** StickerMessage isAvatar. */
-            isAvatar?: (boolean|null);
+            isAvatar: boolean;
 
             /** StickerMessage isAiSticker. */
-            isAiSticker?: (boolean|null);
+            isAiSticker: boolean;
 
             /** StickerMessage isLottie. */
-            isLottie?: (boolean|null);
+            isLottie: boolean;
 
             /** StickerMessage accessibilityLabel. */
-            accessibilityLabel?: (string|null);
+            accessibilityLabel: string;
 
             /** StickerMessage premium. */
-            premium?: (number|null);
+            premium: number;
 
             /** StickerMessage emojis. */
-            emojis?: (string|null);
+            emojis: string;
 
             /** StickerMessage audioMessage. */
             audioMessage?: (proto.Message.AudioMessage.$Properties|null);
@@ -61289,70 +61548,70 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** StickerPackMessage stickerPackId. */
-            stickerPackId?: (string|null);
+            stickerPackId: string;
 
             /** StickerPackMessage name. */
-            name?: (string|null);
+            name: string;
 
             /** StickerPackMessage publisher. */
-            publisher?: (string|null);
+            publisher: string;
 
             /** StickerPackMessage stickers. */
             stickers: proto.Message.StickerPackMessage.Sticker.$Properties[];
 
             /** StickerPackMessage fileLength. */
-            fileLength?: (number|Long|null);
+            fileLength: (number|Long);
 
             /** StickerPackMessage fileSha256. */
-            fileSha256?: (Uint8Array|null);
+            fileSha256: Uint8Array;
 
             /** StickerPackMessage fileEncSha256. */
-            fileEncSha256?: (Uint8Array|null);
+            fileEncSha256: Uint8Array;
 
             /** StickerPackMessage mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** StickerPackMessage directPath. */
-            directPath?: (string|null);
+            directPath: string;
 
             /** StickerPackMessage caption. */
-            caption?: (string|null);
+            caption: string;
 
             /** StickerPackMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** StickerPackMessage packDescription. */
-            packDescription?: (string|null);
+            packDescription: string;
 
             /** StickerPackMessage mediaKeyTimestamp. */
-            mediaKeyTimestamp?: (number|Long|null);
+            mediaKeyTimestamp: (number|Long);
 
             /** StickerPackMessage trayIconFileName. */
-            trayIconFileName?: (string|null);
+            trayIconFileName: string;
 
             /** StickerPackMessage thumbnailDirectPath. */
-            thumbnailDirectPath?: (string|null);
+            thumbnailDirectPath: string;
 
             /** StickerPackMessage thumbnailSha256. */
-            thumbnailSha256?: (Uint8Array|null);
+            thumbnailSha256: Uint8Array;
 
             /** StickerPackMessage thumbnailEncSha256. */
-            thumbnailEncSha256?: (Uint8Array|null);
+            thumbnailEncSha256: Uint8Array;
 
             /** StickerPackMessage thumbnailHeight. */
-            thumbnailHeight?: (number|null);
+            thumbnailHeight: number;
 
             /** StickerPackMessage thumbnailWidth. */
-            thumbnailWidth?: (number|null);
+            thumbnailWidth: number;
 
             /** StickerPackMessage imageDataHash. */
-            imageDataHash?: (string|null);
+            imageDataHash: string;
 
             /** StickerPackMessage stickerPackSize. */
-            stickerPackSize?: (number|Long|null);
+            stickerPackSize: (number|Long);
 
             /** StickerPackMessage stickerPackOrigin. */
-            stickerPackOrigin?: (proto.Message.StickerPackMessage.StickerPackOrigin|null);
+            stickerPackOrigin: proto.Message.StickerPackMessage.StickerPackOrigin;
 
             /**
              * Creates a new StickerPackMessage instance using the specified properties.
@@ -61555,25 +61814,25 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Sticker fileName. */
-                fileName?: (string|null);
+                fileName: string;
 
                 /** Sticker isAnimated. */
-                isAnimated?: (boolean|null);
+                isAnimated: boolean;
 
                 /** Sticker emojis. */
                 emojis: string[];
 
                 /** Sticker accessibilityLabel. */
-                accessibilityLabel?: (string|null);
+                accessibilityLabel: string;
 
                 /** Sticker isLottie. */
-                isLottie?: (boolean|null);
+                isLottie: boolean;
 
                 /** Sticker mimetype. */
-                mimetype?: (string|null);
+                mimetype: string;
 
                 /** Sticker premium. */
-                premium?: (number|null);
+                premium: number;
 
                 /**
                  * Creates a new Sticker instance using the specified properties.
@@ -61725,10 +61984,10 @@ export namespace proto {
             filehash: string[];
 
             /** StickerSyncRMRMessage rmrSource. */
-            rmrSource?: (string|null);
+            rmrSource: string;
 
             /** StickerSyncRMRMessage requestTimestamp. */
-            requestTimestamp?: (number|Long|null);
+            requestTimestamp: (number|Long);
 
             /**
              * Creates a new StickerSyncRMRMessage instance using the specified properties.
@@ -61851,19 +62110,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** TemplateButtonReplyMessage selectedId. */
-            selectedId?: (string|null);
+            selectedId: string;
 
             /** TemplateButtonReplyMessage selectedDisplayText. */
-            selectedDisplayText?: (string|null);
+            selectedDisplayText: string;
 
             /** TemplateButtonReplyMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** TemplateButtonReplyMessage selectedIndex. */
-            selectedIndex?: (number|null);
+            selectedIndex: number;
 
             /** TemplateButtonReplyMessage selectedCarouselCardIndex. */
-            selectedCarouselCardIndex?: (number|null);
+            selectedCarouselCardIndex: number;
 
             /**
              * Creates a new TemplateButtonReplyMessage instance using the specified properties.
@@ -62005,7 +62264,7 @@ export namespace proto {
             hydratedTemplate?: (proto.Message.TemplateMessage.HydratedFourRowTemplate.$Properties|null);
 
             /** TemplateMessage templateId. */
-            templateId?: (string|null);
+            templateId: string;
 
             /** TemplateMessage fourRowTemplate. */
             fourRowTemplate?: (proto.Message.TemplateMessage.FourRowTemplate.$Properties|null);
@@ -62338,19 +62597,19 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** HydratedFourRowTemplate hydratedContentText. */
-                hydratedContentText?: (string|null);
+                hydratedContentText: string;
 
                 /** HydratedFourRowTemplate hydratedFooterText. */
-                hydratedFooterText?: (string|null);
+                hydratedFooterText: string;
 
                 /** HydratedFourRowTemplate hydratedButtons. */
                 hydratedButtons: proto.HydratedTemplateButton.$Properties[];
 
                 /** HydratedFourRowTemplate templateId. */
-                templateId?: (string|null);
+                templateId: string;
 
                 /** HydratedFourRowTemplate maskLinkedDevices. */
-                maskLinkedDevices?: (boolean|null);
+                maskLinkedDevices: boolean;
 
                 /** HydratedFourRowTemplate documentMessage. */
                 documentMessage?: (proto.Message.DocumentMessage.$Properties|null);
@@ -62530,7 +62789,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** URLMetadata fbExperimentId. */
-            fbExperimentId?: (number|null);
+            fbExperimentId: number;
 
             /**
              * Creates a new URLMetadata instance using the specified properties.
@@ -62782,100 +63041,100 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** VideoMessage url. */
-            url?: (string|null);
+            url: string;
 
             /** VideoMessage mimetype. */
-            mimetype?: (string|null);
+            mimetype: string;
 
             /** VideoMessage fileSha256. */
-            fileSha256?: (Uint8Array|null);
+            fileSha256: Uint8Array;
 
             /** VideoMessage fileLength. */
-            fileLength?: (number|Long|null);
+            fileLength: (number|Long);
 
             /** VideoMessage seconds. */
-            seconds?: (number|null);
+            seconds: number;
 
             /** VideoMessage mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** VideoMessage caption. */
-            caption?: (string|null);
+            caption: string;
 
             /** VideoMessage gifPlayback. */
-            gifPlayback?: (boolean|null);
+            gifPlayback: boolean;
 
             /** VideoMessage height. */
-            height?: (number|null);
+            height: number;
 
             /** VideoMessage width. */
-            width?: (number|null);
+            width: number;
 
             /** VideoMessage fileEncSha256. */
-            fileEncSha256?: (Uint8Array|null);
+            fileEncSha256: Uint8Array;
 
             /** VideoMessage interactiveAnnotations. */
             interactiveAnnotations: proto.InteractiveAnnotation.$Properties[];
 
             /** VideoMessage directPath. */
-            directPath?: (string|null);
+            directPath: string;
 
             /** VideoMessage mediaKeyTimestamp. */
-            mediaKeyTimestamp?: (number|Long|null);
+            mediaKeyTimestamp: (number|Long);
 
             /** VideoMessage jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /** VideoMessage contextInfo. */
             contextInfo?: (proto.ContextInfo.$Properties|null);
 
             /** VideoMessage streamingSidecar. */
-            streamingSidecar?: (Uint8Array|null);
+            streamingSidecar: Uint8Array;
 
             /** VideoMessage gifAttribution. */
-            gifAttribution?: (proto.Message.VideoMessage.Attribution|null);
+            gifAttribution: proto.Message.VideoMessage.Attribution;
 
             /** VideoMessage viewOnce. */
-            viewOnce?: (boolean|null);
+            viewOnce: boolean;
 
             /** VideoMessage thumbnailDirectPath. */
-            thumbnailDirectPath?: (string|null);
+            thumbnailDirectPath: string;
 
             /** VideoMessage thumbnailSha256. */
-            thumbnailSha256?: (Uint8Array|null);
+            thumbnailSha256: Uint8Array;
 
             /** VideoMessage thumbnailEncSha256. */
-            thumbnailEncSha256?: (Uint8Array|null);
+            thumbnailEncSha256: Uint8Array;
 
             /** VideoMessage staticUrl. */
-            staticUrl?: (string|null);
+            staticUrl: string;
 
             /** VideoMessage annotations. */
             annotations: proto.InteractiveAnnotation.$Properties[];
 
             /** VideoMessage accessibilityLabel. */
-            accessibilityLabel?: (string|null);
+            accessibilityLabel: string;
 
             /** VideoMessage processedVideos. */
             processedVideos: proto.ProcessedVideo.$Properties[];
 
             /** VideoMessage externalShareFullVideoDurationInSeconds. */
-            externalShareFullVideoDurationInSeconds?: (number|null);
+            externalShareFullVideoDurationInSeconds: number;
 
             /** VideoMessage motionPhotoPresentationOffsetMs. */
-            motionPhotoPresentationOffsetMs?: (number|Long|null);
+            motionPhotoPresentationOffsetMs: (number|Long);
 
             /** VideoMessage metadataUrl. */
-            metadataUrl?: (string|null);
+            metadataUrl: string;
 
             /** VideoMessage videoSourceType. */
-            videoSourceType?: (proto.Message.VideoMessage.VideoSourceType|null);
+            videoSourceType: proto.Message.VideoMessage.VideoSourceType;
 
             /** VideoMessage dashManifestUrl. */
-            dashManifestUrl?: (string|null);
+            dashManifestUrl: string;
 
             /** VideoMessage smartThumbnailTs. */
-            smartThumbnailTs?: (number|Long|null);
+            smartThumbnailTs: (number|Long);
 
             /**
              * Creates a new VideoMessage instance using the specified properties.
@@ -63145,19 +63404,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** VpcRequestMessage payloadSchemaVersion. */
-            payloadSchemaVersion?: (number|null);
+            payloadSchemaVersion: number;
 
             /** VpcRequestMessage requestId. */
-            requestId?: (string|null);
-
-            /** VpcRequestMessage launchRef. */
-            launchRef?: (string|null);
-
-            /** VpcRequestMessage invitationExpiresAtMs. */
-            invitationExpiresAtMs?: (number|Long|null);
+            requestId: string;
 
             /** VpcRequestMessage scopeHint. */
-            scopeHint?: (proto.Message.VpcRequestMessage.ScopeHint|null);
+            scopeHint: proto.Message.VpcRequestMessage.ScopeHint;
 
             /**
              * Creates a new VpcRequestMessage instance using the specified properties.
@@ -63249,12 +63502,6 @@ export namespace proto {
                 /** VpcRequestMessage requestId */
                 requestId?: (string|null);
 
-                /** VpcRequestMessage launchRef */
-                launchRef?: (string|null);
-
-                /** VpcRequestMessage invitationExpiresAtMs */
-                invitationExpiresAtMs?: (number|Long|null);
-
                 /** VpcRequestMessage scopeHint */
                 scopeHint?: (proto.Message.VpcRequestMessage.ScopeHint|null);
 
@@ -63309,19 +63556,19 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MessageAddOn messageAddOnType. */
-        messageAddOnType?: (proto.MessageAddOn.MessageAddOnType|null);
+        messageAddOnType: proto.MessageAddOn.MessageAddOnType;
 
         /** MessageAddOn messageAddOn. */
         messageAddOn?: (proto.Message.$Properties|null);
 
         /** MessageAddOn senderTimestampMs. */
-        senderTimestampMs?: (number|Long|null);
+        senderTimestampMs: (number|Long);
 
         /** MessageAddOn serverTimestampMs. */
-        serverTimestampMs?: (number|Long|null);
+        serverTimestampMs: (number|Long);
 
         /** MessageAddOn status. */
-        status?: (proto.WebMessageInfo.Status|null);
+        status: proto.WebMessageInfo.Status;
 
         /** MessageAddOn addOnContextInfo. */
         addOnContextInfo?: (proto.MessageAddOnContextInfo.$Properties|null);
@@ -63500,10 +63747,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MessageAddOnContextInfo messageAddOnDurationInSecs. */
-        messageAddOnDurationInSecs?: (number|null);
+        messageAddOnDurationInSecs: number;
 
         /** MessageAddOnContextInfo messageAddOnExpiryType. */
-        messageAddOnExpiryType?: (proto.MessageContextInfo.MessageAddonExpiryType|null);
+        messageAddOnExpiryType: proto.MessageContextInfo.MessageAddonExpiryType;
 
         /**
          * Creates a new MessageAddOnContextInfo instance using the specified properties.
@@ -63623,13 +63870,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MessageAssociation associationType. */
-        associationType?: (proto.MessageAssociation.AssociationType|null);
+        associationType: proto.MessageAssociation.AssociationType;
 
         /** MessageAssociation parentMessageKey. */
         parentMessageKey?: (proto.MessageKey.$Properties|null);
 
         /** MessageAssociation messageIndex. */
-        messageIndex?: (number|null);
+        messageIndex: number;
 
         /**
          * Creates a new MessageAssociation instance using the specified properties.
@@ -63834,37 +64081,37 @@ export namespace proto {
         deviceListMetadata?: (proto.DeviceListMetadata.$Properties|null);
 
         /** MessageContextInfo deviceListMetadataVersion. */
-        deviceListMetadataVersion?: (number|null);
+        deviceListMetadataVersion: number;
 
         /** MessageContextInfo messageSecret. */
-        messageSecret?: (Uint8Array|null);
+        messageSecret: Uint8Array;
 
         /** MessageContextInfo paddingBytes. */
-        paddingBytes?: (Uint8Array|null);
+        paddingBytes: Uint8Array;
 
         /** MessageContextInfo messageAddOnDurationInSecs. */
-        messageAddOnDurationInSecs?: (number|null);
+        messageAddOnDurationInSecs: number;
 
         /** MessageContextInfo botMessageSecret. */
-        botMessageSecret?: (Uint8Array|null);
+        botMessageSecret: Uint8Array;
 
         /** MessageContextInfo botMetadata. */
         botMetadata?: (proto.BotMetadata.$Properties|null);
 
         /** MessageContextInfo reportingTokenVersion. */
-        reportingTokenVersion?: (number|null);
+        reportingTokenVersion: number;
 
         /** MessageContextInfo messageAddOnExpiryType. */
-        messageAddOnExpiryType?: (proto.MessageContextInfo.MessageAddonExpiryType|null);
+        messageAddOnExpiryType: proto.MessageContextInfo.MessageAddonExpiryType;
 
         /** MessageContextInfo messageAssociation. */
         messageAssociation?: (proto.MessageAssociation.$Properties|null);
 
         /** MessageContextInfo capiCreatedGroup. */
-        capiCreatedGroup?: (boolean|null);
+        capiCreatedGroup: boolean;
 
         /** MessageContextInfo supportPayload. */
-        supportPayload?: (string|null);
+        supportPayload: string;
 
         /** MessageContextInfo limitSharing. */
         limitSharing?: (proto.LimitSharing.$Properties|null);
@@ -63876,25 +64123,25 @@ export namespace proto {
         threadId: proto.ThreadID.$Properties[];
 
         /** MessageContextInfo weblinkRenderConfig. */
-        weblinkRenderConfig?: (proto.WebLinkRenderConfig|null);
+        weblinkRenderConfig: proto.WebLinkRenderConfig;
 
         /** MessageContextInfo teeBotMetadata. */
-        teeBotMetadata?: (Uint8Array|null);
+        teeBotMetadata: Uint8Array;
 
         /** MessageContextInfo accountEncryptionAttestation. */
         accountEncryptionAttestation?: (proto.NonE2EEAttestation.$Properties|null);
 
         /** MessageContextInfo associatedPrimaryIdentityKey. */
-        associatedPrimaryIdentityKey?: (Uint8Array|null);
+        associatedPrimaryIdentityKey: Uint8Array;
 
         /** MessageContextInfo teeContextAnchorMessageId. */
-        teeContextAnchorMessageId?: (string|null);
+        teeContextAnchorMessageId: string;
 
         /** MessageContextInfo acp2Setting. */
         acp2Setting?: (proto.ACP2Setting.$Properties|null);
 
         /** MessageContextInfo lightE2Ee. */
-        lightE2Ee?: (boolean|null);
+        lightE2Ee: boolean;
 
         /**
          * Creates a new MessageContextInfo instance using the specified properties.
@@ -64084,16 +64331,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MessageKey remoteJid. */
-        remoteJid?: (string|null);
+        remoteJid: string;
 
         /** MessageKey fromMe. */
-        fromMe?: (boolean|null);
+        fromMe: boolean;
 
         /** MessageKey id. */
-        id?: (string|null);
+        id: string;
 
         /** MessageKey participant. */
-        participant?: (string|null);
+        participant: string;
 
         /**
          * Creates a new MessageKey instance using the specified properties.
@@ -64219,13 +64466,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MessageSecretMessage version. */
-        version?: (number|null);
+        version: number;
 
         /** MessageSecretMessage encIv. */
-        encIv?: (Uint8Array|null);
+        encIv: Uint8Array;
 
         /** MessageSecretMessage encPayload. */
-        encPayload?: (Uint8Array|null);
+        encPayload: Uint8Array;
 
         /**
          * Creates a new MessageSecretMessage instance using the specified properties.
@@ -64348,13 +64595,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** Money value. */
-        value?: (number|Long|null);
+        value: (number|Long);
 
         /** Money offset. */
-        offset?: (number|null);
+        offset: number;
 
         /** Money currencyCode. */
-        currencyCode?: (string|null);
+        currencyCode: string;
 
         /**
          * Creates a new Money instance using the specified properties.
@@ -64477,193 +64724,193 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** MsgOpaqueData body. */
-        body?: (string|null);
+        body: string;
 
         /** MsgOpaqueData caption. */
-        caption?: (string|null);
+        caption: string;
 
         /** MsgOpaqueData lng. */
-        lng?: (number|null);
+        lng: number;
 
         /** MsgOpaqueData isLive. */
-        isLive?: (boolean|null);
+        isLive: boolean;
 
         /** MsgOpaqueData lat. */
-        lat?: (number|null);
+        lat: number;
 
         /** MsgOpaqueData paymentAmount1000. */
-        paymentAmount1000?: (number|null);
+        paymentAmount1000: number;
 
         /** MsgOpaqueData paymentNoteMsgBody. */
-        paymentNoteMsgBody?: (string|null);
+        paymentNoteMsgBody: string;
 
         /** MsgOpaqueData matchedText. */
-        matchedText?: (string|null);
+        matchedText: string;
 
         /** MsgOpaqueData title. */
-        title?: (string|null);
+        title: string;
 
         /** MsgOpaqueData description. */
-        description?: (string|null);
+        description: string;
 
         /** MsgOpaqueData futureproofBuffer. */
-        futureproofBuffer?: (Uint8Array|null);
+        futureproofBuffer: Uint8Array;
 
         /** MsgOpaqueData clientUrl. */
-        clientUrl?: (string|null);
+        clientUrl: string;
 
         /** MsgOpaqueData loc. */
-        loc?: (string|null);
+        loc: string;
 
         /** MsgOpaqueData pollName. */
-        pollName?: (string|null);
+        pollName: string;
 
         /** MsgOpaqueData pollOptions. */
         pollOptions: proto.MsgOpaqueData.PollOption.$Properties[];
 
         /** MsgOpaqueData pollSelectableOptionsCount. */
-        pollSelectableOptionsCount?: (number|null);
+        pollSelectableOptionsCount: number;
 
         /** MsgOpaqueData messageSecret. */
-        messageSecret?: (Uint8Array|null);
+        messageSecret: Uint8Array;
 
         /** MsgOpaqueData originalSelfAuthor. */
-        originalSelfAuthor?: (string|null);
+        originalSelfAuthor: string;
 
         /** MsgOpaqueData senderTimestampMs. */
-        senderTimestampMs?: (number|Long|null);
+        senderTimestampMs: (number|Long);
 
         /** MsgOpaqueData pollUpdateParentKey. */
-        pollUpdateParentKey?: (string|null);
+        pollUpdateParentKey: string;
 
         /** MsgOpaqueData encPollVote. */
         encPollVote?: (proto.PollEncValue.$Properties|null);
 
         /** MsgOpaqueData isSentCagPollCreation. */
-        isSentCagPollCreation?: (boolean|null);
+        isSentCagPollCreation: boolean;
 
         /** MsgOpaqueData pollContentType. */
-        pollContentType?: (proto.MsgOpaqueData.PollContentType|null);
+        pollContentType: proto.MsgOpaqueData.PollContentType;
 
         /** MsgOpaqueData pollType. */
-        pollType?: (proto.MsgOpaqueData.PollType|null);
+        pollType: proto.MsgOpaqueData.PollType;
 
         /** MsgOpaqueData correctOptionIndex. */
-        correctOptionIndex?: (number|null);
+        correctOptionIndex: number;
 
         /** MsgOpaqueData pollVotesSnapshot. */
         pollVotesSnapshot?: (proto.MsgOpaqueData.PollVotesSnapshot.$Properties|null);
 
         /** MsgOpaqueData encReactionTargetMessageKey. */
-        encReactionTargetMessageKey?: (string|null);
+        encReactionTargetMessageKey: string;
 
         /** MsgOpaqueData encReactionEncPayload. */
-        encReactionEncPayload?: (Uint8Array|null);
+        encReactionEncPayload: Uint8Array;
 
         /** MsgOpaqueData encReactionEncIv. */
-        encReactionEncIv?: (Uint8Array|null);
+        encReactionEncIv: Uint8Array;
 
         /** MsgOpaqueData botMessageSecret. */
-        botMessageSecret?: (Uint8Array|null);
+        botMessageSecret: Uint8Array;
 
         /** MsgOpaqueData targetMessageKey. */
-        targetMessageKey?: (string|null);
+        targetMessageKey: string;
 
         /** MsgOpaqueData encPayload. */
-        encPayload?: (Uint8Array|null);
+        encPayload: Uint8Array;
 
         /** MsgOpaqueData encIv. */
-        encIv?: (Uint8Array|null);
+        encIv: Uint8Array;
 
         /** MsgOpaqueData eventName. */
-        eventName?: (string|null);
+        eventName: string;
 
         /** MsgOpaqueData isEventCanceled. */
-        isEventCanceled?: (boolean|null);
+        isEventCanceled: boolean;
 
         /** MsgOpaqueData eventDescription. */
-        eventDescription?: (string|null);
+        eventDescription: string;
 
         /** MsgOpaqueData eventJoinLink. */
-        eventJoinLink?: (string|null);
+        eventJoinLink: string;
 
         /** MsgOpaqueData eventStartTime. */
-        eventStartTime?: (number|Long|null);
+        eventStartTime: (number|Long);
 
         /** MsgOpaqueData eventLocation. */
         eventLocation?: (proto.MsgOpaqueData.EventLocation.$Properties|null);
 
         /** MsgOpaqueData eventEndTime. */
-        eventEndTime?: (number|Long|null);
+        eventEndTime: (number|Long);
 
         /** MsgOpaqueData eventIsScheduledCall. */
-        eventIsScheduledCall?: (boolean|null);
+        eventIsScheduledCall: boolean;
 
         /** MsgOpaqueData eventExtraGuestsAllowed. */
-        eventExtraGuestsAllowed?: (boolean|null);
+        eventExtraGuestsAllowed: boolean;
 
         /** MsgOpaqueData plainProtobufBytes. */
-        plainProtobufBytes?: (Uint8Array|null);
+        plainProtobufBytes: Uint8Array;
 
         /** MsgOpaqueData quarantineExtractedText. */
-        quarantineExtractedText?: (string|null);
+        quarantineExtractedText: string;
 
         /** MsgOpaqueData pollEndTime. */
-        pollEndTime?: (number|Long|null);
+        pollEndTime: (number|Long);
 
         /** MsgOpaqueData pollHideVoterNames. */
-        pollHideVoterNames?: (boolean|null);
+        pollHideVoterNames: boolean;
 
         /** MsgOpaqueData pollAllowAddOption. */
-        pollAllowAddOption?: (boolean|null);
+        pollAllowAddOption: boolean;
 
         /** MsgOpaqueData sharableEventInviteId. */
-        sharableEventInviteId?: (string|null);
+        sharableEventInviteId: string;
 
         /** MsgOpaqueData sharableEventInviteTitle. */
-        sharableEventInviteTitle?: (string|null);
+        sharableEventInviteTitle: string;
 
         /** MsgOpaqueData sharableEventInviteStartTime. */
-        sharableEventInviteStartTime?: (number|Long|null);
+        sharableEventInviteStartTime: (number|Long);
 
         /** MsgOpaqueData sharableEventInviteEndTime. */
-        sharableEventInviteEndTime?: (number|Long|null);
+        sharableEventInviteEndTime: (number|Long);
 
         /** MsgOpaqueData sharableEventInviteCaption. */
-        sharableEventInviteCaption?: (string|null);
+        sharableEventInviteCaption: string;
 
         /** MsgOpaqueData sharableEventInviteIsCanceled. */
-        sharableEventInviteIsCanceled?: (boolean|null);
+        sharableEventInviteIsCanceled: boolean;
 
         /** MsgOpaqueData sharableEventInviteJpegThumbnail. */
-        sharableEventInviteJpegThumbnail?: (Uint8Array|null);
+        sharableEventInviteJpegThumbnail: Uint8Array;
 
         /** MsgOpaqueData sharableEventInviteCallLink. */
-        sharableEventInviteCallLink?: (string|null);
+        sharableEventInviteCallLink: string;
 
         /** MsgOpaqueData mediaPngThumbnail. */
-        mediaPngThumbnail?: (string|null);
+        mediaPngThumbnail: string;
 
         /** MsgOpaqueData qrUrl. */
-        qrUrl?: (string|null);
+        qrUrl: string;
 
         /** MsgOpaqueData musicData. */
         musicData?: (proto.MsgOpaqueData.MusicData.$Properties|null);
 
         /** MsgOpaqueData pollAddedOptionName. */
-        pollAddedOptionName?: (string|null);
+        pollAddedOptionName: string;
 
         /** MsgOpaqueData sharableEventInviteStatus. */
-        sharableEventInviteStatus?: (string|null);
+        sharableEventInviteStatus: string;
 
         /** MsgOpaqueData sharableEventInviteLocationName. */
-        sharableEventInviteLocationName?: (string|null);
+        sharableEventInviteLocationName: string;
 
         /** MsgOpaqueData sharableEventInviteCoverImageHandle. */
-        sharableEventInviteCoverImageHandle?: (string|null);
+        sharableEventInviteCoverImageHandle: string;
 
         /** MsgOpaqueData sharableEventInviteLastUpdatedTsUsec. */
-        sharableEventInviteLastUpdatedTsUsec?: (number|Long|null);
+        sharableEventInviteLastUpdatedTsUsec: (number|Long);
 
         /**
          * Creates a new MsgOpaqueData instance using the specified properties.
@@ -64965,22 +65212,22 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** EventLocation degreesLatitude. */
-            degreesLatitude?: (number|null);
+            degreesLatitude: number;
 
             /** EventLocation degreesLongitude. */
-            degreesLongitude?: (number|null);
+            degreesLongitude: number;
 
             /** EventLocation name. */
-            name?: (string|null);
+            name: string;
 
             /** EventLocation address. */
-            address?: (string|null);
+            address: string;
 
             /** EventLocation url. */
-            url?: (string|null);
+            url: string;
 
             /** EventLocation jpegThumbnail. */
-            jpegThumbnail?: (Uint8Array|null);
+            jpegThumbnail: Uint8Array;
 
             /**
              * Creates a new EventLocation instance using the specified properties.
@@ -65112,64 +65359,64 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MusicData musicContentMediaId. */
-            musicContentMediaId?: (string|null);
+            musicContentMediaId: string;
 
             /** MusicData songId. */
-            songId?: (string|null);
+            songId: string;
 
             /** MusicData author. */
-            author?: (string|null);
+            author: string;
 
             /** MusicData title. */
-            title?: (string|null);
+            title: string;
 
             /** MusicData songUri. */
-            songUri?: (string|null);
+            songUri: string;
 
             /** MusicData artworkUri. */
-            artworkUri?: (string|null);
+            artworkUri: string;
 
             /** MusicData style. */
-            style?: (number|null);
+            style: number;
 
             /** MusicData songStartTimeMs. */
-            songStartTimeMs?: (number|null);
+            songStartTimeMs: number;
 
             /** MusicData clipDurationMs. */
-            clipDurationMs?: (number|null);
+            clipDurationMs: number;
 
             /** MusicData isExplicit. */
-            isExplicit?: (boolean|null);
+            isExplicit: boolean;
 
             /** MusicData countryBlocklist. */
-            countryBlocklist?: (Uint8Array|null);
+            countryBlocklist: Uint8Array;
 
             /** MusicData artistAttribution. */
-            artistAttribution?: (string|null);
+            artistAttribution: string;
 
             /** MusicData artworkDirectPath. */
-            artworkDirectPath?: (string|null);
+            artworkDirectPath: string;
 
             /** MusicData artworkSha256. */
-            artworkSha256?: (Uint8Array|null);
+            artworkSha256: Uint8Array;
 
             /** MusicData artworkEncSha256. */
-            artworkEncSha256?: (Uint8Array|null);
+            artworkEncSha256: Uint8Array;
 
             /** MusicData artworkMediaKey. */
-            artworkMediaKey?: (Uint8Array|null);
+            artworkMediaKey: Uint8Array;
 
             /** MusicData consumptionCheckedAtS. */
-            consumptionCheckedAtS?: (number|Long|null);
+            consumptionCheckedAtS: (number|Long);
 
             /** MusicData isAvailableForConsumption. */
-            isAvailableForConsumption?: (boolean|null);
+            isAvailableForConsumption: boolean;
 
             /** MusicData lyrics. */
             lyrics: proto.MsgOpaqueData.MusicData.LyricsLine.$Properties[];
 
             /** MusicData lyricsConfirmedAtS. */
-            lyricsConfirmedAtS?: (number|Long|null);
+            lyricsConfirmedAtS: (number|Long);
 
             /**
              * Creates a new MusicData instance using the specified properties.
@@ -65342,13 +65589,13 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** LyricsLine startTimeMs. */
-                startTimeMs?: (number|null);
+                startTimeMs: number;
 
                 /** LyricsLine endTimeMs. */
-                endTimeMs?: (number|null);
+                endTimeMs: number;
 
                 /** LyricsLine text. */
-                text?: (string|null);
+                text: string;
 
                 /** LyricsLine wordOffsets. */
                 wordOffsets: proto.MsgOpaqueData.MusicData.LyricsLine.WordOffset.$Properties[];
@@ -65476,16 +65723,16 @@ export namespace proto {
                     $unknowns?: Uint8Array[];
 
                     /** WordOffset startIndex. */
-                    startIndex?: (number|null);
+                    startIndex: number;
 
                     /** WordOffset endIndex. */
-                    endIndex?: (number|null);
+                    endIndex: number;
 
                     /** WordOffset startOffsetMs. */
-                    startOffsetMs?: (number|null);
+                    startOffsetMs: number;
 
                     /** WordOffset endOffsetMs. */
-                    endOffsetMs?: (number|null);
+                    endOffsetMs: number;
 
                     /**
                      * Creates a new WordOffset instance using the specified properties.
@@ -65626,19 +65873,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PollOption name. */
-            name?: (string|null);
+            name: string;
 
             /** PollOption hash. */
-            hash?: (string|null);
+            hash: string;
 
             /** PollOption addOptionMsgKey. */
-            addOptionMsgKey?: (string|null);
+            addOptionMsgKey: string;
 
             /** PollOption localId. */
-            localId?: (number|null);
+            localId: number;
 
             /** PollOption addOptionMsgT. */
-            addOptionMsgT?: (number|null);
+            addOptionMsgT: number;
 
             /**
              * Creates a new PollOption instance using the specified properties.
@@ -65780,7 +66027,7 @@ export namespace proto {
             option?: (proto.MsgOpaqueData.PollOption.$Properties|null);
 
             /** PollVoteSnapshot optionVoteCount. */
-            optionVoteCount?: (number|null);
+            optionVoteCount: number;
 
             /**
              * Creates a new PollVoteSnapshot instance using the specified properties.
@@ -66439,10 +66686,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** NoiseCertificate details. */
-        details?: (Uint8Array|null);
+        details: Uint8Array;
 
         /** NoiseCertificate signature. */
-        signature?: (Uint8Array|null);
+        signature: Uint8Array;
 
         /**
          * Creates a new NoiseCertificate instance using the specified properties.
@@ -66561,19 +66808,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** Details serial. */
-            serial?: (number|null);
+            serial: number;
 
             /** Details issuer. */
-            issuer?: (string|null);
+            issuer: string;
 
             /** Details expires. */
-            expires?: (number|Long|null);
+            expires: (number|Long);
 
             /** Details subject. */
-            subject?: (string|null);
+            subject: string;
 
             /** Details key. */
-            key?: (Uint8Array|null);
+            key: Uint8Array;
 
             /**
              * Creates a new Details instance using the specified properties.
@@ -66703,7 +66950,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** NonE2EEAttestation accountType. */
-        accountType?: (proto.NonE2EEAttestation.AccountType|null);
+        accountType: proto.NonE2EEAttestation.AccountType;
 
         /**
          * Creates a new NonE2EEAttestation instance using the specified properties.
@@ -66839,10 +67086,10 @@ export namespace proto {
         message?: (proto.Message.$Properties|null);
 
         /** NotificationMessageInfo messageTimestamp. */
-        messageTimestamp?: (number|Long|null);
+        messageTimestamp: (number|Long);
 
         /** NotificationMessageInfo participant. */
-        participant?: (string|null);
+        participant: string;
 
         /**
          * Creates a new NotificationMessageInfo instance using the specified properties.
@@ -66974,22 +67221,22 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** NotificationSettings messageVibrate. */
-        messageVibrate?: (string|null);
+        messageVibrate: string;
 
         /** NotificationSettings messagePopup. */
-        messagePopup?: (string|null);
+        messagePopup: string;
 
         /** NotificationSettings messageLight. */
-        messageLight?: (string|null);
+        messageLight: string;
 
         /** NotificationSettings lowPriorityNotifications. */
-        lowPriorityNotifications?: (boolean|null);
+        lowPriorityNotifications: boolean;
 
         /** NotificationSettings reactionsMuted. */
-        reactionsMuted?: (boolean|null);
+        reactionsMuted: boolean;
 
         /** NotificationSettings callVibrate. */
-        callVibrate?: (string|null);
+        callVibrate: string;
 
         /**
          * Creates a new NotificationSettings instance using the specified properties.
@@ -67121,19 +67368,19 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** OmittedConversationMetadata snapshotId. */
-        snapshotId?: (string|null);
+        snapshotId: string;
 
         /** OmittedConversationMetadata snapshotTimestampMs. */
-        snapshotTimestampMs?: (number|Long|null);
+        snapshotTimestampMs: (number|Long);
 
         /** OmittedConversationMetadata batchIndex. */
-        batchIndex?: (number|null);
+        batchIndex: number;
 
         /** OmittedConversationMetadata batchCount. */
-        batchCount?: (number|null);
+        batchCount: number;
 
         /** OmittedConversationMetadata complete. */
-        complete?: (boolean|null);
+        complete: boolean;
 
         /** OmittedConversationMetadata conversations. */
         conversations: proto.Conversation.$Properties[];
@@ -67276,13 +67523,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PairingRequest companionPublicKey. */
-        companionPublicKey?: (Uint8Array|null);
+        companionPublicKey: Uint8Array;
 
         /** PairingRequest companionIdentityKey. */
-        companionIdentityKey?: (Uint8Array|null);
+        companionIdentityKey: Uint8Array;
 
         /** PairingRequest advSecret. */
-        advSecret?: (Uint8Array|null);
+        advSecret: Uint8Array;
 
         /**
          * Creates a new PairingRequest instance using the specified properties.
@@ -67405,13 +67652,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PastParticipant userJid. */
-        userJid?: (string|null);
+        userJid: string;
 
         /** PastParticipant leaveReason. */
-        leaveReason?: (proto.PastParticipant.LeaveReason|null);
+        leaveReason: proto.PastParticipant.LeaveReason;
 
         /** PastParticipant leaveTs. */
-        leaveTs?: (number|Long|null);
+        leaveTs: (number|Long);
 
         /**
          * Creates a new PastParticipant instance using the specified properties.
@@ -67544,7 +67791,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PastParticipants groupJid. */
-        groupJid?: (string|null);
+        groupJid: string;
 
         /** PastParticipants pastParticipants. */
         pastParticipants: proto.PastParticipant.$Properties[];
@@ -67667,37 +67914,37 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PatchDebugData currentLthash. */
-        currentLthash?: (Uint8Array|null);
+        currentLthash: Uint8Array;
 
         /** PatchDebugData newLthash. */
-        newLthash?: (Uint8Array|null);
+        newLthash: Uint8Array;
 
         /** PatchDebugData patchVersion. */
-        patchVersion?: (Uint8Array|null);
+        patchVersion: Uint8Array;
 
         /** PatchDebugData collectionName. */
-        collectionName?: (Uint8Array|null);
+        collectionName: Uint8Array;
 
         /** PatchDebugData firstFourBytesFromAHashOfSnapshotMacKey. */
-        firstFourBytesFromAHashOfSnapshotMacKey?: (Uint8Array|null);
+        firstFourBytesFromAHashOfSnapshotMacKey: Uint8Array;
 
         /** PatchDebugData newLthashSubtract. */
-        newLthashSubtract?: (Uint8Array|null);
+        newLthashSubtract: Uint8Array;
 
         /** PatchDebugData numberAdd. */
-        numberAdd?: (number|null);
+        numberAdd: number;
 
         /** PatchDebugData numberRemove. */
-        numberRemove?: (number|null);
+        numberRemove: number;
 
         /** PatchDebugData numberOverride. */
-        numberOverride?: (number|null);
+        numberOverride: number;
 
         /** PatchDebugData senderPlatform. */
-        senderPlatform?: (proto.PatchDebugData.Platform|null);
+        senderPlatform: proto.PatchDebugData.Platform;
 
         /** PatchDebugData isSenderPrimary. */
-        isSenderPrimary?: (boolean|null);
+        isSenderPrimary: boolean;
 
         /**
          * Creates a new PatchDebugData instance using the specified properties.
@@ -67884,34 +68131,34 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PaymentBackground id. */
-        id?: (string|null);
+        id: string;
 
         /** PaymentBackground fileLength. */
-        fileLength?: (number|Long|null);
+        fileLength: (number|Long);
 
         /** PaymentBackground width. */
-        width?: (number|null);
+        width: number;
 
         /** PaymentBackground height. */
-        height?: (number|null);
+        height: number;
 
         /** PaymentBackground mimetype. */
-        mimetype?: (string|null);
+        mimetype: string;
 
         /** PaymentBackground placeholderArgb. */
-        placeholderArgb?: (number|null);
+        placeholderArgb: number;
 
         /** PaymentBackground textArgb. */
-        textArgb?: (number|null);
+        textArgb: number;
 
         /** PaymentBackground subtextArgb. */
-        subtextArgb?: (number|null);
+        subtextArgb: number;
 
         /** PaymentBackground mediaData. */
         mediaData?: (proto.PaymentBackground.MediaData.$Properties|null);
 
         /** PaymentBackground type. */
-        type?: (proto.PaymentBackground.Type|null);
+        type: proto.PaymentBackground.Type;
 
         /**
          * Creates a new PaymentBackground instance using the specified properties.
@@ -68054,19 +68301,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MediaData mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** MediaData mediaKeyTimestamp. */
-            mediaKeyTimestamp?: (number|Long|null);
+            mediaKeyTimestamp: (number|Long);
 
             /** MediaData fileSha256. */
-            fileSha256?: (Uint8Array|null);
+            fileSha256: Uint8Array;
 
             /** MediaData fileEncSha256. */
-            fileEncSha256?: (Uint8Array|null);
+            fileEncSha256: Uint8Array;
 
             /** MediaData directPath. */
-            directPath?: (string|null);
+            directPath: string;
 
             /**
              * Creates a new MediaData instance using the specified properties.
@@ -68206,37 +68453,37 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PaymentInfo currencyDeprecated. */
-        currencyDeprecated?: (proto.PaymentInfo.Currency|null);
+        currencyDeprecated: proto.PaymentInfo.Currency;
 
         /** PaymentInfo amount1000. */
-        amount1000?: (number|Long|null);
+        amount1000: (number|Long);
 
         /** PaymentInfo receiverJid. */
-        receiverJid?: (string|null);
+        receiverJid: string;
 
         /** PaymentInfo status. */
-        status?: (proto.PaymentInfo.Status|null);
+        status: proto.PaymentInfo.Status;
 
         /** PaymentInfo transactionTimestamp. */
-        transactionTimestamp?: (number|Long|null);
+        transactionTimestamp: (number|Long);
 
         /** PaymentInfo requestMessageKey. */
         requestMessageKey?: (proto.MessageKey.$Properties|null);
 
         /** PaymentInfo expiryTimestamp. */
-        expiryTimestamp?: (number|Long|null);
+        expiryTimestamp: (number|Long);
 
         /** PaymentInfo futureproofed. */
-        futureproofed?: (boolean|null);
+        futureproofed: boolean;
 
         /** PaymentInfo currency. */
-        currency?: (string|null);
+        currency: string;
 
         /** PaymentInfo txnStatus. */
-        txnStatus?: (proto.PaymentInfo.TxnStatus|null);
+        txnStatus: proto.PaymentInfo.TxnStatus;
 
         /** PaymentInfo useNoviFiatFormat. */
-        useNoviFiatFormat?: (boolean|null);
+        useNoviFiatFormat: boolean;
 
         /** PaymentInfo primaryAmount. */
         primaryAmount?: (proto.Money.$Properties|null);
@@ -68545,10 +68792,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PhoneNumberToLIDMapping pnJid. */
-        pnJid?: (string|null);
+        pnJid: string;
 
         /** PhoneNumberToLIDMapping lidJid. */
-        lidJid?: (string|null);
+        lidJid: string;
 
         /**
          * Creates a new PhoneNumberToLIDMapping instance using the specified properties.
@@ -68668,13 +68915,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PhotoChange oldPhoto. */
-        oldPhoto?: (Uint8Array|null);
+        oldPhoto: Uint8Array;
 
         /** PhotoChange newPhoto. */
-        newPhoto?: (Uint8Array|null);
+        newPhoto: Uint8Array;
 
         /** PhotoChange newPhotoId. */
-        newPhotoId?: (number|null);
+        newPhotoId: number;
 
         /**
          * Creates a new PhotoChange instance using the specified properties.
@@ -68797,16 +69044,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PinInChat type. */
-        type?: (proto.PinInChat.Type|null);
+        type: proto.PinInChat.Type;
 
         /** PinInChat key. */
         key?: (proto.MessageKey.$Properties|null);
 
         /** PinInChat senderTimestampMs. */
-        senderTimestampMs?: (number|Long|null);
+        senderTimestampMs: (number|Long);
 
         /** PinInChat serverTimestampMs. */
-        serverTimestampMs?: (number|Long|null);
+        serverTimestampMs: (number|Long);
 
         /** PinInChat messageAddOnContextInfo. */
         messageAddOnContextInfo?: (proto.MessageAddOnContextInfo.$Properties|null);
@@ -68951,16 +69198,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** Point xDeprecated. */
-        xDeprecated?: (number|null);
+        xDeprecated: number;
 
         /** Point yDeprecated. */
-        yDeprecated?: (number|null);
+        yDeprecated: number;
 
         /** Point x. */
-        x?: (number|null);
+        x: number;
 
         /** Point y. */
-        y?: (number|null);
+        y: number;
 
         /**
          * Creates a new Point instance using the specified properties.
@@ -69086,13 +69333,19 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PollAdditionalMetadata pollInvalidated. */
-        pollInvalidated?: (boolean|null);
+        pollInvalidated: boolean;
 
         /** PollAdditionalMetadata pollNameHashHistory. */
         pollNameHashHistory: proto.PollAdditionalMetadata.PollNameHashHistoryEntry.$Properties[];
 
         /** PollAdditionalMetadata originalOptions. */
         originalOptions: proto.Message.PollCreationMessage.Option.$Properties[];
+
+        /** PollAdditionalMetadata pollOptionReplayEntries. */
+        pollOptionReplayEntries: proto.PollAdditionalMetadata.PollOptionReplayEntry.$Properties[];
+
+        /** PollAdditionalMetadata pollOptionReplayBase. */
+        pollOptionReplayBase?: (proto.PollAdditionalMetadata.PollOptionReplayBase.$Properties|null);
 
         /**
          * Creates a new PollAdditionalMetadata instance using the specified properties.
@@ -69187,6 +69440,12 @@ export namespace proto {
             /** PollAdditionalMetadata originalOptions */
             originalOptions?: (proto.Message.PollCreationMessage.Option.$Properties[]|null);
 
+            /** PollAdditionalMetadata pollOptionReplayEntries */
+            pollOptionReplayEntries?: (proto.PollAdditionalMetadata.PollOptionReplayEntry.$Properties[]|null);
+
+            /** PollAdditionalMetadata pollOptionReplayBase */
+            pollOptionReplayBase?: (proto.PollAdditionalMetadata.PollOptionReplayBase.$Properties|null);
+
             /** Unknown fields preserved while decoding when enabled */
             $unknowns?: Uint8Array[];
         }
@@ -69214,10 +69473,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PollNameHashHistoryEntry editStanzaId. */
-            editStanzaId?: (string|null);
+            editStanzaId: string;
 
             /** PollNameHashHistoryEntry pollNameHash. */
-            pollNameHash?: (Uint8Array|null);
+            pollNameHash: Uint8Array;
 
             /**
              * Creates a new PollNameHashHistoryEntry instance using the specified properties.
@@ -69316,6 +69575,427 @@ export namespace proto {
             /** Shape of a PollNameHashHistoryEntry. */
             type $Shape = proto.PollAdditionalMetadata.PollNameHashHistoryEntry.$Properties;
         }
+
+        /**
+         * Properties of a PollOptionReplayBase.
+         * @deprecated Use proto.PollAdditionalMetadata.PollOptionReplayBase.$Properties instead.
+         */
+        interface IPollOptionReplayBase extends proto.PollAdditionalMetadata.PollOptionReplayBase.$Properties {
+        }
+
+        /** Represents a PollOptionReplayBase. */
+        class PollOptionReplayBase {
+
+            /**
+             * Constructs a new PollOptionReplayBase.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.PollAdditionalMetadata.PollOptionReplayBase.$Properties);
+
+            /** Unknown fields preserved while decoding when enabled */
+            $unknowns?: Uint8Array[];
+
+            /** PollOptionReplayBase boundaryTimestampMs. */
+            boundaryTimestampMs: (number|Long);
+
+            /** PollOptionReplayBase editTimestampMs. */
+            editTimestampMs: (number|Long);
+
+            /** PollOptionReplayBase options. */
+            options: proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Properties[];
+
+            /**
+             * Creates a new PollOptionReplayBase instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns PollOptionReplayBase instance
+             */
+            static create(properties: proto.PollAdditionalMetadata.PollOptionReplayBase.$Shape): proto.PollAdditionalMetadata.PollOptionReplayBase & proto.PollAdditionalMetadata.PollOptionReplayBase.$Shape;
+            static create(properties?: proto.PollAdditionalMetadata.PollOptionReplayBase.$Properties): proto.PollAdditionalMetadata.PollOptionReplayBase;
+
+            /**
+             * Encodes the specified PollOptionReplayBase message. Does not implicitly {@link proto.PollAdditionalMetadata.PollOptionReplayBase.verify|verify} messages.
+             * @param message PollOptionReplayBase message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            static encode(message: proto.PollAdditionalMetadata.PollOptionReplayBase.$Properties, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified PollOptionReplayBase message, length delimited. Does not implicitly {@link proto.PollAdditionalMetadata.PollOptionReplayBase.verify|verify} messages.
+             * @param message PollOptionReplayBase message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            static encodeDelimited(message: proto.PollAdditionalMetadata.PollOptionReplayBase.$Properties, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a PollOptionReplayBase message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns {proto.PollAdditionalMetadata.PollOptionReplayBase & proto.PollAdditionalMetadata.PollOptionReplayBase.$Shape} PollOptionReplayBase
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.PollAdditionalMetadata.PollOptionReplayBase & proto.PollAdditionalMetadata.PollOptionReplayBase.$Shape;
+
+            /**
+             * Decodes a PollOptionReplayBase message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns {proto.PollAdditionalMetadata.PollOptionReplayBase & proto.PollAdditionalMetadata.PollOptionReplayBase.$Shape} PollOptionReplayBase
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.PollAdditionalMetadata.PollOptionReplayBase & proto.PollAdditionalMetadata.PollOptionReplayBase.$Shape;
+
+            /**
+             * Verifies a PollOptionReplayBase message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a PollOptionReplayBase message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns PollOptionReplayBase
+             */
+            static fromObject(object: { [k: string]: any }): proto.PollAdditionalMetadata.PollOptionReplayBase;
+
+            /**
+             * Creates a plain object from a PollOptionReplayBase message. Also converts values to other types if specified.
+             * @param message PollOptionReplayBase
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            static toObject(message: proto.PollAdditionalMetadata.PollOptionReplayBase, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this PollOptionReplayBase to JSON.
+             * @returns JSON object
+             */
+            toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the type url for PollOptionReplayBase
+             * @param [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+             * @returns The type url
+             */
+            static getTypeUrl(prefix?: string): string;
+        }
+
+        namespace PollOptionReplayBase {
+
+            /** Properties of a PollOptionReplayBase. */
+            interface $Properties {
+
+                /** PollOptionReplayBase boundaryTimestampMs */
+                boundaryTimestampMs?: (number|Long|null);
+
+                /** PollOptionReplayBase editTimestampMs */
+                editTimestampMs?: (number|Long|null);
+
+                /** PollOptionReplayBase options */
+                options?: (proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Properties[]|null);
+
+                /** Unknown fields preserved while decoding when enabled */
+                $unknowns?: Uint8Array[];
+            }
+
+            /** Shape of a PollOptionReplayBase. */
+            type $Shape = proto.PollAdditionalMetadata.PollOptionReplayBase.$Properties;
+
+            /**
+             * Properties of an Option.
+             * @deprecated Use proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Properties instead.
+             */
+            interface IOption extends proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Properties {
+            }
+
+            /** Represents an Option. */
+            class Option {
+
+                /**
+                 * Constructs a new Option.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Properties);
+
+                /** Unknown fields preserved while decoding when enabled */
+                $unknowns?: Uint8Array[];
+
+                /** Option optionHash. */
+                optionHash: Uint8Array;
+
+                /** Option enteredTimestampMs. */
+                enteredTimestampMs: (number|Long);
+
+                /** Option addMessageKey. */
+                addMessageKey?: (proto.MessageKey.$Properties|null);
+
+                /**
+                 * Creates a new Option instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns Option instance
+                 */
+                static create(properties: proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Shape): proto.PollAdditionalMetadata.PollOptionReplayBase.Option & proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Shape;
+                static create(properties?: proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Properties): proto.PollAdditionalMetadata.PollOptionReplayBase.Option;
+
+                /**
+                 * Encodes the specified Option message. Does not implicitly {@link proto.PollAdditionalMetadata.PollOptionReplayBase.Option.verify|verify} messages.
+                 * @param message Option message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                static encode(message: proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Properties, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified Option message, length delimited. Does not implicitly {@link proto.PollAdditionalMetadata.PollOptionReplayBase.Option.verify|verify} messages.
+                 * @param message Option message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                static encodeDelimited(message: proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Properties, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes an Option message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns {proto.PollAdditionalMetadata.PollOptionReplayBase.Option & proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Shape} Option
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.PollAdditionalMetadata.PollOptionReplayBase.Option & proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Shape;
+
+                /**
+                 * Decodes an Option message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns {proto.PollAdditionalMetadata.PollOptionReplayBase.Option & proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Shape} Option
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.PollAdditionalMetadata.PollOptionReplayBase.Option & proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Shape;
+
+                /**
+                 * Verifies an Option message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates an Option message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns Option
+                 */
+                static fromObject(object: { [k: string]: any }): proto.PollAdditionalMetadata.PollOptionReplayBase.Option;
+
+                /**
+                 * Creates a plain object from an Option message. Also converts values to other types if specified.
+                 * @param message Option
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                static toObject(message: proto.PollAdditionalMetadata.PollOptionReplayBase.Option, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this Option to JSON.
+                 * @returns JSON object
+                 */
+                toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the type url for Option
+                 * @param [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+                 * @returns The type url
+                 */
+                static getTypeUrl(prefix?: string): string;
+            }
+
+            namespace Option {
+
+                /** Properties of an Option. */
+                interface $Properties {
+
+                    /** Option optionHash */
+                    optionHash?: (Uint8Array|null);
+
+                    /** Option enteredTimestampMs */
+                    enteredTimestampMs?: (number|Long|null);
+
+                    /** Option addMessageKey */
+                    addMessageKey?: (proto.MessageKey.$Properties|null);
+
+                    /** Unknown fields preserved while decoding when enabled */
+                    $unknowns?: Uint8Array[];
+                }
+
+                /** Shape of an Option. */
+                type $Shape = proto.PollAdditionalMetadata.PollOptionReplayBase.Option.$Properties;
+            }
+        }
+
+        /**
+         * Properties of a PollOptionReplayEntry.
+         * @deprecated Use proto.PollAdditionalMetadata.PollOptionReplayEntry.$Properties instead.
+         */
+        interface IPollOptionReplayEntry extends proto.PollAdditionalMetadata.PollOptionReplayEntry.$Properties {
+        }
+
+        /** Represents a PollOptionReplayEntry. */
+        class PollOptionReplayEntry {
+
+            /**
+             * Constructs a new PollOptionReplayEntry.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.PollAdditionalMetadata.PollOptionReplayEntry.$Properties);
+
+            /** Unknown fields preserved while decoding when enabled */
+            $unknowns?: Uint8Array[];
+
+            /** PollOptionReplayEntry type. */
+            type: proto.PollAdditionalMetadata.PollOptionReplayEntry.Type;
+
+            /** PollOptionReplayEntry messageKey. */
+            messageKey?: (proto.MessageKey.$Properties|null);
+
+            /** PollOptionReplayEntry serverTimestampMs. */
+            serverTimestampMs: (number|Long);
+
+            /** PollOptionReplayEntry editTimestampMs. */
+            editTimestampMs: (number|Long);
+
+            /** PollOptionReplayEntry optionHashes. */
+            optionHashes: Uint8Array[];
+
+            /** PollOptionReplayEntry revokedMessageKey. */
+            revokedMessageKey?: (proto.MessageKey.$Properties|null);
+
+            /**
+             * Creates a new PollOptionReplayEntry instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns PollOptionReplayEntry instance
+             */
+            static create(properties: proto.PollAdditionalMetadata.PollOptionReplayEntry.$Shape): proto.PollAdditionalMetadata.PollOptionReplayEntry & proto.PollAdditionalMetadata.PollOptionReplayEntry.$Shape;
+            static create(properties?: proto.PollAdditionalMetadata.PollOptionReplayEntry.$Properties): proto.PollAdditionalMetadata.PollOptionReplayEntry;
+
+            /**
+             * Encodes the specified PollOptionReplayEntry message. Does not implicitly {@link proto.PollAdditionalMetadata.PollOptionReplayEntry.verify|verify} messages.
+             * @param message PollOptionReplayEntry message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            static encode(message: proto.PollAdditionalMetadata.PollOptionReplayEntry.$Properties, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified PollOptionReplayEntry message, length delimited. Does not implicitly {@link proto.PollAdditionalMetadata.PollOptionReplayEntry.verify|verify} messages.
+             * @param message PollOptionReplayEntry message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            static encodeDelimited(message: proto.PollAdditionalMetadata.PollOptionReplayEntry.$Properties, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a PollOptionReplayEntry message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns {proto.PollAdditionalMetadata.PollOptionReplayEntry & proto.PollAdditionalMetadata.PollOptionReplayEntry.$Shape} PollOptionReplayEntry
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.PollAdditionalMetadata.PollOptionReplayEntry & proto.PollAdditionalMetadata.PollOptionReplayEntry.$Shape;
+
+            /**
+             * Decodes a PollOptionReplayEntry message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns {proto.PollAdditionalMetadata.PollOptionReplayEntry & proto.PollAdditionalMetadata.PollOptionReplayEntry.$Shape} PollOptionReplayEntry
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.PollAdditionalMetadata.PollOptionReplayEntry & proto.PollAdditionalMetadata.PollOptionReplayEntry.$Shape;
+
+            /**
+             * Verifies a PollOptionReplayEntry message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a PollOptionReplayEntry message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns PollOptionReplayEntry
+             */
+            static fromObject(object: { [k: string]: any }): proto.PollAdditionalMetadata.PollOptionReplayEntry;
+
+            /**
+             * Creates a plain object from a PollOptionReplayEntry message. Also converts values to other types if specified.
+             * @param message PollOptionReplayEntry
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            static toObject(message: proto.PollAdditionalMetadata.PollOptionReplayEntry, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this PollOptionReplayEntry to JSON.
+             * @returns JSON object
+             */
+            toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the type url for PollOptionReplayEntry
+             * @param [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+             * @returns The type url
+             */
+            static getTypeUrl(prefix?: string): string;
+        }
+
+        namespace PollOptionReplayEntry {
+
+            /** Properties of a PollOptionReplayEntry. */
+            interface $Properties {
+
+                /** PollOptionReplayEntry type */
+                type?: (proto.PollAdditionalMetadata.PollOptionReplayEntry.Type|null);
+
+                /** PollOptionReplayEntry messageKey */
+                messageKey?: (proto.MessageKey.$Properties|null);
+
+                /** PollOptionReplayEntry serverTimestampMs */
+                serverTimestampMs?: (number|Long|null);
+
+                /** PollOptionReplayEntry editTimestampMs */
+                editTimestampMs?: (number|Long|null);
+
+                /** PollOptionReplayEntry optionHashes */
+                optionHashes?: (Uint8Array[]|null);
+
+                /** PollOptionReplayEntry revokedMessageKey */
+                revokedMessageKey?: (proto.MessageKey.$Properties|null);
+
+                /** Unknown fields preserved while decoding when enabled */
+                $unknowns?: Uint8Array[];
+            }
+
+            /** Shape of a PollOptionReplayEntry. */
+            type $Shape = proto.PollAdditionalMetadata.PollOptionReplayEntry.$Properties;
+
+            /** Type enum. */
+            enum Type {
+
+                /** UNKNOWN value */
+                UNKNOWN = 0,
+
+                /** EDIT value */
+                EDIT = 1,
+
+                /** ADD value */
+                ADD = 2,
+
+                /** REVOKE value */
+                REVOKE = 3
+            }
+        }
     }
 
     /**
@@ -69338,10 +70018,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PollEncValue encPayload. */
-        encPayload?: (Uint8Array|null);
+        encPayload: Uint8Array;
 
         /** PollEncValue encIv. */
-        encIv?: (Uint8Array|null);
+        encIv: Uint8Array;
 
         /**
          * Creates a new PollEncValue instance using the specified properties.
@@ -69467,13 +70147,13 @@ export namespace proto {
         vote?: (proto.Message.PollVoteMessage.$Properties|null);
 
         /** PollUpdate senderTimestampMs. */
-        senderTimestampMs?: (number|Long|null);
+        senderTimestampMs: (number|Long);
 
         /** PollUpdate serverTimestampMs. */
-        serverTimestampMs?: (number|Long|null);
+        serverTimestampMs: (number|Long);
 
         /** PollUpdate unread. */
-        unread?: (boolean|null);
+        unread: boolean;
 
         /** PollUpdate metadata. */
         metadata?: (proto.Message.PollUpdateMessageMetadata.$Properties|null);
@@ -69608,13 +70288,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PreKeyRecordStructure id. */
-        id?: (number|null);
+        id: number;
 
         /** PreKeyRecordStructure publicKey. */
-        publicKey?: (Uint8Array|null);
+        publicKey: Uint8Array;
 
         /** PreKeyRecordStructure privateKey. */
-        privateKey?: (Uint8Array|null);
+        privateKey: Uint8Array;
 
         /**
          * Creates a new PreKeyRecordStructure instance using the specified properties.
@@ -69737,28 +70417,28 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PreKeySignalMessage registrationId. */
-        registrationId?: (number|null);
+        registrationId: number;
 
         /** PreKeySignalMessage preKeyId. */
-        preKeyId?: (number|null);
+        preKeyId: number;
 
         /** PreKeySignalMessage signedPreKeyId. */
-        signedPreKeyId?: (number|null);
+        signedPreKeyId: number;
 
         /** PreKeySignalMessage baseKey. */
-        baseKey?: (Uint8Array|null);
+        baseKey: Uint8Array;
 
         /** PreKeySignalMessage identityKey. */
-        identityKey?: (Uint8Array|null);
+        identityKey: Uint8Array;
 
         /** PreKeySignalMessage message. */
-        message?: (Uint8Array|null);
+        message: Uint8Array;
 
         /** PreKeySignalMessage kyberPreKeyId. */
-        kyberPreKeyId?: (number|null);
+        kyberPreKeyId: number;
 
         /** PreKeySignalMessage kyberCiphertext. */
-        kyberCiphertext?: (Uint8Array|null);
+        kyberCiphertext: Uint8Array;
 
         /**
          * Creates a new PreKeySignalMessage instance using the specified properties.
@@ -69896,7 +70576,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PremiumMessageInfo serverCampaignId. */
-        serverCampaignId?: (string|null);
+        serverCampaignId: string;
 
         /**
          * Creates a new PremiumMessageInfo instance using the specified properties.
@@ -70013,10 +70693,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** PrimaryEphemeralIdentity publicKey. */
-        publicKey?: (Uint8Array|null);
+        publicKey: Uint8Array;
 
         /** PrimaryEphemeralIdentity nonce. */
-        nonce?: (Uint8Array|null);
+        nonce: Uint8Array;
 
         /**
          * Creates a new PrimaryEphemeralIdentity instance using the specified properties.
@@ -70149,25 +70829,25 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ProcessedVideo directPath. */
-        directPath?: (string|null);
+        directPath: string;
 
         /** ProcessedVideo fileSha256. */
-        fileSha256?: (Uint8Array|null);
+        fileSha256: Uint8Array;
 
         /** ProcessedVideo height. */
-        height?: (number|null);
+        height: number;
 
         /** ProcessedVideo width. */
-        width?: (number|null);
+        width: number;
 
         /** ProcessedVideo fileLength. */
-        fileLength?: (number|Long|null);
+        fileLength: (number|Long);
 
         /** ProcessedVideo bitrate. */
-        bitrate?: (number|null);
+        bitrate: number;
 
         /** ProcessedVideo quality. */
-        quality?: (proto.ProcessedVideo.VideoQuality|null);
+        quality: proto.ProcessedVideo.VideoQuality;
 
         /** ProcessedVideo capabilities. */
         capabilities: string[];
@@ -70324,7 +71004,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ProloguePayload companionEphemeralIdentity. */
-        companionEphemeralIdentity?: (Uint8Array|null);
+        companionEphemeralIdentity: Uint8Array;
 
         /** ProloguePayload commitment. */
         commitment?: (proto.CompanionCommitment.$Properties|null);
@@ -70447,10 +71127,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** Pushname id. */
-        id?: (string|null);
+        id: string;
 
         /** Pushname pushname. */
-        pushname?: (string|null);
+        pushname: string;
 
         /**
          * Creates a new Pushname instance using the specified properties.
@@ -70570,10 +71250,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** QuarantinedMessage originalData. */
-        originalData?: (Uint8Array|null);
+        originalData: Uint8Array;
 
         /** QuarantinedMessage extractedText. */
-        extractedText?: (string|null);
+        extractedText: string;
 
         /**
          * Creates a new QuarantinedMessage instance using the specified properties.
@@ -70696,16 +71376,16 @@ export namespace proto {
         key?: (proto.MessageKey.$Properties|null);
 
         /** Reaction text. */
-        text?: (string|null);
+        text: string;
 
         /** Reaction groupingKey. */
-        groupingKey?: (string|null);
+        groupingKey: string;
 
         /** Reaction senderTimestampMs. */
-        senderTimestampMs?: (number|Long|null);
+        senderTimestampMs: (number|Long);
 
         /** Reaction unread. */
-        unread?: (boolean|null);
+        unread: boolean;
 
         /**
          * Creates a new Reaction instance using the specified properties.
@@ -70834,10 +71514,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** RecentEmojiWeight emoji. */
-        emoji?: (string|null);
+        emoji: string;
 
         /** RecentEmojiWeight weight. */
-        weight?: (number|null);
+        weight: number;
 
         /**
          * Creates a new RecentEmojiWeight instance using the specified properties.
@@ -71080,10 +71760,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ReportingTokenInfo reportingTag. */
-        reportingTag?: (Uint8Array|null);
+        reportingTag: Uint8Array;
 
         /** ReportingTokenInfo reportingTagTimestamp. */
-        reportingTagTimestamp?: (number|Long|null);
+        reportingTagTimestamp: (number|Long);
 
         /**
          * Creates a new ReportingTokenInfo instance using the specified properties.
@@ -71203,13 +71883,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ScheduledMessageMetadata revealKeyId. */
-        revealKeyId?: (string|null);
+        revealKeyId: string;
 
         /** ScheduledMessageMetadata revealKey. */
-        revealKey?: (Uint8Array|null);
+        revealKey: Uint8Array;
 
         /** ScheduledMessageMetadata scheduledTime. */
-        scheduledTime?: (number|Long|null);
+        scheduledTime: (number|Long);
 
         /**
          * Creates a new ScheduledMessageMetadata instance using the specified properties.
@@ -71332,16 +72012,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SenderKeyDistributionMessage id. */
-        id?: (number|null);
+        id: number;
 
         /** SenderKeyDistributionMessage iteration. */
-        iteration?: (number|null);
+        iteration: number;
 
         /** SenderKeyDistributionMessage chainKey. */
-        chainKey?: (Uint8Array|null);
+        chainKey: Uint8Array;
 
         /** SenderKeyDistributionMessage signingKey. */
-        signingKey?: (Uint8Array|null);
+        signingKey: Uint8Array;
 
         /**
          * Creates a new SenderKeyDistributionMessage instance using the specified properties.
@@ -71467,13 +72147,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SenderKeyMessage id. */
-        id?: (number|null);
+        id: number;
 
         /** SenderKeyMessage iteration. */
-        iteration?: (number|null);
+        iteration: number;
 
         /** SenderKeyMessage ciphertext. */
-        ciphertext?: (Uint8Array|null);
+        ciphertext: Uint8Array;
 
         /**
          * Creates a new SenderKeyMessage instance using the specified properties.
@@ -71713,7 +72393,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SenderKeyStateStructure senderKeyId. */
-        senderKeyId?: (number|null);
+        senderKeyId: number;
 
         /** SenderKeyStateStructure senderChainKey. */
         senderChainKey?: (proto.SenderKeyStateStructure.SenderChainKey.$Properties|null);
@@ -71847,10 +72527,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SenderChainKey iteration. */
-            iteration?: (number|null);
+            iteration: number;
 
             /** SenderChainKey seed. */
-            seed?: (Uint8Array|null);
+            seed: Uint8Array;
 
             /**
              * Creates a new SenderChainKey instance using the specified properties.
@@ -71970,10 +72650,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SenderMessageKey iteration. */
-            iteration?: (number|null);
+            iteration: number;
 
             /** SenderMessageKey seed. */
-            seed?: (Uint8Array|null);
+            seed: Uint8Array;
 
             /**
              * Creates a new SenderMessageKey instance using the specified properties.
@@ -72093,10 +72773,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SenderSigningKey public. */
-            public?: (Uint8Array|null);
+            public: Uint8Array;
 
             /** SenderSigningKey private. */
-            private?: (Uint8Array|null);
+            private: Uint8Array;
 
             /**
              * Creates a new SenderSigningKey instance using the specified properties.
@@ -72217,7 +72897,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ServerErrorReceipt stanzaId. */
-        stanzaId?: (string|null);
+        stanzaId: string;
 
         /**
          * Creates a new ServerErrorReceipt instance using the specified properties.
@@ -72334,19 +73014,19 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SessionStructure sessionVersion. */
-        sessionVersion?: (number|null);
+        sessionVersion: number;
 
         /** SessionStructure localIdentityPublic. */
-        localIdentityPublic?: (Uint8Array|null);
+        localIdentityPublic: Uint8Array;
 
         /** SessionStructure remoteIdentityPublic. */
-        remoteIdentityPublic?: (Uint8Array|null);
+        remoteIdentityPublic: Uint8Array;
 
         /** SessionStructure rootKey. */
-        rootKey?: (Uint8Array|null);
+        rootKey: Uint8Array;
 
         /** SessionStructure previousCounter. */
-        previousCounter?: (number|null);
+        previousCounter: number;
 
         /** SessionStructure senderChain. */
         senderChain?: (proto.SessionStructure.Chain.$Properties|null);
@@ -72361,16 +73041,16 @@ export namespace proto {
         pendingPreKey?: (proto.SessionStructure.PendingPreKey.$Properties|null);
 
         /** SessionStructure remoteRegistrationId. */
-        remoteRegistrationId?: (number|null);
+        remoteRegistrationId: number;
 
         /** SessionStructure localRegistrationId. */
-        localRegistrationId?: (number|null);
+        localRegistrationId: number;
 
         /** SessionStructure needsRefresh. */
-        needsRefresh?: (boolean|null);
+        needsRefresh: boolean;
 
         /** SessionStructure aliceBaseKey. */
-        aliceBaseKey?: (Uint8Array|null);
+        aliceBaseKey: Uint8Array;
 
         /**
          * Creates a new SessionStructure instance using the specified properties.
@@ -72522,10 +73202,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** Chain senderRatchetKey. */
-            senderRatchetKey?: (Uint8Array|null);
+            senderRatchetKey: Uint8Array;
 
             /** Chain senderRatchetKeyPrivate. */
-            senderRatchetKeyPrivate?: (Uint8Array|null);
+            senderRatchetKeyPrivate: Uint8Array;
 
             /** Chain chainKey. */
             chainKey?: (proto.SessionStructure.Chain.ChainKey.$Properties|null);
@@ -72656,10 +73336,10 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** ChainKey index. */
-                index?: (number|null);
+                index: number;
 
                 /** ChainKey key. */
-                key?: (Uint8Array|null);
+                key: Uint8Array;
 
                 /**
                  * Creates a new ChainKey instance using the specified properties.
@@ -72779,16 +73459,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** MessageKey index. */
-                index?: (number|null);
+                index: number;
 
                 /** MessageKey cipherKey. */
-                cipherKey?: (Uint8Array|null);
+                cipherKey: Uint8Array;
 
                 /** MessageKey macKey. */
-                macKey?: (Uint8Array|null);
+                macKey: Uint8Array;
 
                 /** MessageKey iv. */
-                iv?: (Uint8Array|null);
+                iv: Uint8Array;
 
                 /**
                  * Creates a new MessageKey instance using the specified properties.
@@ -72915,25 +73595,25 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PendingKeyExchange sequence. */
-            sequence?: (number|null);
+            sequence: number;
 
             /** PendingKeyExchange localBaseKey. */
-            localBaseKey?: (Uint8Array|null);
+            localBaseKey: Uint8Array;
 
             /** PendingKeyExchange localBaseKeyPrivate. */
-            localBaseKeyPrivate?: (Uint8Array|null);
+            localBaseKeyPrivate: Uint8Array;
 
             /** PendingKeyExchange localRatchetKey. */
-            localRatchetKey?: (Uint8Array|null);
+            localRatchetKey: Uint8Array;
 
             /** PendingKeyExchange localRatchetKeyPrivate. */
-            localRatchetKeyPrivate?: (Uint8Array|null);
+            localRatchetKeyPrivate: Uint8Array;
 
             /** PendingKeyExchange localIdentityKey. */
-            localIdentityKey?: (Uint8Array|null);
+            localIdentityKey: Uint8Array;
 
             /** PendingKeyExchange localIdentityKeyPrivate. */
-            localIdentityKeyPrivate?: (Uint8Array|null);
+            localIdentityKeyPrivate: Uint8Array;
 
             /**
              * Creates a new PendingKeyExchange instance using the specified properties.
@@ -73068,19 +73748,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PendingPreKey preKeyId. */
-            preKeyId?: (number|null);
+            preKeyId: number;
 
             /** PendingPreKey signedPreKeyId. */
-            signedPreKeyId?: (number|null);
+            signedPreKeyId: number;
 
             /** PendingPreKey baseKey. */
-            baseKey?: (Uint8Array|null);
+            baseKey: Uint8Array;
 
             /** PendingPreKey kyberPreKeyId. */
-            kyberPreKeyId?: (number|null);
+            kyberPreKeyId: number;
 
             /** PendingPreKey kyberCiphertext. */
-            kyberCiphertext?: (Uint8Array|null);
+            kyberCiphertext: Uint8Array;
 
             /**
              * Creates a new PendingPreKey instance using the specified properties.
@@ -73210,13 +73890,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SessionTransparencyMetadata disclaimerText. */
-        disclaimerText?: (string|null);
+        disclaimerText: string;
 
         /** SessionTransparencyMetadata hcaId. */
-        hcaId?: (string|null);
+        hcaId: string;
 
         /** SessionTransparencyMetadata sessionTransparencyType. */
-        sessionTransparencyType?: (proto.SessionTransparencyType|null);
+        sessionTransparencyType: proto.SessionTransparencyType;
 
         /**
          * Creates a new SessionTransparencyMetadata instance using the specified properties.
@@ -73349,16 +74029,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SignalMessage ratchetKey. */
-        ratchetKey?: (Uint8Array|null);
+        ratchetKey: Uint8Array;
 
         /** SignalMessage counter. */
-        counter?: (number|null);
+        counter: number;
 
         /** SignalMessage previousCounter. */
-        previousCounter?: (number|null);
+        previousCounter: number;
 
         /** SignalMessage ciphertext. */
-        ciphertext?: (Uint8Array|null);
+        ciphertext: Uint8Array;
 
         /**
          * Creates a new SignalMessage instance using the specified properties.
@@ -73484,19 +74164,19 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SignedPreKeyRecordStructure id. */
-        id?: (number|null);
+        id: number;
 
         /** SignedPreKeyRecordStructure publicKey. */
-        publicKey?: (Uint8Array|null);
+        publicKey: Uint8Array;
 
         /** SignedPreKeyRecordStructure privateKey. */
-        privateKey?: (Uint8Array|null);
+        privateKey: Uint8Array;
 
         /** SignedPreKeyRecordStructure signature. */
-        signature?: (Uint8Array|null);
+        signature: Uint8Array;
 
         /** SignedPreKeyRecordStructure timestamp. */
-        timestamp?: (number|Long|null);
+        timestamp: (number|Long);
 
         /**
          * Creates a new SignedPreKeyRecordStructure instance using the specified properties.
@@ -73625,10 +74305,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** StatusAttribution type. */
-        type?: (proto.StatusAttribution.Type|null);
+        type: proto.StatusAttribution.Type;
 
         /** StatusAttribution actionUrl. */
-        actionUrl?: (string|null);
+        actionUrl: string;
 
         /** StatusAttribution statusReshare. */
         statusReshare?: (proto.StatusAttribution.StatusReshare.$Properties|null);
@@ -73808,7 +74488,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AiCreatedAttribution source. */
-            source?: (proto.StatusAttribution.AiCreatedAttribution.Source|null);
+            source: proto.StatusAttribution.AiCreatedAttribution.Source;
 
             /**
              * Creates a new AiCreatedAttribution instance using the specified properties.
@@ -73935,16 +74615,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ExternalShare actionUrl. */
-            actionUrl?: (string|null);
+            actionUrl: string;
 
             /** ExternalShare source. */
-            source?: (proto.StatusAttribution.ExternalShare.Source|null);
+            source: proto.StatusAttribution.ExternalShare.Source;
 
             /** ExternalShare duration. */
-            duration?: (number|null);
+            duration: number;
 
             /** ExternalShare actionFallbackUrl. */
-            actionFallbackUrl?: (string|null);
+            actionFallbackUrl: string;
 
             /**
              * Creates a new ExternalShare instance using the specified properties.
@@ -74116,7 +74796,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** GroupStatus authorJid. */
-            authorJid?: (string|null);
+            authorJid: string;
 
             /**
              * Creates a new GroupStatus instance using the specified properties.
@@ -74233,22 +74913,22 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** Music authorName. */
-            authorName?: (string|null);
+            authorName: string;
 
             /** Music songId. */
-            songId?: (string|null);
+            songId: string;
 
             /** Music title. */
-            title?: (string|null);
+            title: string;
 
             /** Music author. */
-            author?: (string|null);
+            author: string;
 
             /** Music artistAttribution. */
-            artistAttribution?: (string|null);
+            artistAttribution: string;
 
             /** Music isExplicit. */
-            isExplicit?: (boolean|null);
+            isExplicit: boolean;
 
             /**
              * Creates a new Music instance using the specified properties.
@@ -74380,7 +75060,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** RLAttribution source. */
-            source?: (proto.StatusAttribution.RLAttribution.Source|null);
+            source: proto.StatusAttribution.RLAttribution.Source;
 
             /**
              * Creates a new RLAttribution instance using the specified properties.
@@ -74513,7 +75193,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** StatusReshare source. */
-            source?: (proto.StatusAttribution.StatusReshare.Source|null);
+            source: proto.StatusAttribution.StatusReshare.Source;
 
             /** StatusReshare metadata. */
             metadata?: (proto.StatusAttribution.StatusReshare.Metadata.$Properties|null);
@@ -74635,16 +75315,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Metadata duration. */
-                duration?: (number|null);
+                duration: number;
 
                 /** Metadata channelJid. */
-                channelJid?: (string|null);
+                channelJid: string;
 
                 /** Metadata channelMessageId. */
-                channelMessageId?: (number|null);
+                channelMessageId: number;
 
                 /** Metadata hasMultipleReshares. */
-                hasMultipleReshares?: (boolean|null);
+                hasMultipleReshares: boolean;
 
                 /**
                  * Creates a new Metadata instance using the specified properties.
@@ -74790,13 +75470,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** StatusTemplate templateId. */
-            templateId?: (string|null);
+            templateId: string;
 
             /** StatusTemplate templateName. */
-            templateName?: (string|null);
+            templateName: string;
 
             /** StatusTemplate thumbnailUrl. */
-            thumbnailUrl?: (string|null);
+            thumbnailUrl: string;
 
             /**
              * Creates a new StatusTemplate instance using the specified properties.
@@ -75089,7 +75769,7 @@ export namespace proto {
         campaignId: (number|Long);
 
         /** StatusPSA campaignExpirationTimestamp. */
-        campaignExpirationTimestamp?: (number|Long|null);
+        campaignExpirationTimestamp: (number|Long);
 
         /**
          * Creates a new StatusPSA instance using the specified properties.
@@ -75209,46 +75889,46 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** StickerMetadata url. */
-        url?: (string|null);
+        url: string;
 
         /** StickerMetadata fileSha256. */
-        fileSha256?: (Uint8Array|null);
+        fileSha256: Uint8Array;
 
         /** StickerMetadata fileEncSha256. */
-        fileEncSha256?: (Uint8Array|null);
+        fileEncSha256: Uint8Array;
 
         /** StickerMetadata mediaKey. */
-        mediaKey?: (Uint8Array|null);
+        mediaKey: Uint8Array;
 
         /** StickerMetadata mimetype. */
-        mimetype?: (string|null);
+        mimetype: string;
 
         /** StickerMetadata height. */
-        height?: (number|null);
+        height: number;
 
         /** StickerMetadata width. */
-        width?: (number|null);
+        width: number;
 
         /** StickerMetadata directPath. */
-        directPath?: (string|null);
+        directPath: string;
 
         /** StickerMetadata fileLength. */
-        fileLength?: (number|Long|null);
+        fileLength: (number|Long);
 
         /** StickerMetadata weight. */
-        weight?: (number|null);
+        weight: number;
 
         /** StickerMetadata lastStickerSentTs. */
-        lastStickerSentTs?: (number|Long|null);
+        lastStickerSentTs: (number|Long);
 
         /** StickerMetadata isLottie. */
-        isLottie?: (boolean|null);
+        isLottie: boolean;
 
         /** StickerMetadata imageHash. */
-        imageHash?: (string|null);
+        imageHash: string;
 
         /** StickerMetadata isAvatarSticker. */
-        isAvatarSticker?: (boolean|null);
+        isAvatarSticker: boolean;
 
         /**
          * Creates a new StickerMetadata instance using the specified properties.
@@ -75404,16 +76084,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SyncActionData index. */
-        index?: (Uint8Array|null);
+        index: Uint8Array;
 
         /** SyncActionData value. */
         value?: (proto.SyncActionValue.$Properties|null);
 
         /** SyncActionData padding. */
-        padding?: (Uint8Array|null);
+        padding: Uint8Array;
 
         /** SyncActionData version. */
-        version?: (number|null);
+        version: number;
 
         /**
          * Creates a new SyncActionData instance using the specified properties.
@@ -75545,7 +76225,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SyncActionValue timestamp. */
-        timestamp?: (number|Long|null);
+        timestamp: (number|Long);
 
         /** SyncActionValue starAction. */
         starAction?: (proto.SyncActionValue.StarAction.$Properties|null);
@@ -76301,13 +76981,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AgentAction name. */
-            name?: (string|null);
+            name: string;
 
             /** AgentAction deviceId. */
-            deviceId?: (number|null);
+            deviceId: number;
 
             /** AgentAction isDeleted. */
-            isDeleted?: (boolean|null);
+            isDeleted: boolean;
 
             /**
              * Creates a new AgentAction instance using the specified properties.
@@ -76430,7 +77110,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AiThreadRenameAction newTitle. */
-            newTitle?: (string|null);
+            newTitle: string;
 
             /**
              * Creates a new AiThreadRenameAction instance using the specified properties.
@@ -76547,7 +77227,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AndroidUnsupportedActions allowed. */
-            allowed?: (boolean|null);
+            allowed: boolean;
 
             /**
              * Creates a new AndroidUnsupportedActions instance using the specified properties.
@@ -76664,7 +77344,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ArchiveChatAction archived. */
-            archived?: (boolean|null);
+            archived: boolean;
 
             /** ArchiveChatAction messageRange. */
             messageRange?: (proto.SyncActionValue.SyncActionMessageRange.$Properties|null);
@@ -76787,7 +77467,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AutoOrganizeBusinessChatSetting autoOrganize. */
-            autoOrganize?: (boolean|null);
+            autoOrganize: boolean;
 
             /**
              * Creates a new AutoOrganizeBusinessChatSetting instance using the specified properties.
@@ -76904,7 +77584,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** AvatarUpdatedAction eventType. */
-            eventType?: (proto.SyncActionValue.AvatarUpdatedAction.AvatarEventType|null);
+            eventType: proto.SyncActionValue.AvatarUpdatedAction.AvatarEventType;
 
             /** AvatarUpdatedAction recentAvatarStickers. */
             recentAvatarStickers: proto.SyncActionValue.StickerAction.$Properties[];
@@ -77040,7 +77720,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BBProPendingCustomerBaseAction pending. */
-            pending?: (boolean|null);
+            pending: boolean;
 
             /**
              * Creates a new BBProPendingCustomerBaseAction instance using the specified properties.
@@ -77157,13 +77837,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BizAISettingsNudgeAction category. */
-            category?: (proto.SyncActionValue.BizAISettingsNudgeAction.BizAISettingsCategory|null);
+            category: proto.SyncActionValue.BizAISettingsNudgeAction.BizAISettingsCategory;
 
             /** BizAISettingsNudgeAction version. */
-            version?: (number|Long|null);
+            version: (number|Long);
 
             /** BizAISettingsNudgeAction updatedAtMs. */
-            updatedAtMs?: (number|Long|null);
+            updatedAtMs: (number|Long);
 
             /**
              * Creates a new BizAISettingsNudgeAction instance using the specified properties.
@@ -77311,7 +77991,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BotWelcomeRequestAction isSent. */
-            isSent?: (boolean|null);
+            isSent: boolean;
 
             /**
              * Creates a new BotWelcomeRequestAction instance using the specified properties.
@@ -77431,7 +78111,7 @@ export namespace proto {
             lidJid: string;
 
             /** BroadcastListParticipant pnJid. */
-            pnJid?: (string|null);
+            pnJid: string;
 
             /**
              * Creates a new BroadcastListParticipant instance using the specified properties.
@@ -77551,7 +78231,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BubbleLockMessageAction locked. */
-            locked?: (boolean|null);
+            locked: boolean;
 
             /**
              * Creates a new BubbleLockMessageAction instance using the specified properties.
@@ -77668,7 +78348,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BusinessBroadcastAssociationAction deleted. */
-            deleted?: (boolean|null);
+            deleted: boolean;
 
             /**
              * Creates a new BusinessBroadcastAssociationAction instance using the specified properties.
@@ -77785,37 +78465,37 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BusinessBroadcastCampaignAction deviceId. */
-            deviceId?: (number|null);
+            deviceId: number;
 
             /** BusinessBroadcastCampaignAction adId. */
-            adId?: (string|null);
+            adId: string;
 
             /** BusinessBroadcastCampaignAction name. */
-            name?: (string|null);
+            name: string;
 
             /** BusinessBroadcastCampaignAction msgId. */
-            msgId?: (string|null);
+            msgId: string;
 
             /** BusinessBroadcastCampaignAction broadcastJid. */
-            broadcastJid?: (string|null);
+            broadcastJid: string;
 
             /** BusinessBroadcastCampaignAction reservedQuota. */
-            reservedQuota?: (number|null);
+            reservedQuota: number;
 
             /** BusinessBroadcastCampaignAction scheduledTimestamp. */
-            scheduledTimestamp?: (number|Long|null);
+            scheduledTimestamp: (number|Long);
 
             /** BusinessBroadcastCampaignAction createTimestamp. */
-            createTimestamp?: (number|Long|null);
+            createTimestamp: (number|Long);
 
             /** BusinessBroadcastCampaignAction status. */
-            status?: (proto.SyncActionValue.BusinessBroadcastCampaignStatus|null);
+            status: proto.SyncActionValue.BusinessBroadcastCampaignStatus;
 
             /** BusinessBroadcastCampaignAction bbProStatus. */
-            bbProStatus?: (proto.SyncActionValue.BusinessBroadcastCampaignBBProStatus|null);
+            bbProStatus: proto.SyncActionValue.BusinessBroadcastCampaignBBProStatus;
 
             /** BusinessBroadcastCampaignAction customAudienceFbid. */
-            customAudienceFbid?: (string|null);
+            customAudienceFbid: string;
 
             /**
              * Creates a new BusinessBroadcastCampaignAction instance using the specified properties.
@@ -78015,19 +78695,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BusinessBroadcastInsightsAction recipientCount. */
-            recipientCount?: (number|null);
+            recipientCount: number;
 
             /** BusinessBroadcastInsightsAction deliveredCount. */
-            deliveredCount?: (number|null);
+            deliveredCount: number;
 
             /** BusinessBroadcastInsightsAction readCount. */
-            readCount?: (number|null);
+            readCount: number;
 
             /** BusinessBroadcastInsightsAction repliedCount. */
-            repliedCount?: (number|null);
+            repliedCount: number;
 
             /** BusinessBroadcastInsightsAction quickReplyCount. */
-            quickReplyCount?: (number|null);
+            quickReplyCount: number;
 
             /**
              * Creates a new BusinessBroadcastInsightsAction instance using the specified properties.
@@ -78156,22 +78836,22 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BusinessBroadcastListAction deleted. */
-            deleted?: (boolean|null);
+            deleted: boolean;
 
             /** BusinessBroadcastListAction participants. */
             participants: proto.SyncActionValue.BroadcastListParticipant.$Properties[];
 
             /** BusinessBroadcastListAction listName. */
-            listName?: (string|null);
+            listName: string;
 
             /** BusinessBroadcastListAction labelIds. */
             labelIds: string[];
 
             /** BusinessBroadcastListAction audienceExpression. */
-            audienceExpression?: (string|null);
+            audienceExpression: string;
 
             /** BusinessBroadcastListAction customAudienceFbid. */
-            customAudienceFbid?: (string|null);
+            customAudienceFbid: string;
 
             /**
              * Creates a new BusinessBroadcastListAction instance using the specified properties.
@@ -78303,7 +78983,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** BusinessFolderActivationAction activated. */
-            activated?: (boolean|null);
+            activated: boolean;
 
             /**
              * Creates a new BusinessFolderActivationAction instance using the specified properties.
@@ -78537,7 +79217,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ChatAssignmentAction deviceAgentId. */
-            deviceAgentId?: (string|null);
+            deviceAgentId: string;
 
             /**
              * Creates a new ChatAssignmentAction instance using the specified properties.
@@ -78654,7 +79334,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ChatAssignmentOpenedStatusAction chatOpened. */
-            chatOpened?: (boolean|null);
+            chatOpened: boolean;
 
             /**
              * Creates a new ChatAssignmentOpenedStatusAction instance using the specified properties.
@@ -78888,7 +79568,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** CoexV2VersionAction version. */
-            version?: (number|Long|null);
+            version: (number|Long);
 
             /**
              * Creates a new CoexV2VersionAction instance using the specified properties.
@@ -79005,7 +79685,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** CommunityNestingStateAction nestingState. */
-            nestingState?: (proto.SyncActionValue.CommunityNestingStateAction.NestingState|null);
+            nestingState: proto.SyncActionValue.CommunityNestingStateAction.NestingState;
 
             /**
              * Creates a new CommunityNestingStateAction instance using the specified properties.
@@ -79135,25 +79815,25 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ContactAction fullName. */
-            fullName?: (string|null);
+            fullName: string;
 
             /** ContactAction firstName. */
-            firstName?: (string|null);
+            firstName: string;
 
             /** ContactAction lidJid. */
-            lidJid?: (string|null);
+            lidJid: string;
 
             /** ContactAction saveOnPrimaryAddressbook. */
-            saveOnPrimaryAddressbook?: (boolean|null);
+            saveOnPrimaryAddressbook: boolean;
 
             /** ContactAction pnJid. */
-            pnJid?: (string|null);
+            pnJid: string;
 
             /** ContactAction username. */
-            username?: (string|null);
+            username: string;
 
             /** ContactAction birthday. */
-            birthday?: (string|null);
+            birthday: string;
 
             /**
              * Creates a new ContactAction instance using the specified properties.
@@ -79288,7 +79968,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ContactManagerMetadataAction isHidden. */
-            isHidden?: (boolean|null);
+            isHidden: boolean;
 
             /**
              * Creates a new ContactManagerMetadataAction instance using the specified properties.
@@ -79405,7 +80085,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** CtwaMessageReceivedAction isCtwaMessageReceived. */
-            isCtwaMessageReceived?: (boolean|null);
+            isCtwaMessageReceived: boolean;
 
             /**
              * Creates a new CtwaMessageReceivedAction instance using the specified properties.
@@ -79522,7 +80202,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** CtwaPerCustomerDataSharingAction isCtwaPerCustomerDataSharingEnabled. */
-            isCtwaPerCustomerDataSharingEnabled?: (boolean|null);
+            isCtwaPerCustomerDataSharingEnabled: boolean;
 
             /**
              * Creates a new CtwaPerCustomerDataSharingAction instance using the specified properties.
@@ -80014,37 +80694,37 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** CustomerDataAction chatJid. */
-            chatJid?: (string|null);
+            chatJid: string;
 
             /** CustomerDataAction contactType. */
-            contactType?: (number|null);
+            contactType: number;
 
             /** CustomerDataAction email. */
-            email?: (string|null);
+            email: string;
 
             /** CustomerDataAction altPhoneNumbers. */
-            altPhoneNumbers?: (string|null);
+            altPhoneNumbers: string;
 
             /** CustomerDataAction birthday. */
-            birthday?: (number|Long|null);
+            birthday: (number|Long);
 
             /** CustomerDataAction address. */
-            address?: (string|null);
+            address: string;
 
             /** CustomerDataAction acquisitionSource. */
-            acquisitionSource?: (number|null);
+            acquisitionSource: number;
 
             /** CustomerDataAction leadStage. */
-            leadStage?: (number|null);
+            leadStage: number;
 
             /** CustomerDataAction lastOrder. */
-            lastOrder?: (number|Long|null);
+            lastOrder: (number|Long);
 
             /** CustomerDataAction createdAt. */
-            createdAt?: (number|Long|null);
+            createdAt: (number|Long);
 
             /** CustomerDataAction modifiedAt. */
-            modifiedAt?: (number|Long|null);
+            modifiedAt: (number|Long);
 
             /**
              * Creates a new CustomerDataAction instance using the specified properties.
@@ -80308,10 +80988,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** DeleteIndividualCallLogAction peerJid. */
-            peerJid?: (string|null);
+            peerJid: string;
 
             /** DeleteIndividualCallLogAction isIncoming. */
-            isIncoming?: (boolean|null);
+            isIncoming: boolean;
 
             /**
              * Creates a new DeleteIndividualCallLogAction instance using the specified properties.
@@ -80431,10 +81111,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** DeleteMessageForMeAction deleteMedia. */
-            deleteMedia?: (boolean|null);
+            deleteMedia: boolean;
 
             /** DeleteMessageForMeAction messageTimestamp. */
-            messageTimestamp?: (number|Long|null);
+            messageTimestamp: (number|Long);
 
             /**
              * Creates a new DeleteMessageForMeAction instance using the specified properties.
@@ -80554,7 +81234,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** DetectedOutcomesStatusAction isEnabled. */
-            isEnabled?: (boolean|null);
+            isEnabled: boolean;
 
             /**
              * Creates a new DetectedOutcomesStatusAction instance using the specified properties.
@@ -80671,7 +81351,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ExternalWebBetaAction isOptIn. */
-            isOptIn?: (boolean|null);
+            isOptIn: boolean;
 
             /**
              * Creates a new ExternalWebBetaAction instance using the specified properties.
@@ -80904,7 +81584,7 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** Favorite id. */
-                id?: (string|null);
+                id: string;
 
                 /**
                  * Creates a new Favorite instance using the specified properties.
@@ -81022,7 +81702,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** GroupHistoryToggleAction groupHistoryToggleMode. */
-            groupHistoryToggleMode?: (proto.SyncActionValue.GroupHistoryToggleAction.GroupHistoryToggleMode|null);
+            groupHistoryToggleMode: proto.SyncActionValue.GroupHistoryToggleAction.GroupHistoryToggleMode;
 
             /**
              * Creates a new GroupHistoryToggleAction instance using the specified properties.
@@ -81152,10 +81832,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** HatchCVMSecretAction secret. */
-            secret?: (Uint8Array|null);
+            secret: Uint8Array;
 
             /** HatchCVMSecretAction generation. */
-            generation?: (number|Long|null);
+            generation: (number|Long);
 
             /**
              * Creates a new HatchCVMSecretAction instance using the specified properties.
@@ -81278,7 +81958,7 @@ export namespace proto {
             type: proto.SyncActionValue.InteractiveMessageAction.InteractiveMessageActionMode;
 
             /** InteractiveMessageAction agmId. */
-            agmId?: (string|null);
+            agmId: string;
 
             /**
              * Creates a new InteractiveMessageAction instance using the specified properties.
@@ -81405,7 +82085,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** KeyExpiration expiredKeyEpoch. */
-            expiredKeyEpoch?: (number|null);
+            expiredKeyEpoch: number;
 
             /**
              * Creates a new KeyExpiration instance using the specified properties.
@@ -81522,10 +82202,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** LabelAssociationAction labeled. */
-            labeled?: (boolean|null);
+            labeled: boolean;
 
             /** LabelAssociationAction modelMetaData. */
-            modelMetaData?: (string|null);
+            modelMetaData: string;
 
             /**
              * Creates a new LabelAssociationAction instance using the specified properties.
@@ -81645,31 +82325,31 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** LabelEditAction name. */
-            name?: (string|null);
+            name: string;
 
             /** LabelEditAction color. */
-            color?: (number|null);
+            color: number;
 
             /** LabelEditAction predefinedId. */
-            predefinedId?: (number|null);
+            predefinedId: number;
 
             /** LabelEditAction deleted. */
-            deleted?: (boolean|null);
+            deleted: boolean;
 
             /** LabelEditAction orderIndex. */
-            orderIndex?: (number|null);
+            orderIndex: number;
 
             /** LabelEditAction isActive. */
-            isActive?: (boolean|null);
+            isActive: boolean;
 
             /** LabelEditAction type. */
-            type?: (proto.SyncActionValue.LabelEditAction.ListType|null);
+            type: proto.SyncActionValue.LabelEditAction.ListType;
 
             /** LabelEditAction isImmutable. */
-            isImmutable?: (boolean|null);
+            isImmutable: boolean;
 
             /** LabelEditAction muteEndTimeMs. */
-            muteEndTimeMs?: (number|Long|null);
+            muteEndTimeMs: (number|Long);
 
             /**
              * Creates a new LabelEditAction instance using the specified properties.
@@ -81994,7 +82674,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** LabelSublistAction subListId. */
-            subListId?: (number|null);
+            subListId: number;
 
             /**
              * Creates a new LabelSublistAction instance using the specified properties.
@@ -82111,16 +82791,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** LidContactAction fullName. */
-            fullName?: (string|null);
+            fullName: string;
 
             /** LidContactAction firstName. */
-            firstName?: (string|null);
+            firstName: string;
 
             /** LidContactAction username. */
-            username?: (string|null);
+            username: string;
 
             /** LidContactAction birthday. */
-            birthday?: (string|null);
+            birthday: string;
 
             /**
              * Creates a new LidContactAction instance using the specified properties.
@@ -82246,7 +82926,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** LocaleSetting locale. */
-            locale?: (string|null);
+            locale: string;
 
             /**
              * Creates a new LocaleSetting instance using the specified properties.
@@ -82363,7 +83043,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** LockChatAction locked. */
-            locked?: (boolean|null);
+            locked: boolean;
 
             /**
              * Creates a new LockChatAction instance using the specified properties.
@@ -82480,10 +83160,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MaibaAIFeaturesControlAction aiFeatureStatus. */
-            aiFeatureStatus?: (proto.SyncActionValue.MaibaAIFeaturesControlAction.MaibaAIFeatureStatus|null);
+            aiFeatureStatus: proto.SyncActionValue.MaibaAIFeaturesControlAction.MaibaAIFeatureStatus;
 
             /** MaibaAIFeaturesControlAction aiReplyMode. */
-            aiReplyMode?: (proto.SyncActionValue.MaibaAIFeaturesControlAction.MaibaAIReplyMode|null);
+            aiReplyMode: proto.SyncActionValue.MaibaAIFeaturesControlAction.MaibaAIReplyMode;
 
             /**
              * Creates a new MaibaAIFeaturesControlAction instance using the specified properties.
@@ -82629,7 +83309,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MarkChatAsReadAction read. */
-            read?: (boolean|null);
+            read: boolean;
 
             /** MarkChatAsReadAction messageRange. */
             messageRange?: (proto.SyncActionValue.SyncActionMessageRange.$Properties|null);
@@ -82752,25 +83432,25 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MarketingMessageAction name. */
-            name?: (string|null);
+            name: string;
 
             /** MarketingMessageAction message. */
-            message?: (string|null);
+            message: string;
 
             /** MarketingMessageAction type. */
-            type?: (proto.SyncActionValue.MarketingMessageAction.MarketingMessagePrototypeType|null);
+            type: proto.SyncActionValue.MarketingMessageAction.MarketingMessagePrototypeType;
 
             /** MarketingMessageAction createdAt. */
-            createdAt?: (number|Long|null);
+            createdAt: (number|Long);
 
             /** MarketingMessageAction lastSentAt. */
-            lastSentAt?: (number|Long|null);
+            lastSentAt: (number|Long);
 
             /** MarketingMessageAction isDeleted. */
-            isDeleted?: (boolean|null);
+            isDeleted: boolean;
 
             /** MarketingMessageAction mediaId. */
-            mediaId?: (string|null);
+            mediaId: string;
 
             /**
              * Creates a new MarketingMessageAction instance using the specified properties.
@@ -82912,7 +83592,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MarketingMessageBroadcastAction repliedCount. */
-            repliedCount?: (number|null);
+            repliedCount: number;
 
             /**
              * Creates a new MarketingMessageBroadcastAction instance using the specified properties.
@@ -83035,10 +83715,10 @@ export namespace proto {
             country: string;
 
             /** MerchantPaymentPartnerAction gatewayName. */
-            gatewayName?: (string|null);
+            gatewayName: string;
 
             /** MerchantPaymentPartnerAction credentialId. */
-            credentialId?: (string|null);
+            credentialId: string;
 
             /**
              * Creates a new MerchantPaymentPartnerAction instance using the specified properties.
@@ -83174,7 +83854,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MusicUserIdAction musicUserId. */
-            musicUserId?: (string|null);
+            musicUserId: string;
 
             /** MusicUserIdAction musicUserIdMap. */
             musicUserIdMap: { [k: string]: string };
@@ -83297,16 +83977,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** MuteAction muted. */
-            muted?: (boolean|null);
+            muted: boolean;
 
             /** MuteAction muteEndTimestamp. */
-            muteEndTimestamp?: (number|Long|null);
+            muteEndTimestamp: (number|Long);
 
             /** MuteAction autoMuted. */
-            autoMuted?: (boolean|null);
+            autoMuted: boolean;
 
             /** MuteAction muteEveryoneMentionEndTimestamp. */
-            muteEveryoneMentionEndTimestamp?: (number|Long|null);
+            muteEveryoneMentionEndTimestamp: (number|Long);
 
             /**
              * Creates a new MuteAction instance using the specified properties.
@@ -83432,7 +84112,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** NctSaltSyncAction salt. */
-            salt?: (Uint8Array|null);
+            salt: Uint8Array;
 
             /**
              * Creates a new NctSaltSyncAction instance using the specified properties.
@@ -83549,7 +84229,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** NewsletterSavedInterestsAction newsletterSavedInterests. */
-            newsletterSavedInterests?: (string|null);
+            newsletterSavedInterests: string;
 
             /**
              * Creates a new NewsletterSavedInterestsAction instance using the specified properties.
@@ -83666,19 +84346,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** NoteEditAction type. */
-            type?: (proto.SyncActionValue.NoteEditAction.NoteType|null);
+            type: proto.SyncActionValue.NoteEditAction.NoteType;
 
             /** NoteEditAction chatJid. */
-            chatJid?: (string|null);
+            chatJid: string;
 
             /** NoteEditAction createdAt. */
-            createdAt?: (number|Long|null);
+            createdAt: (number|Long);
 
             /** NoteEditAction deleted. */
-            deleted?: (boolean|null);
+            deleted: boolean;
 
             /** NoteEditAction unstructuredContent. */
-            unstructuredContent?: (string|null);
+            unstructuredContent: string;
 
             /**
              * Creates a new NoteEditAction instance using the specified properties.
@@ -83817,7 +84497,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** NotificationActivitySettingAction notificationActivitySetting. */
-            notificationActivitySetting?: (proto.SyncActionValue.NotificationActivitySettingAction.NotificationActivitySetting|null);
+            notificationActivitySetting: proto.SyncActionValue.NotificationActivitySettingAction.NotificationActivitySetting;
 
             /**
              * Creates a new NotificationActivitySettingAction instance using the specified properties.
@@ -83950,7 +84630,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** NuxAction acknowledged. */
-            acknowledged?: (boolean|null);
+            acknowledged: boolean;
 
             /**
              * Creates a new NuxAction instance using the specified properties.
@@ -84067,10 +84747,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** OutContactAction fullName. */
-            fullName?: (string|null);
+            fullName: string;
 
             /** OutContactAction firstName. */
-            firstName?: (string|null);
+            firstName: string;
 
             /**
              * Creates a new OutContactAction instance using the specified properties.
@@ -84190,7 +84870,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PaymentInfoAction cpi. */
-            cpi?: (string|null);
+            cpi: string;
 
             /**
              * Creates a new PaymentInfoAction instance using the specified properties.
@@ -84437,7 +85117,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PinAction pinned. */
-            pinned?: (boolean|null);
+            pinned: boolean;
 
             /**
              * Creates a new PinAction instance using the specified properties.
@@ -84554,7 +85234,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PnForLidChatAction pnJid. */
-            pnJid?: (string|null);
+            pnJid: string;
 
             /**
              * Creates a new PnForLidChatAction instance using the specified properties.
@@ -84788,7 +85468,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PrimaryVersionAction version. */
-            version?: (string|null);
+            version: string;
 
             /**
              * Creates a new PrimaryVersionAction instance using the specified properties.
@@ -84905,7 +85585,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PrivacySettingChannelsPersonalisedRecommendationAction isUserOptedOut. */
-            isUserOptedOut?: (boolean|null);
+            isUserOptedOut: boolean;
 
             /**
              * Creates a new PrivacySettingChannelsPersonalisedRecommendationAction instance using the specified properties.
@@ -85022,7 +85702,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PrivacySettingDisableLinkPreviewsAction isPreviewsDisabled. */
-            isPreviewsDisabled?: (boolean|null);
+            isPreviewsDisabled: boolean;
 
             /**
              * Creates a new PrivacySettingDisableLinkPreviewsAction instance using the specified properties.
@@ -85139,7 +85819,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PrivacySettingRelayAllCalls isEnabled. */
-            isEnabled?: (boolean|null);
+            isEnabled: boolean;
 
             /**
              * Creates a new PrivacySettingRelayAllCalls instance using the specified properties.
@@ -85256,7 +85936,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PrivateProcessingSettingAction privateProcessingStatus. */
-            privateProcessingStatus?: (proto.SyncActionValue.PrivateProcessingSettingAction.PrivateProcessingStatus|null);
+            privateProcessingStatus: proto.SyncActionValue.PrivateProcessingSettingAction.PrivateProcessingStatus;
 
             /**
              * Creates a new PrivateProcessingSettingAction instance using the specified properties.
@@ -85386,7 +86066,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** PushNameSetting name. */
-            name?: (string|null);
+            name: string;
 
             /**
              * Creates a new PushNameSetting instance using the specified properties.
@@ -85503,19 +86183,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** QuickReplyAction shortcut. */
-            shortcut?: (string|null);
+            shortcut: string;
 
             /** QuickReplyAction message. */
-            message?: (string|null);
+            message: string;
 
             /** QuickReplyAction keywords. */
             keywords: string[];
 
             /** QuickReplyAction count. */
-            count?: (number|null);
+            count: number;
 
             /** QuickReplyAction deleted. */
-            deleted?: (boolean|null);
+            deleted: boolean;
 
             /** QuickReplyAction associatedLabelIds. */
             associatedLabelIds: string[];
@@ -85767,7 +86447,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** RemoveRecentStickerAction lastStickerSentTs. */
-            lastStickerSentTs?: (number|Long|null);
+            lastStickerSentTs: (number|Long);
 
             /**
              * Creates a new RemoveRecentStickerAction instance using the specified properties.
@@ -85884,109 +86564,109 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SettingsSyncAction startAtLogin. */
-            startAtLogin?: (boolean|null);
+            startAtLogin: boolean;
 
             /** SettingsSyncAction minimizeToTray. */
-            minimizeToTray?: (boolean|null);
+            minimizeToTray: boolean;
 
             /** SettingsSyncAction language. */
-            language?: (string|null);
+            language: string;
 
             /** SettingsSyncAction replaceTextWithEmoji. */
-            replaceTextWithEmoji?: (boolean|null);
+            replaceTextWithEmoji: boolean;
 
             /** SettingsSyncAction bannerNotificationDisplayMode. */
-            bannerNotificationDisplayMode?: (proto.SyncActionValue.SettingsSyncAction.DisplayMode|null);
+            bannerNotificationDisplayMode: proto.SyncActionValue.SettingsSyncAction.DisplayMode;
 
             /** SettingsSyncAction unreadCounterBadgeDisplayMode. */
-            unreadCounterBadgeDisplayMode?: (proto.SyncActionValue.SettingsSyncAction.DisplayMode|null);
+            unreadCounterBadgeDisplayMode: proto.SyncActionValue.SettingsSyncAction.DisplayMode;
 
             /** SettingsSyncAction isMessagesNotificationEnabled. */
-            isMessagesNotificationEnabled?: (boolean|null);
+            isMessagesNotificationEnabled: boolean;
 
             /** SettingsSyncAction isCallsNotificationEnabled. */
-            isCallsNotificationEnabled?: (boolean|null);
+            isCallsNotificationEnabled: boolean;
 
             /** SettingsSyncAction isReactionsNotificationEnabled. */
-            isReactionsNotificationEnabled?: (boolean|null);
+            isReactionsNotificationEnabled: boolean;
 
             /** SettingsSyncAction isStatusReactionsNotificationEnabled. */
-            isStatusReactionsNotificationEnabled?: (boolean|null);
+            isStatusReactionsNotificationEnabled: boolean;
 
             /** SettingsSyncAction isTextPreviewForNotificationEnabled. */
-            isTextPreviewForNotificationEnabled?: (boolean|null);
+            isTextPreviewForNotificationEnabled: boolean;
 
             /** SettingsSyncAction defaultNotificationToneId. */
-            defaultNotificationToneId?: (number|null);
+            defaultNotificationToneId: number;
 
             /** SettingsSyncAction groupDefaultNotificationToneId. */
-            groupDefaultNotificationToneId?: (number|null);
+            groupDefaultNotificationToneId: number;
 
             /** SettingsSyncAction appTheme. */
-            appTheme?: (number|null);
+            appTheme: number;
 
             /** SettingsSyncAction wallpaperId. */
-            wallpaperId?: (number|null);
+            wallpaperId: number;
 
             /** SettingsSyncAction isDoodleWallpaperEnabled. */
-            isDoodleWallpaperEnabled?: (boolean|null);
+            isDoodleWallpaperEnabled: boolean;
 
             /** SettingsSyncAction fontSize. */
-            fontSize?: (number|null);
+            fontSize: number;
 
             /** SettingsSyncAction isPhotosAutodownloadEnabled. */
-            isPhotosAutodownloadEnabled?: (boolean|null);
+            isPhotosAutodownloadEnabled: boolean;
 
             /** SettingsSyncAction isAudiosAutodownloadEnabled. */
-            isAudiosAutodownloadEnabled?: (boolean|null);
+            isAudiosAutodownloadEnabled: boolean;
 
             /** SettingsSyncAction isVideosAutodownloadEnabled. */
-            isVideosAutodownloadEnabled?: (boolean|null);
+            isVideosAutodownloadEnabled: boolean;
 
             /** SettingsSyncAction isDocumentsAutodownloadEnabled. */
-            isDocumentsAutodownloadEnabled?: (boolean|null);
+            isDocumentsAutodownloadEnabled: boolean;
 
             /** SettingsSyncAction disableLinkPreviews. */
-            disableLinkPreviews?: (boolean|null);
+            disableLinkPreviews: boolean;
 
             /** SettingsSyncAction notificationToneId. */
-            notificationToneId?: (number|null);
+            notificationToneId: number;
 
             /** SettingsSyncAction mediaUploadQuality. */
-            mediaUploadQuality?: (proto.SyncActionValue.SettingsSyncAction.MediaQualitySetting|null);
+            mediaUploadQuality: proto.SyncActionValue.SettingsSyncAction.MediaQualitySetting;
 
             /** SettingsSyncAction isSpellCheckEnabled. */
-            isSpellCheckEnabled?: (boolean|null);
+            isSpellCheckEnabled: boolean;
 
             /** SettingsSyncAction isEnterToSendEnabled. */
-            isEnterToSendEnabled?: (boolean|null);
+            isEnterToSendEnabled: boolean;
 
             /** SettingsSyncAction isGroupMessageNotificationEnabled. */
-            isGroupMessageNotificationEnabled?: (boolean|null);
+            isGroupMessageNotificationEnabled: boolean;
 
             /** SettingsSyncAction isGroupReactionsNotificationEnabled. */
-            isGroupReactionsNotificationEnabled?: (boolean|null);
+            isGroupReactionsNotificationEnabled: boolean;
 
             /** SettingsSyncAction isStatusNotificationEnabled. */
-            isStatusNotificationEnabled?: (boolean|null);
+            isStatusNotificationEnabled: boolean;
 
             /** SettingsSyncAction statusNotificationToneId. */
-            statusNotificationToneId?: (number|null);
+            statusNotificationToneId: number;
 
             /** SettingsSyncAction shouldPlaySoundForCallNotification. */
-            shouldPlaySoundForCallNotification?: (boolean|null);
+            shouldPlaySoundForCallNotification: boolean;
 
             /** SettingsSyncAction chatThemeId. */
-            chatThemeId?: (string|null);
+            chatThemeId: string;
 
             /** SettingsSyncAction colorSchemeId. */
-            colorSchemeId?: (string|null);
+            colorSchemeId: string;
 
             /** SettingsSyncAction stockWallpaperImageId. */
-            stockWallpaperImageId?: (string|null);
+            stockWallpaperImageId: string;
 
             /** SettingsSyncAction mediaAutoDownloadQuality. */
-            mediaAutoDownloadQuality?: (proto.SyncActionValue.SettingsSyncAction.MediaAutoDownloadQualitySetting|null);
+            mediaAutoDownloadQuality: proto.SyncActionValue.SettingsSyncAction.MediaAutoDownloadQualitySetting;
 
             /**
              * Creates a new SettingsSyncAction instance using the specified properties.
@@ -86381,7 +87061,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SharedDeviceAllowlistAction allowed. */
-            allowed?: (boolean|null);
+            allowed: boolean;
 
             /**
              * Creates a new SharedDeviceAllowlistAction instance using the specified properties.
@@ -86498,10 +87178,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SharedDeviceSecretAction secret. */
-            secret?: (Uint8Array|null);
+            secret: Uint8Array;
 
             /** SharedDeviceSecretAction ttlMs. */
-            ttlMs?: (number|Long|null);
+            ttlMs: (number|Long);
 
             /**
              * Creates a new SharedDeviceSecretAction instance using the specified properties.
@@ -86621,7 +87301,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** StarAction starred. */
-            starred?: (boolean|null);
+            starred: boolean;
 
             /**
              * Creates a new StarAction instance using the specified properties.
@@ -86738,7 +87418,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** StatusPostOptInNotificationPreferencesAction enabled. */
-            enabled?: (boolean|null);
+            enabled: boolean;
 
             /**
              * Creates a new StatusPostOptInNotificationPreferencesAction instance using the specified properties.
@@ -86855,16 +87535,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** StatusPrivacyAction mode. */
-            mode?: (proto.SyncActionValue.StatusPrivacyAction.StatusDistributionMode|null);
+            mode: proto.SyncActionValue.StatusPrivacyAction.StatusDistributionMode;
 
             /** StatusPrivacyAction userJid. */
             userJid: string[];
 
             /** StatusPrivacyAction shareToFb. */
-            shareToFb?: (boolean|null);
+            shareToFb: boolean;
 
             /** StatusPrivacyAction shareToIg. */
-            shareToIg?: (boolean|null);
+            shareToIg: boolean;
 
             /** StatusPrivacyAction customLists. */
             customLists: proto.SyncActionValue.StatusPrivacyAction.CustomList.$Properties[];
@@ -87001,16 +87681,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** CustomList listId. */
-                listId?: (string|null);
+                listId: string;
 
                 /** CustomList name. */
-                name?: (string|null);
+                name: string;
 
                 /** CustomList emoji. */
-                emoji?: (string|null);
+                emoji: string;
 
                 /** CustomList isSelected. */
-                isSelected?: (boolean|null);
+                isSelected: boolean;
 
                 /** CustomList userJid. */
                 userJid: string[];
@@ -87162,43 +87842,43 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** StickerAction url. */
-            url?: (string|null);
+            url: string;
 
             /** StickerAction fileEncSha256. */
-            fileEncSha256?: (Uint8Array|null);
+            fileEncSha256: Uint8Array;
 
             /** StickerAction mediaKey. */
-            mediaKey?: (Uint8Array|null);
+            mediaKey: Uint8Array;
 
             /** StickerAction mimetype. */
-            mimetype?: (string|null);
+            mimetype: string;
 
             /** StickerAction height. */
-            height?: (number|null);
+            height: number;
 
             /** StickerAction width. */
-            width?: (number|null);
+            width: number;
 
             /** StickerAction directPath. */
-            directPath?: (string|null);
+            directPath: string;
 
             /** StickerAction fileLength. */
-            fileLength?: (number|Long|null);
+            fileLength: (number|Long);
 
             /** StickerAction isFavorite. */
-            isFavorite?: (boolean|null);
+            isFavorite: boolean;
 
             /** StickerAction deviceIdHint. */
-            deviceIdHint?: (number|null);
+            deviceIdHint: number;
 
             /** StickerAction isLottie. */
-            isLottie?: (boolean|null);
+            isLottie: boolean;
 
             /** StickerAction imageHash. */
-            imageHash?: (string|null);
+            imageHash: string;
 
             /** StickerAction isAvatarSticker. */
-            isAvatarSticker?: (boolean|null);
+            isAvatarSticker: boolean;
 
             /**
              * Creates a new StickerAction instance using the specified properties.
@@ -87351,13 +88031,13 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SubscriptionAction isDeactivated. */
-            isDeactivated?: (boolean|null);
+            isDeactivated: boolean;
 
             /** SubscriptionAction isAutoRenewing. */
-            isAutoRenewing?: (boolean|null);
+            isAutoRenewing: boolean;
 
             /** SubscriptionAction expirationDate. */
-            expirationDate?: (number|Long|null);
+            expirationDate: (number|Long);
 
             /**
              * Creates a new SubscriptionAction instance using the specified properties.
@@ -87602,16 +88282,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** PaidFeature name. */
-                name?: (string|null);
+                name: string;
 
                 /** PaidFeature enabled. */
-                enabled?: (boolean|null);
+                enabled: boolean;
 
                 /** PaidFeature limit. */
-                limit?: (number|null);
+                limit: number;
 
                 /** PaidFeature expirationTime. */
-                expirationTime?: (number|Long|null);
+                expirationTime: (number|Long);
 
                 /**
                  * Creates a new PaidFeature instance using the specified properties.
@@ -87737,28 +88417,28 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** SubscriptionInfo id. */
-                id?: (string|null);
+                id: string;
 
                 /** SubscriptionInfo tier. */
-                tier?: (number|null);
+                tier: number;
 
                 /** SubscriptionInfo status. */
-                status?: (string|null);
+                status: string;
 
                 /** SubscriptionInfo startTime. */
-                startTime?: (number|Long|null);
+                startTime: (number|Long);
 
                 /** SubscriptionInfo endTime. */
-                endTime?: (number|Long|null);
+                endTime: (number|Long);
 
                 /** SubscriptionInfo isPlatformChanged. */
-                isPlatformChanged?: (boolean|null);
+                isPlatformChanged: boolean;
 
                 /** SubscriptionInfo source. */
-                source?: (string|null);
+                source: string;
 
                 /** SubscriptionInfo creationTime. */
-                creationTime?: (number|Long|null);
+                creationTime: (number|Long);
 
                 /**
                  * Creates a new SubscriptionInfo instance using the specified properties.
@@ -87900,7 +88580,7 @@ export namespace proto {
             key?: (proto.MessageKey.$Properties|null);
 
             /** SyncActionMessage timestamp. */
-            timestamp?: (number|Long|null);
+            timestamp: (number|Long);
 
             /**
              * Creates a new SyncActionMessage instance using the specified properties.
@@ -88020,10 +88700,10 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** SyncActionMessageRange lastMessageTimestamp. */
-            lastMessageTimestamp?: (number|Long|null);
+            lastMessageTimestamp: (number|Long);
 
             /** SyncActionMessageRange lastSystemMessageTimestamp. */
-            lastSystemMessageTimestamp?: (number|Long|null);
+            lastSystemMessageTimestamp: (number|Long);
 
             /** SyncActionMessageRange messages. */
             messages: proto.SyncActionValue.SyncActionMessage.$Properties[];
@@ -88149,7 +88829,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** ThreadPinAction pinned. */
-            pinned?: (boolean|null);
+            pinned: boolean;
 
             /**
              * Creates a new ThreadPinAction instance using the specified properties.
@@ -88266,7 +88946,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** TimeFormatAction isTwentyFourHourFormatEnabled. */
-            isTwentyFourHourFormatEnabled?: (boolean|null);
+            isTwentyFourHourFormatEnabled: boolean;
 
             /**
              * Creates a new TimeFormatAction instance using the specified properties.
@@ -88383,7 +89063,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** UGCBot definition. */
-            definition?: (Uint8Array|null);
+            definition: Uint8Array;
 
             /**
              * Creates a new UGCBot instance using the specified properties.
@@ -88500,7 +89180,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** UnarchiveChatsSetting unarchiveChats. */
-            unarchiveChats?: (boolean|null);
+            unarchiveChats: boolean;
 
             /**
              * Creates a new UnarchiveChatsSetting instance using the specified properties.
@@ -88617,7 +89297,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** UserStatusMuteAction muted. */
-            muted?: (boolean|null);
+            muted: boolean;
 
             /**
              * Creates a new UserStatusMuteAction instance using the specified properties.
@@ -88734,7 +89414,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** UsernameChatStartModeAction chatStartMode. */
-            chatStartMode?: (proto.SyncActionValue.UsernameChatStartModeAction.ChatStartMode|null);
+            chatStartMode: proto.SyncActionValue.UsernameChatStartModeAction.ChatStartMode;
 
             /**
              * Creates a new UsernameChatStartModeAction instance using the specified properties.
@@ -88977,16 +89657,16 @@ export namespace proto {
                 $unknowns?: Uint8Array[];
 
                 /** RootSecretEntry id. */
-                id?: (string|null);
+                id: string;
 
                 /** RootSecretEntry rootSecret. */
-                rootSecret?: (Uint8Array|null);
+                rootSecret: Uint8Array;
 
                 /** RootSecretEntry epoch. */
-                epoch?: (number|Long|null);
+                epoch: (number|Long);
 
                 /** RootSecretEntry status. */
-                status?: (proto.SyncActionValue.WASARootSecretAction.RootSecretEntry.Status|null);
+                status: proto.SyncActionValue.WASARootSecretAction.RootSecretEntry.Status;
 
                 /**
                  * Creates a new RootSecretEntry instance using the specified properties.
@@ -89123,7 +89803,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** WaffleAccountLinkStateAction linkState. */
-            linkState?: (proto.SyncActionValue.WaffleAccountLinkStateAction.AccountLinkState|null);
+            linkState: proto.SyncActionValue.WaffleAccountLinkStateAction.AccountLinkState;
 
             /**
              * Creates a new WaffleAccountLinkStateAction instance using the specified properties.
@@ -89253,7 +89933,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** WamoUserIdentifierAction identifier. */
-            identifier?: (string|null);
+            identifier: string;
 
             /**
              * Creates a new WamoUserIdentifierAction instance using the specified properties.
@@ -89371,7 +90051,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SyncdIndex blob. */
-        blob?: (Uint8Array|null);
+        blob: Uint8Array;
 
         /**
          * Creates a new SyncdIndex instance using the specified properties.
@@ -89488,7 +90168,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SyncdMutation operation. */
-        operation?: (proto.SyncdMutation.SyncdOperation|null);
+        operation: proto.SyncdMutation.SyncdOperation;
 
         /** SyncdMutation record. */
         record?: (proto.SyncdRecord.$Properties|null);
@@ -89747,10 +90427,10 @@ export namespace proto {
         externalMutations?: (proto.ExternalBlobReference.$Properties|null);
 
         /** SyncdPatch snapshotMac. */
-        snapshotMac?: (Uint8Array|null);
+        snapshotMac: Uint8Array;
 
         /** SyncdPatch patchMac. */
-        patchMac?: (Uint8Array|null);
+        patchMac: Uint8Array;
 
         /** SyncdPatch keyId. */
         keyId?: (proto.KeyId.$Properties|null);
@@ -89759,10 +90439,10 @@ export namespace proto {
         exitCode?: (proto.ExitCode.$Properties|null);
 
         /** SyncdPatch deviceIndex. */
-        deviceIndex?: (number|null);
+        deviceIndex: number;
 
         /** SyncdPatch clientDebugData. */
-        clientDebugData?: (Uint8Array|null);
+        clientDebugData: Uint8Array;
 
         /**
          * Creates a new SyncdPatch instance using the specified properties.
@@ -90038,7 +90718,7 @@ export namespace proto {
         records: proto.SyncdRecord.$Properties[];
 
         /** SyncdSnapshot mac. */
-        mac?: (Uint8Array|null);
+        mac: Uint8Array;
 
         /** SyncdSnapshot keyId. */
         keyId?: (proto.KeyId.$Properties|null);
@@ -90167,7 +90847,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SyncdValue blob. */
-        blob?: (Uint8Array|null);
+        blob: Uint8Array;
 
         /**
          * Creates a new SyncdValue instance using the specified properties.
@@ -90284,7 +90964,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** SyncdVersion version. */
-        version?: (number|Long|null);
+        version: (number|Long);
 
         /**
          * Creates a new SyncdVersion instance using the specified properties.
@@ -90401,10 +91081,10 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** TapLinkAction title. */
-        title?: (string|null);
+        title: string;
 
         /** TapLinkAction tapUrl. */
-        tapUrl?: (string|null);
+        tapUrl: string;
 
         /**
          * Creates a new TapLinkAction instance using the specified properties.
@@ -90524,7 +91204,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** TemplateButton index. */
-        index?: (number|null);
+        index: number;
 
         /** TemplateButton quickReplyButton. */
         quickReplyButton?: (proto.TemplateButton.QuickReplyButton.$Properties|null);
@@ -90802,7 +91482,7 @@ export namespace proto {
             displayText?: (proto.Message.HighlyStructuredMessage.$Properties|null);
 
             /** QuickReplyButton id. */
-            id?: (string|null);
+            id: string;
 
             /**
              * Creates a new QuickReplyButton instance using the specified properties.
@@ -91054,7 +91734,7 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** ThreadID threadType. */
-        threadType?: (proto.ThreadID.ThreadType|null);
+        threadType: proto.ThreadID.ThreadType;
 
         /** ThreadID threadKey. */
         threadKey?: (proto.MessageKey.$Properties|null);
@@ -91306,16 +91986,16 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** UrlTrackingMapElement originalUrl. */
-            originalUrl?: (string|null);
+            originalUrl: string;
 
             /** UrlTrackingMapElement unconsentedUsersUrl. */
-            unconsentedUsersUrl?: (string|null);
+            unconsentedUsersUrl: string;
 
             /** UrlTrackingMapElement consentedUsersUrl. */
-            consentedUsersUrl?: (string|null);
+            consentedUsersUrl: string;
 
             /** UrlTrackingMapElement cardIndex. */
-            cardIndex?: (number|null);
+            cardIndex: number;
 
             /**
              * Creates a new UrlTrackingMapElement instance using the specified properties.
@@ -91442,16 +92122,16 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** UserPassword encoding. */
-        encoding?: (proto.UserPassword.Encoding|null);
+        encoding: proto.UserPassword.Encoding;
 
         /** UserPassword transformer. */
-        transformer?: (proto.UserPassword.Transformer|null);
+        transformer: proto.UserPassword.Transformer;
 
         /** UserPassword transformerArg. */
         transformerArg: proto.UserPassword.TransformerArg.$Properties[];
 
         /** UserPassword transformedData. */
-        transformedData?: (Uint8Array|null);
+        transformedData: Uint8Array;
 
         /**
          * Creates a new UserPassword instance using the specified properties.
@@ -91605,7 +92285,7 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** TransformerArg key. */
-            key?: (string|null);
+            key: string;
 
             /** TransformerArg value. */
             value?: (proto.UserPassword.TransformerArg.Value.$Properties|null);
@@ -91871,13 +92551,13 @@ export namespace proto {
         userJid: string;
 
         /** UserReceipt receiptTimestamp. */
-        receiptTimestamp?: (number|Long|null);
+        receiptTimestamp: (number|Long);
 
         /** UserReceipt readTimestamp. */
-        readTimestamp?: (number|Long|null);
+        readTimestamp: (number|Long);
 
         /** UserReceipt playedTimestamp. */
-        playedTimestamp?: (number|Long|null);
+        playedTimestamp: (number|Long);
 
         /** UserReceipt pendingDeviceJid. */
         pendingDeviceJid: string[];
@@ -92015,13 +92695,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** VerifiedNameCertificate details. */
-        details?: (Uint8Array|null);
+        details: Uint8Array;
 
         /** VerifiedNameCertificate signature. */
-        signature?: (Uint8Array|null);
+        signature: Uint8Array;
 
         /** VerifiedNameCertificate serverSignature. */
-        serverSignature?: (Uint8Array|null);
+        serverSignature: Uint8Array;
 
         /**
          * Creates a new VerifiedNameCertificate instance using the specified properties.
@@ -92143,19 +92823,19 @@ export namespace proto {
             $unknowns?: Uint8Array[];
 
             /** Details serial. */
-            serial?: (number|Long|null);
+            serial: (number|Long);
 
             /** Details issuer. */
-            issuer?: (string|null);
+            issuer: string;
 
             /** Details verifiedName. */
-            verifiedName?: (string|null);
+            verifiedName: string;
 
             /** Details localizedNames. */
             localizedNames: proto.LocalizedName.$Properties[];
 
             /** Details issueTime. */
-            issueTime?: (number|Long|null);
+            issueTime: (number|Long);
 
             /**
              * Creates a new Details instance using the specified properties.
@@ -92285,13 +92965,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** WallpaperSettings filename. */
-        filename?: (string|null);
+        filename: string;
 
         /** WallpaperSettings opacity. */
-        opacity?: (number|null);
+        opacity: number;
 
         /** WallpaperSettings isGenAi. */
-        isGenAi?: (boolean|null);
+        isGenAi: boolean;
 
         /**
          * Creates a new WallpaperSettings instance using the specified properties.
@@ -92414,139 +93094,139 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** WebFeatures labelsDisplay. */
-        labelsDisplay?: (proto.WebFeatures.Flag|null);
+        labelsDisplay: proto.WebFeatures.Flag;
 
         /** WebFeatures voipIndividualOutgoing. */
-        voipIndividualOutgoing?: (proto.WebFeatures.Flag|null);
+        voipIndividualOutgoing: proto.WebFeatures.Flag;
 
         /** WebFeatures groupsV3. */
-        groupsV3?: (proto.WebFeatures.Flag|null);
+        groupsV3: proto.WebFeatures.Flag;
 
         /** WebFeatures groupsV3Create. */
-        groupsV3Create?: (proto.WebFeatures.Flag|null);
+        groupsV3Create: proto.WebFeatures.Flag;
 
         /** WebFeatures changeNumberV2. */
-        changeNumberV2?: (proto.WebFeatures.Flag|null);
+        changeNumberV2: proto.WebFeatures.Flag;
 
         /** WebFeatures queryStatusV3Thumbnail. */
-        queryStatusV3Thumbnail?: (proto.WebFeatures.Flag|null);
+        queryStatusV3Thumbnail: proto.WebFeatures.Flag;
 
         /** WebFeatures liveLocations. */
-        liveLocations?: (proto.WebFeatures.Flag|null);
+        liveLocations: proto.WebFeatures.Flag;
 
         /** WebFeatures queryVname. */
-        queryVname?: (proto.WebFeatures.Flag|null);
+        queryVname: proto.WebFeatures.Flag;
 
         /** WebFeatures voipIndividualIncoming. */
-        voipIndividualIncoming?: (proto.WebFeatures.Flag|null);
+        voipIndividualIncoming: proto.WebFeatures.Flag;
 
         /** WebFeatures quickRepliesQuery. */
-        quickRepliesQuery?: (proto.WebFeatures.Flag|null);
+        quickRepliesQuery: proto.WebFeatures.Flag;
 
         /** WebFeatures payments. */
-        payments?: (proto.WebFeatures.Flag|null);
+        payments: proto.WebFeatures.Flag;
 
         /** WebFeatures stickerPackQuery. */
-        stickerPackQuery?: (proto.WebFeatures.Flag|null);
+        stickerPackQuery: proto.WebFeatures.Flag;
 
         /** WebFeatures liveLocationsFinal. */
-        liveLocationsFinal?: (proto.WebFeatures.Flag|null);
+        liveLocationsFinal: proto.WebFeatures.Flag;
 
         /** WebFeatures labelsEdit. */
-        labelsEdit?: (proto.WebFeatures.Flag|null);
+        labelsEdit: proto.WebFeatures.Flag;
 
         /** WebFeatures mediaUpload. */
-        mediaUpload?: (proto.WebFeatures.Flag|null);
+        mediaUpload: proto.WebFeatures.Flag;
 
         /** WebFeatures mediaUploadRichQuickReplies. */
-        mediaUploadRichQuickReplies?: (proto.WebFeatures.Flag|null);
+        mediaUploadRichQuickReplies: proto.WebFeatures.Flag;
 
         /** WebFeatures vnameV2. */
-        vnameV2?: (proto.WebFeatures.Flag|null);
+        vnameV2: proto.WebFeatures.Flag;
 
         /** WebFeatures videoPlaybackUrl. */
-        videoPlaybackUrl?: (proto.WebFeatures.Flag|null);
+        videoPlaybackUrl: proto.WebFeatures.Flag;
 
         /** WebFeatures statusRanking. */
-        statusRanking?: (proto.WebFeatures.Flag|null);
+        statusRanking: proto.WebFeatures.Flag;
 
         /** WebFeatures voipIndividualVideo. */
-        voipIndividualVideo?: (proto.WebFeatures.Flag|null);
+        voipIndividualVideo: proto.WebFeatures.Flag;
 
         /** WebFeatures thirdPartyStickers. */
-        thirdPartyStickers?: (proto.WebFeatures.Flag|null);
+        thirdPartyStickers: proto.WebFeatures.Flag;
 
         /** WebFeatures frequentlyForwardedSetting. */
-        frequentlyForwardedSetting?: (proto.WebFeatures.Flag|null);
+        frequentlyForwardedSetting: proto.WebFeatures.Flag;
 
         /** WebFeatures groupsV4JoinPermission. */
-        groupsV4JoinPermission?: (proto.WebFeatures.Flag|null);
+        groupsV4JoinPermission: proto.WebFeatures.Flag;
 
         /** WebFeatures recentStickers. */
-        recentStickers?: (proto.WebFeatures.Flag|null);
+        recentStickers: proto.WebFeatures.Flag;
 
         /** WebFeatures catalog. */
-        catalog?: (proto.WebFeatures.Flag|null);
+        catalog: proto.WebFeatures.Flag;
 
         /** WebFeatures starredStickers. */
-        starredStickers?: (proto.WebFeatures.Flag|null);
+        starredStickers: proto.WebFeatures.Flag;
 
         /** WebFeatures voipGroupCall. */
-        voipGroupCall?: (proto.WebFeatures.Flag|null);
+        voipGroupCall: proto.WebFeatures.Flag;
 
         /** WebFeatures templateMessage. */
-        templateMessage?: (proto.WebFeatures.Flag|null);
+        templateMessage: proto.WebFeatures.Flag;
 
         /** WebFeatures templateMessageInteractivity. */
-        templateMessageInteractivity?: (proto.WebFeatures.Flag|null);
+        templateMessageInteractivity: proto.WebFeatures.Flag;
 
         /** WebFeatures ephemeralMessages. */
-        ephemeralMessages?: (proto.WebFeatures.Flag|null);
+        ephemeralMessages: proto.WebFeatures.Flag;
 
         /** WebFeatures e2ENotificationSync. */
-        e2ENotificationSync?: (proto.WebFeatures.Flag|null);
+        e2ENotificationSync: proto.WebFeatures.Flag;
 
         /** WebFeatures recentStickersV2. */
-        recentStickersV2?: (proto.WebFeatures.Flag|null);
+        recentStickersV2: proto.WebFeatures.Flag;
 
         /** WebFeatures recentStickersV3. */
-        recentStickersV3?: (proto.WebFeatures.Flag|null);
+        recentStickersV3: proto.WebFeatures.Flag;
 
         /** WebFeatures userNotice. */
-        userNotice?: (proto.WebFeatures.Flag|null);
+        userNotice: proto.WebFeatures.Flag;
 
         /** WebFeatures support. */
-        support?: (proto.WebFeatures.Flag|null);
+        support: proto.WebFeatures.Flag;
 
         /** WebFeatures groupUiiCleanup. */
-        groupUiiCleanup?: (proto.WebFeatures.Flag|null);
+        groupUiiCleanup: proto.WebFeatures.Flag;
 
         /** WebFeatures groupDogfoodingInternalOnly. */
-        groupDogfoodingInternalOnly?: (proto.WebFeatures.Flag|null);
+        groupDogfoodingInternalOnly: proto.WebFeatures.Flag;
 
         /** WebFeatures settingsSync. */
-        settingsSync?: (proto.WebFeatures.Flag|null);
+        settingsSync: proto.WebFeatures.Flag;
 
         /** WebFeatures archiveV2. */
-        archiveV2?: (proto.WebFeatures.Flag|null);
+        archiveV2: proto.WebFeatures.Flag;
 
         /** WebFeatures ephemeralAllowGroupMembers. */
-        ephemeralAllowGroupMembers?: (proto.WebFeatures.Flag|null);
+        ephemeralAllowGroupMembers: proto.WebFeatures.Flag;
 
         /** WebFeatures ephemeral24HDuration. */
-        ephemeral24HDuration?: (proto.WebFeatures.Flag|null);
+        ephemeral24HDuration: proto.WebFeatures.Flag;
 
         /** WebFeatures mdForceUpgrade. */
-        mdForceUpgrade?: (proto.WebFeatures.Flag|null);
+        mdForceUpgrade: proto.WebFeatures.Flag;
 
         /** WebFeatures disappearingMode. */
-        disappearingMode?: (proto.WebFeatures.Flag|null);
+        disappearingMode: proto.WebFeatures.Flag;
 
         /** WebFeatures externalMdOptInAvailable. */
-        externalMdOptInAvailable?: (proto.WebFeatures.Flag|null);
+        externalMdOptInAvailable: proto.WebFeatures.Flag;
 
         /** WebFeatures noDeleteMessageTimeLimit. */
-        noDeleteMessageTimeLimit?: (proto.WebFeatures.Flag|null);
+        noDeleteMessageTimeLimit: proto.WebFeatures.Flag;
 
         /**
          * Creates a new WebFeatures instance using the specified properties.
@@ -92827,52 +93507,52 @@ export namespace proto {
         message?: (proto.Message.$Properties|null);
 
         /** WebMessageInfo messageTimestamp. */
-        messageTimestamp?: (number|Long|null);
+        messageTimestamp: (number|Long);
 
         /** WebMessageInfo status. */
-        status?: (proto.WebMessageInfo.Status|null);
+        status: proto.WebMessageInfo.Status;
 
         /** WebMessageInfo participant. */
-        participant?: (string|null);
+        participant: string;
 
         /** WebMessageInfo messageC2STimestamp. */
-        messageC2STimestamp?: (number|Long|null);
+        messageC2STimestamp: (number|Long);
 
         /** WebMessageInfo ignore. */
-        ignore?: (boolean|null);
+        ignore: boolean;
 
         /** WebMessageInfo starred. */
-        starred?: (boolean|null);
+        starred: boolean;
 
         /** WebMessageInfo broadcast. */
-        broadcast?: (boolean|null);
+        broadcast: boolean;
 
         /** WebMessageInfo pushName. */
-        pushName?: (string|null);
+        pushName: string;
 
         /** WebMessageInfo mediaCiphertextSha256. */
-        mediaCiphertextSha256?: (Uint8Array|null);
+        mediaCiphertextSha256: Uint8Array;
 
         /** WebMessageInfo multicast. */
-        multicast?: (boolean|null);
+        multicast: boolean;
 
         /** WebMessageInfo urlText. */
-        urlText?: (boolean|null);
+        urlText: boolean;
 
         /** WebMessageInfo urlNumber. */
-        urlNumber?: (boolean|null);
+        urlNumber: boolean;
 
         /** WebMessageInfo messageStubType. */
-        messageStubType?: (proto.WebMessageInfo.StubType|null);
+        messageStubType: proto.WebMessageInfo.StubType;
 
         /** WebMessageInfo clearMedia. */
-        clearMedia?: (boolean|null);
+        clearMedia: boolean;
 
         /** WebMessageInfo messageStubParameters. */
         messageStubParameters: string[];
 
         /** WebMessageInfo duration. */
-        duration?: (number|null);
+        duration: number;
 
         /** WebMessageInfo labels. */
         labels: string[];
@@ -92887,22 +93567,22 @@ export namespace proto {
         quotedPaymentInfo?: (proto.PaymentInfo.$Properties|null);
 
         /** WebMessageInfo ephemeralStartTimestamp. */
-        ephemeralStartTimestamp?: (number|Long|null);
+        ephemeralStartTimestamp: (number|Long);
 
         /** WebMessageInfo ephemeralDuration. */
-        ephemeralDuration?: (number|null);
+        ephemeralDuration: number;
 
         /** WebMessageInfo ephemeralOffToOn. */
-        ephemeralOffToOn?: (boolean|null);
+        ephemeralOffToOn: boolean;
 
         /** WebMessageInfo ephemeralOutOfSync. */
-        ephemeralOutOfSync?: (boolean|null);
+        ephemeralOutOfSync: boolean;
 
         /** WebMessageInfo bizPrivacyStatus. */
-        bizPrivacyStatus?: (proto.WebMessageInfo.BizPrivacyStatus|null);
+        bizPrivacyStatus: proto.WebMessageInfo.BizPrivacyStatus;
 
         /** WebMessageInfo verifiedBizName. */
-        verifiedBizName?: (string|null);
+        verifiedBizName: string;
 
         /** WebMessageInfo mediaData. */
         mediaData?: (proto.MediaData.$Properties|null);
@@ -92920,7 +93600,7 @@ export namespace proto {
         quotedStickerData?: (proto.MediaData.$Properties|null);
 
         /** WebMessageInfo futureproofData. */
-        futureproofData?: (Uint8Array|null);
+        futureproofData: Uint8Array;
 
         /** WebMessageInfo statusPsa. */
         statusPsa?: (proto.StatusPSA.$Properties|null);
@@ -92932,22 +93612,22 @@ export namespace proto {
         pollAdditionalMetadata?: (proto.PollAdditionalMetadata.$Properties|null);
 
         /** WebMessageInfo agentId. */
-        agentId?: (string|null);
+        agentId: string;
 
         /** WebMessageInfo statusAlreadyViewed. */
-        statusAlreadyViewed?: (boolean|null);
+        statusAlreadyViewed: boolean;
 
         /** WebMessageInfo messageSecret. */
-        messageSecret?: (Uint8Array|null);
+        messageSecret: Uint8Array;
 
         /** WebMessageInfo keepInChat. */
         keepInChat?: (proto.KeepInChat.$Properties|null);
 
         /** WebMessageInfo originalSelfAuthorUserJidString. */
-        originalSelfAuthorUserJidString?: (string|null);
+        originalSelfAuthorUserJidString: string;
 
         /** WebMessageInfo revokeMessageTimestamp. */
-        revokeMessageTimestamp?: (number|Long|null);
+        revokeMessageTimestamp: (number|Long);
 
         /** WebMessageInfo pinInChat. */
         pinInChat?: (proto.PinInChat.$Properties|null);
@@ -92956,13 +93636,13 @@ export namespace proto {
         premiumMessageInfo?: (proto.PremiumMessageInfo.$Properties|null);
 
         /** WebMessageInfo is1PBizBotMessage. */
-        is1PBizBotMessage?: (boolean|null);
+        is1PBizBotMessage: boolean;
 
         /** WebMessageInfo isGroupHistoryMessage. */
-        isGroupHistoryMessage?: (boolean|null);
+        isGroupHistoryMessage: boolean;
 
         /** WebMessageInfo botMessageInvokerJid. */
-        botMessageInvokerJid?: (string|null);
+        botMessageInvokerJid: string;
 
         /** WebMessageInfo commentMetadata. */
         commentMetadata?: (proto.CommentMetadata.$Properties|null);
@@ -92974,13 +93654,13 @@ export namespace proto {
         reportingTokenInfo?: (proto.ReportingTokenInfo.$Properties|null);
 
         /** WebMessageInfo newsletterServerId. */
-        newsletterServerId?: (number|Long|null);
+        newsletterServerId: (number|Long);
 
         /** WebMessageInfo eventAdditionalMetadata. */
         eventAdditionalMetadata?: (proto.EventAdditionalMetadata.$Properties|null);
 
         /** WebMessageInfo isMentionedInStatus. */
-        isMentionedInStatus?: (boolean|null);
+        isMentionedInStatus: boolean;
 
         /** WebMessageInfo statusMentions. */
         statusMentions: string[];
@@ -92995,7 +93675,7 @@ export namespace proto {
         statusMentionMessageInfo?: (proto.StatusMentionMessage.$Properties|null);
 
         /** WebMessageInfo isSupportAiMessage. */
-        isSupportAiMessage?: (boolean|null);
+        isSupportAiMessage: boolean;
 
         /** WebMessageInfo statusMentionSources. */
         statusMentionSources: string[];
@@ -93004,7 +93684,7 @@ export namespace proto {
         supportAiCitations: proto.Citation.$Properties[];
 
         /** WebMessageInfo botTargetId. */
-        botTargetId?: (string|null);
+        botTargetId: string;
 
         /** WebMessageInfo groupHistoryIndividualMessageInfo. */
         groupHistoryIndividualMessageInfo?: (proto.GroupHistoryIndividualMessageInfo.$Properties|null);
@@ -93019,19 +93699,19 @@ export namespace proto {
         quarantinedMessage?: (proto.QuarantinedMessage.$Properties|null);
 
         /** WebMessageInfo nonJidMentions. */
-        nonJidMentions?: (number|null);
+        nonJidMentions: number;
 
         /** WebMessageInfo hsmTag. */
-        hsmTag?: (string|null);
+        hsmTag: string;
 
         /** WebMessageInfo ephemeralExpirationTimestamp. */
-        ephemeralExpirationTimestamp?: (number|Long|null);
+        ephemeralExpirationTimestamp: (number|Long);
 
         /** WebMessageInfo scheduledMessageMetadata. */
         scheduledMessageMetadata?: (proto.ScheduledMessageMetadata.$Properties|null);
 
         /** WebMessageInfo decisionId. */
-        decisionId?: (string|null);
+        decisionId: string;
 
         /** WebMessageInfo decisionSources. */
         decisionSources: string[];
@@ -93040,7 +93720,7 @@ export namespace proto {
         eventInviteAdditionalMetadata?: (proto.EventInviteAdditionalMetadata.$Properties|null);
 
         /** WebMessageInfo groupHistoryLastCountedMessageTimestamp. */
-        groupHistoryLastCountedMessageTimestamp?: (number|Long|null);
+        groupHistoryLastCountedMessageTimestamp: (number|Long);
 
         /**
          * Creates a new WebMessageInfo instance using the specified properties.
@@ -94271,7 +94951,10 @@ export namespace proto {
             POLL_OPTIONS_REMOVED = 290,
 
             /** POLL_ADDED_OPTION_REMOVED value */
-            POLL_ADDED_OPTION_REMOVED = 291
+            POLL_ADDED_OPTION_REMOVED = 291,
+
+            /** GROUP_CUSTOM_REACTIONS value */
+            GROUP_CUSTOM_REACTIONS = 293
         }
     }
 
@@ -94295,13 +94978,13 @@ export namespace proto {
         $unknowns?: Uint8Array[];
 
         /** WebNotificationsInfo timestamp. */
-        timestamp?: (number|Long|null);
+        timestamp: (number|Long);
 
         /** WebNotificationsInfo unreadChats. */
-        unreadChats?: (number|null);
+        unreadChats: number;
 
         /** WebNotificationsInfo notifyMessageCount. */
-        notifyMessageCount?: (number|null);
+        notifyMessageCount: number;
 
         /** WebNotificationsInfo notifyMessages. */
         notifyMessages: proto.WebMessageInfo.$Properties[];
