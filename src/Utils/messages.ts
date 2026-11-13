@@ -41,7 +41,7 @@ import {
 } from './messages-media'
 import { shouldIncludeReportingToken } from './reporting-utils'
 
-type ExtractByKey<T, K extends PropertyKey> = T extends Record<K, any> ? T : never
+type ExtractByKey<T, K extends PropertyKey> = T extends Record<K, unknown> ? T : never
 type RequireKey<T, K extends keyof T> = T & {
 	[P in K]-?: Exclude<T[P], null | undefined>
 }
@@ -98,14 +98,14 @@ export const generateLinkPreviewIfRequired = async (
 		try {
 			const urlInfo = await getUrlInfo(url)
 			return urlInfo
-		} catch (error: any) {
+		} catch (error) {
 			// ignore if fails
-			logger?.warn({ trace: error.stack }, 'url generation failed')
+			logger?.warn({ trace: error instanceof Error ? error.stack : undefined }, 'url generation failed')
 		}
 	}
 }
 
-const assertColor = async (color: any) => {
+const assertColor = async (color: string | number) => {
 	let assertedColor
 	if (typeof color === 'number') {
 		assertedColor = color > 0 ? color : 0xffffffff + Number(color) + 1
@@ -140,9 +140,9 @@ export const prepareWAMessageMedia = async (
 
 	const uploadData: MediaUploadData = {
 		...message,
-		media: (message as any)[mediaType]
+		media: (message as AnyMediaMessageContent & Partial<Record<MediaType, WAMediaUpload>>)[mediaType]!
 	}
-	delete (uploadData as any)[mediaType]
+	Reflect.deleteProperty(uploadData, mediaType)
 
 	const cacheableKey =
 		typeof uploadData.media === 'object' &&
@@ -186,8 +186,13 @@ export const prepareWAMessageMedia = async (
 		})
 		await fs.unlink(filePath)
 
+		if (!(mediaType in MessageTypeProto)) {
+			throw new Boom(`Unsupported newsletter media type: ${mediaType}`, { statusCode: 400 })
+		}
+
+		const messageTypeProto = MessageTypeProto[mediaType as keyof typeof MessageTypeProto]
 		const obj = WAProto.Message.fromObject({
-			[`${mediaType}Message`]: (MessageTypeProto as any)[mediaType].fromObject({
+			[`${mediaType}Message`]: messageTypeProto.fromObject({
 				url: mediaUrl,
 				directPath,
 				fileSha256,
@@ -270,7 +275,7 @@ export const prepareWAMessageMedia = async (
 					uploadData.seconds = await getAudioDuration(originalFilePath!)
 					logger?.debug('computed audio duration')
 				} catch (error) {
-					logger?.warn({ trace: (error as any).stack }, 'duration computation failed')
+					logger?.warn({ trace: error instanceof Error ? error.stack : undefined }, 'duration computation failed')
 				}
 			})()
 		)
@@ -280,10 +285,10 @@ export const prepareWAMessageMedia = async (
 		processingTasks.push(
 			(async () => {
 				try {
-					uploadData.backgroundArgb = await assertColor(options.backgroundColor)
+					uploadData.backgroundArgb = await assertColor(options.backgroundColor!)
 					logger?.debug('computed backgroundColor audio status')
 				} catch (error) {
-					logger?.warn({ trace: (error as any).stack }, 'background color validation failed')
+					logger?.warn({ trace: error instanceof Error ? error.stack : undefined }, 'background color validation failed')
 				}
 			})()
 		)
@@ -390,13 +395,13 @@ export const hasNonNullishProperty = <K extends PropertyKey>(
 		typeof message === 'object' &&
 		message !== null &&
 		key in message &&
-		(message as any)[key] !== null &&
-		(message as any)[key] !== undefined
+		(message as Record<PropertyKey, unknown>)[key] !== null &&
+		(message as Record<PropertyKey, unknown>)[key] !== undefined
 	)
 }
 
 function hasOptionalProperty<T, K extends PropertyKey>(obj: T, key: K): obj is WithKey<T, K> {
-	return typeof obj === 'object' && obj !== null && key in obj && (obj as any)[key] !== null
+	return typeof obj === 'object' && obj !== null && key in obj && (obj as Record<PropertyKey, unknown>)[key] !== null
 }
 
 export const generateWAMessageContent = async (
@@ -747,7 +752,7 @@ export const generateWAMessageFromContent = (
 	) {
 		/* @ts-ignore */
 		innerMessage[key].contextInfo = {
-			...((innerMessage[key] as any).contextInfo || {}),
+			...((innerMessage[key] as { contextInfo?: proto.IContextInfo } | undefined)?.contextInfo || {}),
 			expiration: options.ephemeralExpiration || WA_DEFAULT_EPHEMERAL
 			//ephemeralSettingTimestamp: options.ephemeralOptions.eph_setting_ts?.toString()
 		}
@@ -1011,7 +1016,8 @@ export function getAggregateResponsesInEventMessage(
 	}
 
 	for (const update of eventResponses || []) {
-		const responseType = (update as any).eventResponse || 'UNKNOWN'
+		const response = update.eventResponseMessage?.response
+		const responseType = response == null ? 'UNKNOWN' : proto.Message.EventResponseMessage.EventResponseType[response]
 		if (responseType !== 'UNKNOWN' && responseMap[responseType]) {
 			responseMap[responseType].responders.push(getKeyAuthor(update.eventResponseMessageKey, meId))
 		}

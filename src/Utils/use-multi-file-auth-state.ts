@@ -3,7 +3,7 @@ import { join } from 'path'
 import { proto } from '../../WAProto/index.js'
 import type { AuthenticationCreds, AuthenticationState, SignalDataTypeMap } from '../Types'
 import { initAuthCreds } from './auth-utils'
-import { packr } from './index.js'
+import { packr } from './auth-state-serialization'
 import { makeKeyedMutex } from './make-mutex'
 
 // We need to lock files due to the fact that we are using async functions to read and write files
@@ -25,8 +25,7 @@ const fixFileName = (file?: string) => file?.replace(/\//g, '__')?.replace(/:/g,
 export const useMultiFileAuthState = async (
 	folder: string
 ): Promise<{ state: AuthenticationState; saveCreds: () => Promise<void> }> => {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const writeData = async (data: any, file: string) => {
+	const writeData = async (data: unknown, file: string) => {
 		const filePath = join(folder, fixFileName(file)!)
 
 		return fileMutex.mutex(filePath, async () => {
@@ -138,7 +137,7 @@ export const useMultiFileAuthState = async (
 					type: T
 				): AsyncIterable<readonly [string, SignalDataTypeMap[T]]> {
 					for await (const entry of iterateType(type)) {
-						let value: any = await readData(entry.filename)
+						let value: unknown = await readData(entry.filename)
 						if (type === 'app-state-sync-key' && value) {
 							value = proto.Message.AppStateSyncKeyData.fromObject(value)
 						}

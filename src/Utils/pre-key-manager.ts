@@ -39,18 +39,19 @@ export class PreKeyManager {
 
 		return this.getQueue(keyType).add(async () => {
 			// Ensure structures exist
-			transactionCache[keyType] = transactionCache[keyType] || ({} as any)
-			mutations[keyType] = mutations[keyType] || ({} as any)
+			Object.assign(transactionCache, { [keyType]: transactionCache[keyType] || {} })
+			Object.assign(mutations, { [keyType]: mutations[keyType] || {} })
 
 			// Separate deletions from updates
 			const deletions: string[] = []
-			const updates: Record<string, any> = {}
+			const updates: Record<string, SignalDataTypeMap[keyof SignalDataTypeMap] | null> = {}
 
 			for (const keyId in keyData) {
-				if (keyData[keyId] === null) {
+				const value = keyData[keyId]
+				if (value === null) {
 					deletions.push(keyId)
-				} else {
-					updates[keyId] = keyData[keyId]
+				} else if (value !== undefined) {
+					updates[keyId] = value
 				}
 			}
 

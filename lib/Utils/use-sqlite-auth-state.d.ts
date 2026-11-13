@@ -1,5 +1,5 @@
 import type BetterSqlite3Module from 'better-sqlite3';
-import type { AuthenticationState } from '../Types/index.js';
+import type { AuthenticationState } from '../Types';
 /** A live `better-sqlite3` database handle (the instance type, not the constructor). */
 type Database = BetterSqlite3Module.Database;
 type SqliteAuthStateOptions = {
@@ -36,6 +36,21 @@ type SqliteAuthStateOptions = {
  * store, see {@link migrateAuthState}.
  */
 export declare function useSqliteAuthState(opts: SqliteAuthStateOptions): Promise<{
+    state: AuthenticationState;
+    saveCreds: () => Promise<void>;
+    close: () => void;
+}>;
+/**
+ * SQLite auth storage whose database work runs on a shared worker thread.
+ * Multiple callers using the same resolved path share one worker, one key
+ * store, and one credentials object. The worker serializes SQLite operations
+ * while keeping synchronous disk access off the application event loop.
+ *
+ * Use this for several sockets in one process. Each socket should receive the
+ * same returned `state` so its in-memory credentials and transaction locks are
+ * shared as well.
+ */
+export declare function useSqliteAuthStateInWorker(opts: Pick<SqliteAuthStateOptions, 'dbPath'>): Promise<{
     state: AuthenticationState;
     saveCreds: () => Promise<void>;
     close: () => void;

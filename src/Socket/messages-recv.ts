@@ -96,6 +96,9 @@ type MexGqlResponse = {
 	errors?: unknown[]
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+	typeof value === 'object' && value !== null && !Array.isArray(value)
+
 type ReachoutTimelockNotificationPayload = {
 	is_active?: boolean
 	enforcement_type?: string
@@ -242,7 +245,12 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 
 			let mexResponse: MexGqlResponse
 			try {
-				mexResponse = JSON.parse(updateNode.content!.toString())
+				const parsed: unknown = JSON.parse(updateNode.content!.toString())
+				if (!isRecord(parsed)) throw new Error('expected an object')
+				mexResponse = {
+					...(isRecord(parsed.data) ? { data: parsed.data } : {}),
+					...(Array.isArray(parsed.errors) ? { errors: parsed.errors } : {})
+				}
 			} catch (error) {
 				if (logger) logger.error({ err: error, opName }, 'failed to parse mex notification JSON')
 				return
@@ -373,7 +381,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			return
 		}
 
-		let data: any
+		let data: Record<string, unknown>
 		try {
 			const payloadContent = payloadNode.content
 			if (Array.isArray(payloadContent)) {
@@ -382,37 +390,60 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			}
 
 			const contentBuf =
-				typeof payloadContent === 'string' ? Buffer.from(payloadContent, 'binary') : Buffer.from(payloadContent)
-			data = JSON.parse(contentBuf.toString())
+				typeof payloadContent === 'string'
+					? Buffer.from(payloadContent, 'binary')
+					: Buffer.from(payloadContent.buffer, payloadContent.byteOffset, payloadContent.byteLength)
+			const parsed: unknown = JSON.parse(contentBuf.toString())
+			if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+				if (logger) logger.warn({ payloadNode }, 'invalid mex newsletter notification content')
+				return
+			}
+			data = parsed as Record<string, unknown>
 		} catch (error) {
 			if (logger)
 				logger.error({ err: error, node: binaryNodeToString(node) }, 'failed to parse mex newsletter notification')
 			return
 		}
 
-		const operation = data?.operation ?? payloadNode?.attrs?.op_name
-		let updates = data?.updates
+		const operationValue = data.operation ?? payloadNode.attrs.op_name
+		const operation = typeof operationValue === 'string' ? operationValue : undefined
+		let updates: unknown = data.updates
 		if (!updates) {
-			const linkedProfiles = data?.data?.xwa2_notify_linked_profiles
+			const nestedData = data.data
+			const linkedProfiles =
+				typeof nestedData === 'object' && nestedData !== null && !Array.isArray(nestedData)
+					? (nestedData as Record<string, unknown>).xwa2_notify_linked_profiles
+					: undefined
 			if (linkedProfiles) {
 				updates = [linkedProfiles]
 			}
 		}
 
-		if (!updates || !operation) {
+		if (!Array.isArray(updates) || !operation) {
 			if (logger) logger.warn({ data }, 'invalid mex newsletter notification content')
 			return
 		}
+		const validUpdates = updates.filter(
+			(update): update is Record<string, unknown> => typeof update === 'object' && update !== null && !Array.isArray(update)
+		)
 
 		if (logger) logger.info({ operation, updates }, 'got mex newsletter notification')
 
 		switch (operation) {
 			case 'NotificationNewsletterUpdate':
-				for (const update of updates) {
-					if (update.jid && update.settings && Object.keys(update.settings).length > 0) {
+				for (const update of validUpdates) {
+					const jid = update.jid
+					const settings = update.settings
+					if (typeof jid === 'string' && typeof settings === 'object' && settings !== null && !Array.isArray(settings)) {
+						const settingsRecord = settings as Record<string, unknown>
+						const updateSettings = {
+							...(typeof settingsRecord.name === 'string' ? { name: settingsRecord.name } : {}),
+							...(typeof settingsRecord.description === 'string' ? { description: settingsRecord.description } : {})
+						}
+						if (Object.keys(updateSettings).length === 0) continue
 						ev.emit('newsletter-settings.update', {
-							id: update.jid,
-							update: update.settings
+							id: jid,
+							update: updateSettings
 						})
 					}
 				}
@@ -420,8 +451,8 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				break
 
 			case 'NotificationNewsletterAdminPromote':
-				for (const update of updates) {
-					if (update.jid && update.user) {
+				for (const update of validUpdates) {
+					if (typeof update.jid === 'string' && typeof update.user === 'string') {
 						ev.emit('newsletter-participants.update', {
 							id: update.jid,
 							author: node.attrs.from!,
@@ -435,12 +466,15 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				break
 
 			case 'NotificationLinkedProfilesUpdates':
-				for (const update of updates) {
-					const lid = update?.jid
-					const addedProfiles = Array.isArray(update?.added_profiles) ? update.added_profiles : []
+				for (const update of validUpdates) {
+					const lid = typeof update.jid === 'string' ? update.jid : undefined
+					const addedProfiles = Array.isArray(update.added_profiles) ? update.added_profiles : []
 					const mappings = []
 					for (const profile of addedProfiles) {
-						const pn = typeof profile === 'string' ? profile : (profile?.pn ?? profile?.jid ?? null)
+						const profileRecord = typeof profile === 'object' && profile !== null ? profile as Record<string, unknown> : undefined
+						const pn = typeof profile === 'string' ? profile :
+							typeof profileRecord?.pn === 'string' ? profileRecord.pn :
+								typeof profileRecord?.jid === 'string' ? profileRecord.jid : undefined
 						if (lid && pn) {
 							const mapping = { lid, pn }
 							ev.emit('lid-mapping.update', mapping)
@@ -507,7 +541,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				case 'update': {
 					const settingsNode = getBinaryNodeChild(child, 'settings')
 					if (settingsNode) {
-						const update: Record<string, any> = {}
+						const update: { name?: string; description?: string } = {}
 						const nameNode = getBinaryNodeChild(settingsNode, 'name')
 						if (nameNode?.content) update.name = nameNode.content.toString()
 
@@ -530,7 +564,11 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 							const contentBuf =
 								typeof plaintextNode.content === 'string'
 									? Buffer.from(plaintextNode.content, 'binary')
-									: Buffer.from(plaintextNode.content as Uint8Array)
+								: Buffer.from(
+										(plaintextNode.content as Uint8Array).buffer,
+										(plaintextNode.content as Uint8Array).byteOffset,
+										(plaintextNode.content as Uint8Array).byteLength
+									)
 							const messageProto = proto.Message.decode(contentBuf).toJSON()
 							const fullMessage = proto.WebMessageInfo.fromObject({
 								key: {
@@ -1235,8 +1273,8 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			const jids = await readTcTokenIndex(authState.keys)
 			for (const jid of jids) tcTokenKnownJids.add(jid)
 			if (logger) logger.debug({ count: tcTokenKnownJids.size }, 'loaded tctoken index')
-		} catch (err: any) {
-			if (logger) logger.warn({ err: err?.message }, 'failed to load tctoken index')
+		} catch (err) {
+			if (logger) logger.warn({ err: err instanceof Error ? err.message : String(err) }, 'failed to load tctoken index')
 		}
 	})()
 
@@ -1911,8 +1949,8 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 								onNewJidStored: trackTcTokenJid
 							})
 							if (logger) logger.debug({ from: ackFrom }, 'completed 463 token recovery issuance')
-						} catch (err: any) {
-							if (logger) logger.debug({ from: ackFrom, err: err?.message }, 'failed 463 token recovery issuance')
+						} catch (err) {
+							if (logger) logger.debug({ from: ackFrom, err: err instanceof Error ? err.message : String(err) }, 'failed 463 token recovery issuance')
 						} finally {
 							inFlight463Recoveries.delete(ackFrom)
 						}
@@ -2133,8 +2171,8 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			for (const jid of survivors) tcTokenKnownJids.add(jid)
 
 			if (logger) logger.debug({ mutated, remaining: survivors.size }, 'pruned expired tctokens')
-		} catch (err: any) {
-			if (logger) logger.warn({ err: err?.message }, 'failed to prune expired tctokens')
+		} catch (err) {
+			if (logger) logger.warn({ err: err instanceof Error ? err.message : String(err) }, 'failed to prune expired tctokens')
 		}
 	}
 

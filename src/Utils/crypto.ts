@@ -127,7 +127,7 @@ export function md5(buffer: Buffer) {
 
 // HKDF key expansion
 export function hkdf(buffer: Uint8Array | Buffer, expandedLength: number, info: { salt?: Buffer; info?: string }) {
-	return HKDF(!Buffer.isBuffer(buffer) ? Buffer.from(buffer) : buffer, expandedLength, info)
+	return HKDF(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength), expandedLength, info)
 }
 
 export function derivePairingCodeKey(pairingCode: string, salt: Buffer) {

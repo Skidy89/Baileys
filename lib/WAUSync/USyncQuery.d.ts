@@ -1,9 +1,14 @@
-import type { USyncQueryProtocol } from '../Types/USync.js';
-import { type BinaryNode } from '../WABinary/index.js';
-import { USyncUser } from './USyncUser.js';
+import type { USyncQueryProtocol } from '../Types/USync';
+import { type BinaryNode } from '../WABinary';
+import { USyncUser } from './USyncUser';
 export type USyncQueryResultList = {
     [protocol: string]: unknown;
     id: string;
+    privacy?: {
+        token?: string;
+        modeTs?: number;
+    };
+    isBlockedByContact?: boolean;
 };
 export type USyncQueryResult = {
     list: USyncQueryResultList[];

@@ -1,10 +1,13 @@
 // Type-only import so we don't pull better-sqlite3 into the bundle
 // unconditionally. The runtime `import('better-sqlite3')` below remains lazy.
 import type BetterSqlite3Module from 'better-sqlite3'
+import { Worker } from 'node:worker_threads'
+import { resolve } from 'node:path'
 import { proto } from '../../WAProto/index.js'
 import type { AuthenticationCreds, AuthenticationState, SignalDataSet, SignalDataTypeMap } from '../Types'
 import { initAuthCreds } from './auth-utils'
-import { packr } from './index.js'
+import { packr } from './auth-state-serialization'
+import type { StoredRow, WorkerCommand, WorkerResponse } from './sqlite-auth-worker'
 /** A live `better-sqlite3` database handle (the instance type, not the constructor). */
 type Database = BetterSqlite3Module.Database
 /** The constructor exposed by `better-sqlite3`'s `export =` default. */
@@ -18,15 +21,13 @@ type DatabaseConstructor = typeof BetterSqlite3Module
  */
 async function loadBetterSqlite3(): Promise<DatabaseConstructor> {
 	try {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const mod = (await import('better-sqlite3')) as any
+		const mod = await import('better-sqlite3')
 		return mod.default ?? mod
 	} catch (err) {
 		const helpful = new Error(
 			'`better-sqlite3` is required for `useSqliteAuthState`. Install it as a peer dependency: `npm install better-sqlite3`.'
 		)
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		;(helpful as any).cause = err
+		Object.defineProperty(helpful, 'cause', { value: err })
 		throw helpful
 	}
 }
@@ -171,14 +172,14 @@ export async function useSqliteAuthState(opts: SqliteAuthStateOptions): Promise<
 						for (const id of ids) {
 							const row = stmts.keySelect.get(type, id) as { value: Uint8Array } | undefined
 							if (!row) continue
-							let value: any
+							let value: unknown
 							try {
 								value = packr.unpack(row.value)
 							} catch (e) {
 								console.error(`Failed to unpack value for type ${type} and id ${id}:`, e)
 								continue
 							}
-							if (type === 'app-state-sync-key' && value) {
+							if (type === 'app-state-sync-key' && typeof value === 'object' && value !== null) {
 								value = proto.Message.AppStateSyncKeyData.fromObject(value)
 							}
 
@@ -197,14 +198,14 @@ export async function useSqliteAuthState(opts: SqliteAuthStateOptions): Promise<
 						type: T
 					): AsyncIterable<readonly [string, SignalDataTypeMap[T]]> {
 						for (const row of stmts.keyList.iterate(type) as Iterable<{ id: string; value: Uint8Array }>) {
-							let value: any
+							let value: unknown
 							try {
 								value = packr.unpack(row.value)
 							} catch (e) {
 								console.error(`Failed to unpack value for type ${type} and id ${row.id}:`, e)
 								continue
 							}
-							if (type === 'app-state-sync-key' && value) {
+							if (type === 'app-state-sync-key' && typeof value === 'object' && value !== null) {
 								value = proto.Message.AppStateSyncKeyData.fromObject(value)
 							}
 
@@ -240,5 +241,191 @@ export async function useSqliteAuthState(opts: SqliteAuthStateOptions): Promise<
 		}
 
 		throw err
+	}
+}
+
+type PendingWorkerRequest = {
+	resolve: (result: unknown) => void
+	reject: (error: Error) => void
+}
+
+class SqliteAuthWorkerClient {
+	private readonly worker: Worker
+	private readonly pending = new Map<number, PendingWorkerRequest>()
+	private nextRequestId = 0
+	private isClosing = false
+
+	constructor(dbPath: string) {
+		this.worker = new Worker(new URL('./sqlite-auth-worker.js', import.meta.url), { workerData: { dbPath } })
+		this.worker.on('message', (response: WorkerResponse) => {
+			const pending = this.pending.get(response.id)
+			if (!pending) return
+			this.pending.delete(response.id)
+			if (response.error) pending.reject(new Error(response.error))
+			else pending.resolve(response.result)
+		})
+		this.worker.on('error', error => this.rejectPending(error))
+		this.worker.on('exit', code => {
+			if (!this.isClosing && code !== 0) {
+				this.rejectPending(new Error(`SQLite auth worker exited with code ${code}`))
+			}
+		})
+	}
+
+	request<T>(command: WorkerCommand): Promise<T> {
+		return new Promise((resolveRequest, rejectRequest) => {
+			const id = ++this.nextRequestId
+			this.pending.set(id, {
+				resolve: result => resolveRequest(result as T),
+				reject: rejectRequest
+			})
+			try {
+				this.worker.postMessage({ ...command, id })
+			} catch (error) {
+				this.pending.delete(id)
+				rejectRequest(error instanceof Error ? error : new Error(String(error)))
+			}
+		})
+	}
+
+	async close(): Promise<void> {
+		this.isClosing = true
+		try {
+			await this.request<void>({ op: 'close' })
+		} finally {
+			await this.worker.terminate()
+		}
+	}
+
+	private rejectPending(error: Error) {
+		for (const pending of this.pending.values()) pending.reject(error)
+		this.pending.clear()
+	}
+}
+
+type SharedSqliteAuthWorker = {
+	client: SqliteAuthWorkerClient
+	state: AuthenticationState
+	references: number
+}
+
+const sharedSqliteWorkers = new Map<string, Promise<SharedSqliteAuthWorker>>()
+
+async function createSqliteAuthWorker(dbPath: string): Promise<SharedSqliteAuthWorker> {
+	const client = new SqliteAuthWorkerClient(dbPath)
+	try {
+		const serializedCreds = await client.request<Uint8Array>({ op: 'initialize', initialCreds: packr.pack(initAuthCreds()) })
+		const creds = packr.unpack(serializedCreds) as AuthenticationCreds
+		const keys = createWorkerSignalKeyStore(client)
+		return { client, state: { creds, keys }, references: 0 }
+	} catch (error) {
+		await client.close().catch(() => undefined)
+		throw error
+	}
+}
+
+async function acquireSqliteAuthWorker(dbPath: string): Promise<{ shared: SharedSqliteAuthWorker; release: () => void }> {
+	const key = dbPath === ':memory:' ? dbPath : resolve(dbPath)
+	let pending = sharedSqliteWorkers.get(key)
+	if (!pending) {
+		pending = createSqliteAuthWorker(dbPath)
+		sharedSqliteWorkers.set(key, pending)
+	}
+
+	let shared: SharedSqliteAuthWorker
+	try {
+		shared = await pending
+	} catch (error) {
+		if (sharedSqliteWorkers.get(key) === pending) sharedSqliteWorkers.delete(key)
+		throw error
+	}
+
+	shared.references++
+	let released = false
+	return {
+		shared,
+		release: () => {
+			if (released) return
+			released = true
+			shared.references--
+			if (shared.references === 0 && sharedSqliteWorkers.get(key) === pending) {
+				sharedSqliteWorkers.delete(key)
+				void shared.client.close()
+			}
+		}
+	}
+}
+
+function createWorkerSignalKeyStore(client: SqliteAuthWorkerClient): AuthenticationState['keys'] {
+	return {
+		get: async <T extends keyof SignalDataTypeMap>(type: T, ids: string[]) => {
+			const rows = await client.request<StoredRow[]>({ op: 'get', type, ids })
+			const values: Record<string, SignalDataTypeMap[T]> = {}
+			for (const row of rows) {
+				let value: unknown = packr.unpack(row.value)
+				if (type === 'app-state-sync-key' && typeof value === 'object' && value !== null) {
+					value = proto.Message.AppStateSyncKeyData.fromObject(value)
+				}
+				values[row.id] = value as SignalDataTypeMap[T]
+			}
+			return values
+		},
+		set: async (data: SignalDataSet) => {
+			await client.request<void>({ op: 'set', data })
+		},
+		clear: async () => {
+			await client.request<void>({ op: 'clear' })
+		},
+		list: async function* <T extends keyof SignalDataTypeMap>(
+			type: T
+		): AsyncIterable<readonly [string, SignalDataTypeMap[T]]> {
+			let after: string | null = null
+			while (true) {
+				const rows: StoredRow[] = await client.request<StoredRow[]>({ op: 'list', type, after, includeValues: true })
+				if (rows.length === 0) return
+				for (const row of rows) {
+					let value: unknown = packr.unpack(row.value)
+					if (type === 'app-state-sync-key' && typeof value === 'object' && value !== null) {
+						value = proto.Message.AppStateSyncKeyData.fromObject(value)
+					}
+					yield [row.id, value as SignalDataTypeMap[T]] as const
+				}
+				after = rows.at(-1)!.id
+			}
+		},
+		listIds: async function* (type) {
+			let after: string | null = null
+			while (true) {
+				const ids: string[] = await client.request<string[]>({ op: 'list', type, after, includeValues: false })
+				if (ids.length === 0) return
+				for (const id of ids) yield id
+				after = ids.at(-1)!
+			}
+		}
+	}
+}
+
+/**
+ * SQLite auth storage whose database work runs on a shared worker thread.
+ * Multiple callers using the same resolved path share one worker, one key
+ * store, and one credentials object. The worker serializes SQLite operations
+ * while keeping synchronous disk access off the application event loop.
+ *
+ * Use this for several sockets in one process. Each socket should receive the
+ * same returned `state` so its in-memory credentials and transaction locks are
+ * shared as well.
+ */
+export async function useSqliteAuthStateInWorker(opts: Pick<SqliteAuthStateOptions, 'dbPath'>): Promise<{
+	state: AuthenticationState
+	saveCreds: () => Promise<void>
+	close: () => void
+}> {
+	const { shared, release } = await acquireSqliteAuthWorker(opts.dbPath)
+	return {
+		state: shared.state,
+		saveCreds: async () => {
+			await shared.client.request<void>({ op: 'save-creds', value: packr.pack(shared.state.creds) })
+		},
+		close: release
 	}
 }

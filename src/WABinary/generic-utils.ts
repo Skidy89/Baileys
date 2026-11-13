@@ -50,7 +50,7 @@ export const getBinaryNodeChildBuffer = (node: BinaryNode | undefined, childTag:
 export const getBinaryNodeChildString = (node: BinaryNode | undefined, childTag: string) => {
 	const child = getBinaryNodeChild(node, childTag)?.content
 	if (Buffer.isBuffer(child) || child instanceof Uint8Array) {
-		return Buffer.from(child).toString('utf-8')
+		return Buffer.from(child.buffer, child.byteOffset, child.byteLength).toString('utf-8')
 	} else if (typeof child === 'string') {
 		return child
 	}
@@ -121,7 +121,7 @@ export function binaryNodeToString(node: BinaryNode | BinaryNode['content'], i =
 	}
 
 	if (node instanceof Uint8Array) {
-		return tabs(i) + Buffer.from(node).toString('hex')
+		return tabs(i) + Buffer.from(node.buffer, node.byteOffset, node.byteLength).toString('hex')
 	}
 
 	if (Array.isArray(node)) {

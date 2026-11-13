@@ -16,7 +16,7 @@ import {
 	isPnUser
 	//	transferDevice
 } from '../WABinary'
-import { unpadRandomMax16 } from './generics'
+import { toError, unpadRandomMax16 } from './generics'
 import type { ILogger } from './logger'
 
 export const getDecryptionJid = async (sender: string, repository: SignalRepositoryWithLIDStore): Promise<string> => {
@@ -356,7 +356,7 @@ export const decryptMessageNode = (
 						} else {
 							fullMessage.message = msg
 						}
-					} catch (err: any) {
+					} catch (err) {
 						const errorContext = {
 							key: fullMessage.key,
 							err,
@@ -369,7 +369,7 @@ export const decryptMessageNode = (
 						if (logger) logger.error(errorContext, 'failed to decrypt message')
 
 						fullMessage.messageStubType = proto.WebMessageInfo.StubType.CIPHERTEXT
-						fullMessage.messageStubParameters = [err.message.toString()]
+						fullMessage.messageStubParameters = [toError(err).message]
 					}
 				}
 			}
@@ -386,7 +386,7 @@ export const decryptMessageNode = (
 /**
  * Utility function to check if an error is related to missing session record
  */
-function isSessionRecordError(error: any): boolean {
-	const errorMessage = error?.message || error?.toString() || ''
+function isSessionRecordError(error: unknown): boolean {
+	const errorMessage = error instanceof Error ? error.message : String(error)
 	return DECRYPTION_RETRY_CONFIG.sessionRecordErrors.some(errorPattern => errorMessage.includes(errorPattern))
 }

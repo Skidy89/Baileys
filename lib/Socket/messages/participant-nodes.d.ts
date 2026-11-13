@@ -1,9 +1,9 @@
 import { proto } from '../../../WAProto/index.js';
-import type { AuthenticationState, SocketConfig } from '../../Types/index.js';
-import { type BinaryNode } from '../../WABinary/index.js';
-import type { ILogger } from '../../Utils/logger.js';
-import { makeKeyedMutex } from '../../Utils/make-mutex.js';
-import type { SignalRepository } from '../../Types/Signal.js';
+import type { AuthenticationState, SocketConfig } from '../../Types';
+import { type BinaryNode } from '../../WABinary';
+import type { ILogger } from '../../Utils/logger';
+import { makeKeyedMutex } from '../../Utils/make-mutex';
+import type { SignalRepository } from '../../Types/Signal';
 type Dependencies = {
     patchMessageBeforeSending: SocketConfig['patchMessageBeforeSending'];
     authState: AuthenticationState;

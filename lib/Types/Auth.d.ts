@@ -1,6 +1,6 @@
 import type { proto } from '../../WAProto/index.js';
-import type { Contact } from './Contact.js';
-import type { MinimalMessage } from './Message.js';
+import type { Contact } from './Contact';
+import type { MinimalMessage } from './Message';
 export type KeyPair = {
     public: Buffer;
     private: Buffer;
@@ -63,7 +63,7 @@ export type AuthenticationCreds = SignalCreds & {
     pairingCode: string | undefined;
     lastPropHash: string | undefined;
     routingInfo: Buffer | undefined;
-    additionalData?: any | undefined;
+    additionalData?: Record<string, unknown> | undefined;
 };
 export type SignalDataTypeMap = {
     'pre-key': KeyPair;

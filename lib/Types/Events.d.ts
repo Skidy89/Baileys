@@ -1,14 +1,14 @@
 import type { Boom } from '@hapi/boom';
 import { proto } from '../../WAProto/index.js';
-import type { AuthenticationCreds, LIDMapping } from './Auth.js';
-import type { WACallEvent } from './Call.js';
-import type { Chat, ChatUpdate, PresenceData } from './Chat.js';
-import type { Contact } from './Contact.js';
-import type { GroupMetadata, GroupParticipant, ParticipantAction, RequestJoinAction, RequestJoinMethod } from './GroupMetadata.js';
-import type { Label } from './Label.js';
-import type { LabelAssociation } from './LabelAssociation.js';
-import type { MessageUpsertType, MessageUserReceiptUpdate, WAMessage, WAMessageKey, WAMessageUpdate } from './Message.js';
-import type { ConnectionState, NewChatMessageCapInfo } from './State.js';
+import type { AuthenticationCreds, LIDMapping } from './Auth';
+import type { WACallEvent } from './Call';
+import type { Chat, ChatUpdate, PresenceData } from './Chat';
+import type { Contact } from './Contact';
+import type { GroupMetadata, GroupParticipant, ParticipantAction, RequestJoinAction, RequestJoinMethod } from './GroupMetadata';
+import type { Label } from './Label';
+import type { LabelAssociation } from './LabelAssociation';
+import type { MessageUpsertType, MessageUserReceiptUpdate, WAMessage, WAMessageKey, WAMessageUpdate } from './Message';
+import type { ConnectionState, NewChatMessageCapInfo } from './State';
 export type BaileysEventMap = {
     /** connection state has been updated -- WS closed, opened, connecting etc. */
     'connection.update': Partial<ConnectionState>;
@@ -152,7 +152,10 @@ export type BaileysEventMap = {
     };
     'newsletter-settings.update': {
         id: string;
-        update: any;
+        update: {
+            name?: string;
+            description?: string;
+        };
     };
     'message-capping.update': NewChatMessageCapInfo;
     /** Settings and actions sync events */

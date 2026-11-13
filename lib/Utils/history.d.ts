@@ -1,5 +1,5 @@
 import { proto } from '../../WAProto/index.js';
-import type { Chat, Contact, LIDMapping, WAMessage } from '../Types/index.js';
+import type { Chat, Contact, LIDMapping, WAMessage } from '../Types';
 import type { ILogger } from './logger.js';
 export declare const downloadHistory: (msg: proto.Message.IHistorySyncNotification, options: RequestInit) => Promise<proto.HistorySync & proto.HistorySync.$Shape>;
 export declare const processHistoryMessage: (item: proto.IHistorySync, logger?: ILogger) => {

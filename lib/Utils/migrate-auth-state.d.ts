@@ -1,5 +1,5 @@
-import type { AuthenticationState, SignalDataTypeMap } from '../Types/index.js';
-import type { ILogger } from './logger.js';
+import type { AuthenticationState, SignalDataTypeMap } from '../Types';
+import type { ILogger } from './logger';
 /**
  * Result of a {@link migrateAuthState} run.
  *

@@ -1,6 +1,6 @@
 declare global {
 	interface RequestInit {
-		dispatcher?: any
+		dispatcher?: import('https').Agent
 		duplex?: 'half' | 'full'
 	}
 }

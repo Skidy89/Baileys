@@ -60,6 +60,15 @@ const LEGACY_NAMESPACE = '__legacy__'
 const lockKeyForRef = (namespace: string, id: string): string => `${namespace} ${id}`
 const lockKeyForRecord = (r: RecordRef): string => lockKeyForRef(r.type, r.id)
 
+function ensureSignalDataBucket<T extends keyof SignalDataTypeMap>(data: SignalDataSet, type: T) {
+	const bucket = data[type]
+	if (bucket) return bucket
+
+	const created: NonNullable<SignalDataSet[T]> = {}
+	Object.assign(data, { [type]: created })
+	return created
+}
+
 /**
  * Adds caching capability to a SignalKeyStore.
  *
@@ -94,9 +103,12 @@ export function makeCacheableSignalKeyStore(
 		return `${type}.${id}`
 	}
 
+	const getCachedValue = async <T extends keyof SignalDataTypeMap>(type: T, id: string) =>
+		(await cache.get(getUniqueId(type, id))) as SignalDataTypeMap[T] | null | undefined
+
 	return {
-		async get(type, ids) {
-			const data: { [_: string]: SignalDataTypeMap[typeof type] } = {}
+		async get<T extends keyof SignalDataTypeMap>(type: T, ids: string[]) {
+			const data: { [_: string]: SignalDataTypeMap[T] } = {}
 			const idsToFetch: string[] = []
 
 			// Per-record locking for the read path. The lock scope is just the
@@ -104,7 +116,7 @@ export function makeCacheableSignalKeyStore(
 			await Promise.all(
 				ids.map(id =>
 					cacheLocks.withLock({ namespace: type, id }, async () => {
-						const item = (await cache.get<SignalDataTypeMap[typeof type]>(getUniqueId(type, id))) as any
+							const item = await getCachedValue(type, id)
 						// `null` is the SignalDataSet delete sentinel. A cached
 						// `null` (from a previous `set({ type: { id: null } })`)
 						// must be treated as a miss for the read API, which
@@ -134,7 +146,7 @@ export function makeCacheableSignalKeyStore(
 							// `store.get()`. Without this we'd overwrite the
 							// fresh write with the older fetched value and
 							// return stale data.
-							const current = (await cache.get<SignalDataTypeMap[typeof type]>(getUniqueId(type, id))) as any
+							const current = await getCachedValue(type, id)
 							if (typeof current !== 'undefined') {
 								if (current !== null) data[id] = current
 								return
@@ -278,7 +290,7 @@ export const addTransactionCapability = (
 	}
 
 	return {
-		get: async (type, ids) => {
+		get: async <T extends keyof SignalDataTypeMap>(type: T, ids: string[]) => {
 			const ctx = getContext()
 
 			if (!ctx) {
@@ -299,12 +311,12 @@ export const addTransactionCapability = (
 				const fetched = await locks.withLock({ namespace: '__type__', id: type }, () => state.get(type, missing))
 
 				// Update cache
-				ctx.cache[type] = ctx.cache[type] || ({} as any)
+				ensureSignalDataBucket(ctx.cache, type)
 				Object.assign(ctx.cache[type]!, fetched)
 			}
 
 			// Return requested ids from cache
-			const result: { [key: string]: any } = {}
+			const result: { [key: string]: SignalDataTypeMap[T] } = {}
 			for (const id of ids) {
 				const value = ctx.cache[type]?.[id]
 				if (value !== undefined && value !== null) {
@@ -390,8 +402,8 @@ export const addTransactionCapability = (
 				const key = key_ as keyof SignalDataTypeMap
 
 				// Ensure structures exist
-				ctx.cache[key] = ctx.cache[key] || ({} as any)
-				ctx.mutations[key] = ctx.mutations[key] || ({} as any)
+				ensureSignalDataBucket(ctx.cache, key)
+				ensureSignalDataBucket(ctx.mutations, key)
 
 				// Special handling for pre-keys
 				if (key === 'pre-key') {

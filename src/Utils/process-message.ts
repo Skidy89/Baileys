@@ -57,6 +57,40 @@ const REAL_MSG_STUB_TYPES = new Set([
 
 const REAL_MSG_REQ_ME_STUB_TYPES = new Set([WAMessageStubType.GROUP_PARTICIPANT_ADD])
 
+const parseGroupParticipant = (raw: string): GroupParticipant | undefined => {
+	let parsed: unknown
+	try {
+		parsed = JSON.parse(raw)
+	} catch {
+		return
+	}
+	if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return
+	const participant = parsed as Record<string, unknown>
+	if (typeof participant.id !== 'string') return
+	return {
+		id: participant.id,
+		...(typeof participant.phoneNumber === 'string' ? { phoneNumber: participant.phoneNumber } : {}),
+		...(typeof participant.lid === 'string' ? { lid: participant.lid } : {}),
+		...(typeof participant.name === 'string' ? { name: participant.name } : {}),
+		...(typeof participant.notify === 'string' ? { notify: participant.notify } : {}),
+		...(typeof participant.username === 'string' ? { username: participant.username } : {}),
+		...(typeof participant.verifiedName === 'string' ? { verifiedName: participant.verifiedName } : {}),
+		...(typeof participant.imgUrl === 'string' || participant.imgUrl === null ? { imgUrl: participant.imgUrl } : {}),
+		...(typeof participant.status === 'string' ? { status: participant.status } : {}),
+		...(typeof participant.isAdmin === 'boolean' ? { isAdmin: participant.isAdmin } : {}),
+		...(typeof participant.isSuperAdmin === 'boolean' ? { isSuperAdmin: participant.isSuperAdmin } : {}),
+		...(participant.admin === 'admin' || participant.admin === 'superadmin' || participant.admin === null
+			? { admin: participant.admin }
+			: {})
+	}
+}
+
+const parseGroupParticipants = (parameters: string[] | undefined): GroupParticipant[] =>
+	(parameters ?? []).flatMap(parameter => {
+		const participant = parseGroupParticipant(parameter)
+		return participant ? [participant] : []
+	})
+
 async function storeTcTokensFromHistorySync(
 	chats: Chat[],
 	signalRepository: SignalRepositoryWithLIDStore,
@@ -649,12 +683,12 @@ const processMessage = async (
 
 		switch (message.messageStubType) {
 			case WAMessageStubType.GROUP_PARTICIPANT_CHANGE_NUMBER:
-				participants = message.messageStubParameters.map((a: any) => JSON.parse(a as string)) || []
+				participants = (message.messageStubParameters ?? []).map(id => ({ id }))
 				emitParticipantsUpdate('modify')
 				break
 			case WAMessageStubType.GROUP_PARTICIPANT_LEAVE:
 			case WAMessageStubType.GROUP_PARTICIPANT_REMOVE:
-				participants = message.messageStubParameters.map((a: any) => JSON.parse(a as string)) || []
+				participants = parseGroupParticipants(message.messageStubParameters)
 				emitParticipantsUpdate('remove')
 				// mark the chat read only if you left the group
 				if (participantsIncludesMe()) {
@@ -665,7 +699,7 @@ const processMessage = async (
 			case WAMessageStubType.GROUP_PARTICIPANT_ADD:
 			case WAMessageStubType.GROUP_PARTICIPANT_INVITE:
 			case WAMessageStubType.GROUP_PARTICIPANT_ADD_REQUEST_JOIN:
-				participants = message.messageStubParameters.map((a: any) => JSON.parse(a as string)) || []
+				participants = parseGroupParticipants(message.messageStubParameters)
 				if (participantsIncludesMe()) {
 					chat.readOnly = false
 				}
@@ -673,11 +707,11 @@ const processMessage = async (
 				emitParticipantsUpdate('add')
 				break
 			case WAMessageStubType.GROUP_PARTICIPANT_DEMOTE:
-				participants = message.messageStubParameters.map((a: any) => JSON.parse(a as string)) || []
+				participants = parseGroupParticipants(message.messageStubParameters)
 				emitParticipantsUpdate('demote')
 				break
 			case WAMessageStubType.GROUP_PARTICIPANT_PROMOTE:
-				participants = message.messageStubParameters.map((a: any) => JSON.parse(a as string)) || []
+				participants = parseGroupParticipants(message.messageStubParameters)
 				emitParticipantsUpdate('promote')
 				break
 			case WAMessageStubType.GROUP_CHANGE_ANNOUNCE:
@@ -711,7 +745,20 @@ const processMessage = async (
 				emitGroupUpdate({ joinApprovalMode: approvalMode === 'on' })
 				break
 			case WAMessageStubType.GROUP_MEMBERSHIP_JOIN_APPROVAL_REQUEST_NON_ADMIN_ADD: // TODO: Add other events
-				const participant = JSON.parse(message.messageStubParameters?.[0]) as LIDMapping
+				const participantValue = message.messageStubParameters?.[0]
+				if (!participantValue) break
+				let parsedParticipant: unknown
+				try {
+					parsedParticipant = JSON.parse(participantValue)
+				} catch {
+					break
+				}
+				if (
+					typeof parsedParticipant !== 'object' || parsedParticipant === null || Array.isArray(parsedParticipant) ||
+					!('lid' in parsedParticipant) || !('pn' in parsedParticipant) ||
+					typeof parsedParticipant.lid !== 'string' || typeof parsedParticipant.pn !== 'string'
+				) break
+				const participant: LIDMapping = { lid: parsedParticipant.lid, pn: parsedParticipant.pn }
 				const action = message.messageStubParameters?.[1] as RequestJoinAction
 				const method = message.messageStubParameters?.[2] as RequestJoinMethod
 				emitGroupRequestJoin(participant, action, method)

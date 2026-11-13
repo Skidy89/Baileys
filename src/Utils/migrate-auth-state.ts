@@ -110,15 +110,14 @@ export async function migrateAuthState({
 	 * cast because `SignalDataSet` is a mapped type whose distributive
 	 * index TypeScript can't tie back to the caller's `T`. The runtime
 	 * shape is unambiguous and the cast is contained to this single
-	 * helper instead of the previous \`as any\` at every call site.
+	 * helper instead of an unchecked cast at every call site.
 	 */
 	function buildSetPayload<T extends keyof SignalDataTypeMap>(
 		type: T,
 		batch: { [id: string]: SignalDataTypeMap[T] | null }
 	): SignalDataSet {
 		const payload: SignalDataSet = {}
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		;(payload as any)[type] = batch
+		Object.assign(payload, { [type]: batch })
 		return payload
 	}
 

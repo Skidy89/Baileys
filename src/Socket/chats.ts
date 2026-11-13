@@ -310,7 +310,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
 		})
 	}
 	const executeUSyncQuery = async (usyncQuery: USyncQuery) => {
-		const result = (await sock.executeUSyncQuery(usyncQuery)) as { list: any[]; sideList: any[] } | undefined
+		const result = await sock.executeUSyncQuery(usyncQuery)
 		if (!result) return result
 
 		// B. Auto-persist privacy tokens found in any usync response.
@@ -611,16 +611,17 @@ export const makeChatsSocket = (config: SocketConfig) => {
 								// collection is done with sync
 								collectionsToHandle.delete(name)
 							}
-						} catch (error: any) {
+						} catch (error) {
+			const err = error instanceof Error ? error : new Error(String(error))
 							attemptsMap[name] = (attemptsMap[name] || 0) + 1
 
 							const logData = {
 								name,
 								attempt: attemptsMap[name],
 								version: states[name].version,
-								statusCode: error.output?.statusCode,
-								errorType: error.name,
-								error: error.stack
+				statusCode: error instanceof Boom ? error.output.statusCode : undefined,
+				errorType: err.name,
+				error: err.stack
 							}
 
 							if (isMissingKeyError(error) && attemptsMap[name] >= MAX_SYNC_ATTEMPTS) {

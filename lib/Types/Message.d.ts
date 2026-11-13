@@ -1,14 +1,14 @@
 import type { Readable } from 'stream';
 import type { URL } from 'url';
 import { proto } from '../../WAProto/index.js';
-import type { MediaType } from '../Defaults/index.js';
-import type { BinaryNode } from '../WABinary/index.js';
-import type { GroupMetadata } from './GroupMetadata.js';
-import type { CacheStore } from './Socket.js';
+import type { MediaType } from '../Defaults';
+import type { BinaryNode } from '../WABinary';
+import type { GroupMetadata } from './GroupMetadata';
+import type { CacheStore } from './Socket';
 export { proto as WAProto };
 export type WAMessage = proto.IWebMessageInfo & {
     key: WAMessageKey;
-    messageStubParameters?: any;
+    messageStubParameters?: string[];
     category?: string;
     retryCount?: number;
 };
@@ -30,7 +30,7 @@ export type WALocationMessage = proto.Message.ILocationMessage;
 export type WAGenericMediaMessage = proto.Message.IVideoMessage | proto.Message.IImageMessage | proto.Message.IAudioMessage | proto.Message.IDocumentMessage | proto.Message.IStickerMessage;
 export declare const WAMessageStubType: typeof proto.WebMessageInfo.StubType;
 export declare const WAMessageStatus: typeof proto.WebMessageInfo.Status;
-import type { ILogger } from '../Utils/logger.js';
+import type { ILogger } from '../Utils/logger';
 export type WAMediaPayloadURL = {
     url: URL | string;
 };

@@ -3,7 +3,7 @@ import { createHash, randomBytes } from 'crypto'
 import type Long from 'long'
 import { proto } from '../../WAProto/index.js'
 const baileysVersion = [2, 3000, 1035194821]
-import { Packr } from 'msgpackr'
+import { packr } from './auth-state-serialization'
 import type {
 	BaileysEventEmitter,
 	BaileysEventMap,
@@ -15,7 +15,7 @@ import type {
 import { DisconnectReason } from '../Types'
 import { type BinaryNode, getAllBinaryNodeChildren, jidDecode } from '../WABinary'
 import { sha256 } from './crypto'
-export const packr = new Packr()
+export { packr }
 
 export const getKeyAuthor = (key: WAMessageKey | undefined | null, meId = 'me') =>
 	(key?.fromMe ? meId : key?.participantAlt || key?.remoteJidAlt || key?.participant || key?.remoteJid) || ''
@@ -23,6 +23,12 @@ export const getKeyAuthor = (key: WAMessageKey | undefined | null, meId = 'me') 
 export const isStringNullOrEmpty = (value: string | null | undefined): value is null | undefined | '' =>
 	// eslint-disable-next-line eqeqeq
 	value == null || value === ''
+
+export const toError = (error: unknown): Error => (error instanceof Error ? error : new Error(String(error)))
+
+/** Creates a Buffer view over bytes that are only read, without copying them. */
+export const toBufferView = (bytes: Uint8Array): Buffer =>
+	Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength)
 
 export const writeRandomPadMax16 = (msg: Uint8Array) => {
 	const pad = randomBytes(1)
@@ -32,7 +38,7 @@ export const writeRandomPadMax16 = (msg: Uint8Array) => {
 }
 
 export const unpadRandomMax16 = (e: Uint8Array | Buffer) => {
-	const t = new Uint8Array(e)
+	const t = e
 	if (0 === t.length) {
 		throw new Error('unpadPkcs7 given empty bytes')
 	}
@@ -100,7 +106,7 @@ export const delay = (ms: number) => delayCancellable(ms).delay
 export const delayCancellable = (ms: number) => {
 	const stack = new Error().stack
 	let timeout: NodeJS.Timeout
-	let reject: (error: any) => void
+	let reject: (error: unknown) => void
 	const delay: Promise<void> = new Promise((resolve, _reject) => {
 		timeout = setTimeout(resolve, ms)
 		reject = _reject
@@ -122,7 +128,7 @@ export const delayCancellable = (ms: number) => {
 
 export async function promiseTimeout<T>(
 	ms: number | undefined,
-	promise: (resolve: (v: T) => void, reject: (error: any) => void) => void
+	promise: (resolve: (v: T) => void, reject: (error: unknown) => void) => void
 ) {
 	if (!ms) {
 		return new Promise(promise)
@@ -397,8 +403,7 @@ export const getCodeFromWSError = (error: Error) => {
 			statusCode = code
 		}
 	} else if (
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(error as any)?.code?.startsWith('E') ||
+		(error as Error & { code?: string })?.code?.startsWith('E') ||
 		error?.message?.includes('timed out')
 	) {
 		// handle ETIMEOUT, ENOTFOUND etc
@@ -416,11 +421,10 @@ export const isWABusinessPlatform = (platform: string) => {
 	return platform === 'smbi' || platform === 'smba'
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function trimUndefined(obj: { [_: string]: any }) {
+export function trimUndefined<T extends object>(obj: T): T {
 	for (const key in obj) {
-		if (typeof obj[key] === 'undefined') {
-			delete obj[key]
+		if (typeof (obj as Record<string, unknown>)[key] === 'undefined') {
+			delete (obj as Record<string, unknown>)[key]
 		}
 	}
 

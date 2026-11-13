@@ -1,7 +1,7 @@
 import { proto } from '../../WAProto/index.js';
-import type { BaileysEventEmitter, ChatModification, ChatMutation, Contact, InitialAppStateSyncOptions, LTHashState, WAPatchCreate, WAPatchName } from '../Types/index.js';
-import { type BinaryNode } from '../WABinary/index.js';
-import type { ILogger } from './logger.js';
+import type { BaileysEventEmitter, ChatModification, ChatMutation, Contact, InitialAppStateSyncOptions, LTHashState, WAPatchCreate, WAPatchName } from '../Types';
+import { type BinaryNode } from '../WABinary';
+import type { ILogger } from './logger';
 type FetchAppStateSyncKey = (keyId: string) => Promise<proto.Message.IAppStateSyncKeyData | null | undefined>;
 export type ChatMutationMap = {
     [index: string]: ChatMutation;
@@ -30,13 +30,13 @@ export declare const MAX_SYNC_ATTEMPTS = 2;
  * WA Web treats these as "Blocked" (waits for key arrival), not fatal.
  * In Baileys we retry with a snapshot which may use a different key.
  */
-export declare const isMissingKeyError: (error: any) => boolean;
+export declare const isMissingKeyError: (error: unknown) => boolean;
 /**
  * Determines if an app state sync error is unrecoverable.
  * TypeError indicates a WASM crash; otherwise we give up after MAX_SYNC_ATTEMPTS.
  * Missing keys are NOT checked here — they are handled separately as "Blocked".
  */
-export declare const isAppStateSyncIrrecoverable: (error: any, attempts: number) => boolean;
+export declare const isAppStateSyncIrrecoverable: (error: unknown, attempts: number) => boolean;
 export declare const encodeSyncdPatch: ({ type, index, syncAction, apiVersion, operation }: WAPatchCreate, myAppStateKeyId: string, state: LTHashState, getAppStateSyncKey: FetchAppStateSyncKey) => Promise<{
     patch: proto.ISyncdPatch;
     state: LTHashState;

@@ -21,7 +21,7 @@ import {
 } from '../Types/LabelAssociation'
 import { type BinaryNode, getBinaryNodeChild, getBinaryNodeChildren, isJidGroup, jidNormalizedUser } from '../WABinary'
 import { aesDecrypt, aesEncrypt, hmacSign } from './crypto'
-import { toNumber } from './generics'
+import { toBufferView, toNumber } from './generics'
 import type { ILogger } from './logger'
 import { LT_HASH_ANTI_TAMPERING } from './lt-hash'
 import { downloadContentFromMessage } from './messages-media'
@@ -81,7 +81,7 @@ export const makeLtHashGenerator = ({ indexValueMap, hash }: Pick<LTHashState, '
 
 	return {
 		mix: ({ indexMac, valueMac, operation }: Mac) => {
-			const indexMacBase64 = Buffer.from(indexMac).toString('base64')
+			const indexMacBase64 = toBufferView(indexMac).toString('base64')
 			const prevOp = indexValueMap[indexMacBase64]
 			if (operation === proto.SyncdMutation.SyncdOperation.REMOVE) {
 				if (!prevOp) {
@@ -147,8 +147,9 @@ export const MAX_SYNC_ATTEMPTS = 2
  * WA Web treats these as "Blocked" (waits for key arrival), not fatal.
  * In Baileys we retry with a snapshot which may use a different key.
  */
-export const isMissingKeyError = (error: any): boolean => {
-	return error?.data?.isMissingKey === true
+export const isMissingKeyError = (error: unknown): boolean => {
+	return typeof error === 'object' && error !== null && 'data' in error &&
+		typeof error.data === 'object' && error.data !== null && 'isMissingKey' in error.data && error.data.isMissingKey === true
 }
 
 /**
@@ -156,8 +157,8 @@ export const isMissingKeyError = (error: any): boolean => {
  * TypeError indicates a WASM crash; otherwise we give up after MAX_SYNC_ATTEMPTS.
  * Missing keys are NOT checked here — they are handled separately as "Blocked".
  */
-export const isAppStateSyncIrrecoverable = (error: any, attempts: number): boolean => {
-	return attempts >= MAX_SYNC_ATTEMPTS || error?.name === 'TypeError'
+export const isAppStateSyncIrrecoverable = (error: unknown, attempts: number): boolean => {
+	return attempts >= MAX_SYNC_ATTEMPTS || (error instanceof Error && error.name === 'TypeError')
 }
 
 export const encodeSyncdPatch = async (
@@ -285,7 +286,11 @@ export const decodeSyncdMutations = async (
 		}
 
 		const indexStr = Buffer.from(syncAction.index!).toString()
-		onMutation({ syncAction, index: JSON.parse(indexStr) })
+		const parsedIndex: unknown = JSON.parse(indexStr)
+		if (!Array.isArray(parsedIndex) || !parsedIndex.every(value => typeof value === 'string')) {
+			throw new Boom('Invalid app state mutation index', { statusCode: 502 })
+		}
+		onMutation({ syncAction, index: parsedIndex })
 
 		ltGenerator.mix({
 			indexMac: record.index!.blob!,
@@ -297,7 +302,7 @@ export const decodeSyncdMutations = async (
 	return ltGenerator.finish()
 
 	async function getKey(keyId: Uint8Array) {
-		const base64Key = Buffer.from(keyId).toString('base64')
+		const base64Key = toBufferView(keyId).toString('base64')
 
 		const cached = derivedKeyCache.get(base64Key)
 		if (cached) {
@@ -326,7 +331,7 @@ export const decodeSyncdPatch = async (
 	validateMacs: boolean
 ) => {
 	if (validateMacs) {
-		const base64Key = Buffer.from(msg.keyId!.id!).toString('base64')
+		const base64Key = toBufferView(msg.keyId!.id!).toString('base64')
 		const mainKeyObj = await getAppStateSyncKey(base64Key)
 		if (!mainKeyObj) {
 			throw new Boom(`failed to find key "${base64Key}" to decode patch`, { data: { isMissingKey: true, msg } })
@@ -449,7 +454,7 @@ export const decodeSyncdSnapshot = async (
 	newState.indexValueMap = indexValueMap
 
 	if (validateMacs) {
-		const base64Key = Buffer.from(snapshot.keyId!.id!).toString('base64')
+		const base64Key = toBufferView(snapshot.keyId!.id!).toString('base64')
 		const keyEnc = await getAppStateSyncKey(base64Key)
 		if (!keyEnc) {
 			throw new Boom(`failed to find key "${base64Key}" to decode mutation`, { data: { isMissingKey: true } })
@@ -532,7 +537,7 @@ export const decodePatches = async (
 		newState.indexValueMap = decodeResult.indexValueMap
 
 		if (validateMacs) {
-			const base64Key = Buffer.from(keyId!.id!).toString('base64')
+			const base64Key = toBufferView(keyId!.id!).toString('base64')
 			const keyEnc = await getAppStateSyncKey(base64Key)
 			if (!keyEnc) {
 				throw new Boom(`failed to find key "${base64Key}" to decode mutation`, { data: { isMissingKey: true } })

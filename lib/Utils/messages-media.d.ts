@@ -3,10 +3,10 @@ import type { Agent } from 'https';
 import { Readable, Transform } from 'stream';
 import { URL } from 'url';
 import { proto } from '../../WAProto/index.js';
-import { type MediaType } from '../Defaults/index.js';
-import type { DownloadableMessage, MediaConnInfo, MediaDecryptionKeyInfo, SocketConfig, WAMediaUpload, WAMediaUploadFunction, WAMessageContent, WAMessageKey } from '../Types/index.js';
-import { type BinaryNode } from '../WABinary/index.js';
-import type { ILogger } from './logger.js';
+import { type MediaType } from '../Defaults';
+import type { DownloadableMessage, MediaConnInfo, MediaDecryptionKeyInfo, SocketConfig, WAMediaUpload, WAMediaUploadFunction, WAMessageContent, WAMessageKey } from '../Types';
+import { type BinaryNode } from '../WABinary';
+import type { ILogger } from './logger';
 export declare const hkdfInfoKey: (type: MediaType) => string;
 export declare const getRawMediaUploadData: (media: WAMediaUpload, mediaType: MediaType, logger?: ILogger) => Promise<{
     filePath: string;
@@ -55,7 +55,9 @@ export declare const getHttpStream: (url: string | URL, options?: RequestInit & 
 type EncryptedStreamOptions = {
     saveOriginalFileIfRequired?: boolean;
     logger?: ILogger;
-    opts?: RequestInit;
+    opts?: RequestInit & {
+        maxContentLength?: number;
+    };
     mediaKey?: Buffer;
 };
 /** generates a thumbnail for a given media, if required */

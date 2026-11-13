@@ -1,4 +1,4 @@
-import type { WAMediaUpload } from './Message.js';
+import type { WAMediaUpload } from './Message';
 export type CatalogResult = {
     data: {
         paging: {
@@ -7,7 +7,7 @@ export type CatalogResult = {
                 after: string;
             };
         };
-        data: any[];
+        data: Product[];
     };
 };
 export type ProductCreateResult = {

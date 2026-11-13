@@ -28,7 +28,8 @@ import {
 	getWAUploadToServer,
 	MessageRetryManager,
 	normalizeMessageContent,
-	unixTimestampSeconds
+	unixTimestampSeconds,
+	toError
 } from '../Utils'
 
 import { makeKeyedMutex, makeMutex } from '../Utils/make-mutex'
@@ -580,8 +581,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						;(stanza.content as BinaryNode[]).push(reportingNode)
 						if (logger) logger.trace({ jid }, 'added reporting token to message')
 					}
-				} catch (error: any) {
-					if (logger) logger.warn({ jid, trace: error?.stack }, 'failed to attach reporting token')
+				} catch (error) {
+					if (logger) logger.warn({ jid, trace: toError(error).stack }, 'failed to attach reporting token')
 				}
 			}
 
@@ -607,9 +608,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						: null
 				try {
 					await authState.keys.set({ tctoken: { [tcTokenJid]: cleared } })
-				} catch (err: any) {
+				} catch (err) {
 					if (logger)
-						logger.debug({ jid: destinationJid, err: err?.message }, 'failed to persist tctoken expiry cleanup')
+						logger.debug({ jid: destinationJid, err: toError(err).message }, 'failed to persist tctoken expiry cleanup')
 				}
 			}
 
@@ -715,6 +716,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		const result = await executeUSyncQuery(usyncQuery)
 		if (!result?.list?.length) return null
 		const entry = result.list[0]
+		if (!entry) return null
 		return {
 			jid: entry.id,
 			contact: entry.contact ?? false
@@ -770,8 +772,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 								content.directPath = media.directPath
 								content.url = getUrlFromDirectPath(content.directPath!, mediaConnection.getMediaHost())
 								if (logger) logger.debug({ directPath: media.directPath, key: result.key }, 'media update successful')
-							} catch (err: any) {
-								error = err
+							} catch (err) {
+								error = toError(err)
 							}
 						}
 

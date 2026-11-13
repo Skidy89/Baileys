@@ -1,5 +1,5 @@
-import type { AuthenticationCreds, CacheStore, SignalKeyStore, SignalKeyStoreWithRecordTransaction, TransactionCapabilityOptions } from '../Types/index.js';
-import type { ILogger } from './logger.js';
+import type { AuthenticationCreds, CacheStore, SignalKeyStore, SignalKeyStoreWithRecordTransaction, TransactionCapabilityOptions } from '../Types';
+import type { ILogger } from './logger';
 /**
  * Adds caching capability to a SignalKeyStore.
  *

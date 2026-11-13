@@ -27,7 +27,7 @@ import type {
 } from '../Types'
 import { type BinaryNode, getBinaryNodeChild, getBinaryNodeChildBuffer, jidNormalizedUser } from '../WABinary'
 import { aesDecryptGCM, aesEncryptGCM, hkdf } from './crypto'
-import { generateMessageID } from './generics'
+import { generateMessageID, toBufferView, toError } from './generics'
 import type { ILogger } from './logger'
 import { exec } from 'node:child_process'
 
@@ -148,7 +148,7 @@ export const generateProfilePicture = async (
 /** gets the SHA256 of the given media message */
 export const mediaMessageSHA256B64 = (message: WAMessageContent) => {
 	const media = Object.values(message)[0] as WAGenericMediaMessage
-	return media?.fileSha256 && Buffer.from(media.fileSha256).toString('base64')
+	return media?.fileSha256 && toBufferView(media.fileSha256).toString('base64')
 }
 
 export async function getAudioDuration(buffer: Buffer | string | Readable) {
@@ -219,13 +219,15 @@ export const getHttpStream = async (url: string | URL, options: RequestInit & { 
 	}
 
 	// @ts-ignore Node18+ Readable.fromWeb exists
-	return response.body instanceof Readable ? response.body : Readable.fromWeb(response.body as any)
+	return response.body instanceof Readable
+		? response.body
+		: Readable.fromWeb(response.body as unknown as import('stream/web').ReadableStream)
 }
 
 type EncryptedStreamOptions = {
 	saveOriginalFileIfRequired?: boolean
 	logger?: ILogger
-	opts?: RequestInit
+	opts?: RequestInit & { maxContentLength?: number }
 	mediaKey?: Buffer
 }
 
@@ -336,7 +338,7 @@ export const encryptedStream = async (
 	let chunkCount = 0
 	let lastLoggedBytes = 0
 
-	const maxContentLength = (opts as any)?.maxContentLength
+	const maxContentLength = opts?.maxContentLength
 
 	const aes = Crypto.createCipheriv('aes-256-cbc', cipherKey, iv)
 
@@ -347,7 +349,7 @@ export const encryptedStream = async (
 
 	const encryptTransform = new Transform({
 		transform(chunk, _encoding, callback) {
-			const data = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+			const data = Buffer.isBuffer(chunk) ? chunk : toBufferView(chunk)
 
 			chunkCount++
 
@@ -650,16 +652,16 @@ export const downloadEncryptedContent = async (
 			try {
 				pushBytes(aes.update(data), b => this.push(b))
 				callback()
-			} catch (error: any) {
-				callback(error)
+			} catch (error) {
+				callback(toError(error))
 			}
 		},
 		final(callback) {
 			try {
 				pushBytes(aes.final(), b => this.push(b))
 				callback()
-			} catch (error: any) {
-				callback(error)
+			} catch (error) {
+				callback(toError(error))
 			}
 		}
 	})
@@ -685,7 +687,7 @@ const isNodeRuntime = (): boolean => {
 		typeof process !== 'undefined' &&
 		process.versions?.node !== null &&
 		typeof process.versions.bun === 'undefined' &&
-		typeof (globalThis as any).Deno === 'undefined'
+		typeof (globalThis as typeof globalThis & { Deno?: unknown }).Deno === 'undefined'
 	)
 }
 
@@ -758,7 +760,19 @@ export const uploadWithNodeHttp = async (
 				res.on('data', chunk => (body += chunk))
 				res.on('end', () => {
 					try {
-						resolve(JSON.parse(body))
+						const parsed: unknown = JSON.parse(body)
+						if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+							resolve(undefined)
+							return
+						}
+					const result = parsed as Record<string, unknown>
+					resolve({
+						...(typeof result.url === 'string' ? { url: result.url } : {}),
+						...(typeof result.direct_path === 'string' ? { direct_path: result.direct_path } : {}),
+						...(typeof result.meta_hmac === 'string' ? { meta_hmac: result.meta_hmac } : {}),
+						...(typeof result.ts === 'number' ? { ts: result.ts } : {}),
+						...(typeof result.fbid === 'number' ? { fbid: result.fbid } : {})
+					})
 					} catch {
 						resolve(undefined)
 					}
@@ -895,11 +909,11 @@ export const getWAUploadToServer = (
 					uploadInfo = await refreshMediaConn(true)
 					throw new Error(`upload failed, reason: ${JSON.stringify(result)}`)
 				}
-			} catch (error: any) {
+			} catch (error) {
 				const isLast = hostname === hosts[uploadInfo.hosts.length - 1]?.hostname
 				if (logger)
 					logger.warn(
-						{ trace: error?.stack, uploadResult: result },
+						{ trace: toError(error).stack, uploadResult: result },
 						`Error in uploading to ${hostname} ${isLast ? '' : ', retrying...'}`
 					)
 			}

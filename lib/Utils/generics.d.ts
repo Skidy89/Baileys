@@ -1,13 +1,16 @@
 import type Long from 'long';
 import { proto } from '../../WAProto/index.js';
-import { Packr } from 'msgpackr';
-import type { BaileysEventEmitter, BaileysEventMap, ConnectionState, WACallUpdateType, WAMessageKey, WAVersion } from '../Types/index.js';
-import { type BinaryNode } from '../WABinary/index.js';
-export declare const packr: Packr;
+import { packr } from './auth-state-serialization';
+import type { BaileysEventEmitter, BaileysEventMap, ConnectionState, WACallUpdateType, WAMessageKey, WAVersion } from '../Types';
+import { type BinaryNode } from '../WABinary';
+export { packr };
 export declare const getKeyAuthor: (key: WAMessageKey | undefined | null, meId?: string) => string;
 export declare const isStringNullOrEmpty: (value: string | null | undefined) => value is null | undefined | "";
+export declare const toError: (error: unknown) => Error;
+/** Creates a Buffer view over bytes that are only read, without copying them. */
+export declare const toBufferView: (bytes: Uint8Array) => Buffer;
 export declare const writeRandomPadMax16: (msg: Uint8Array) => Buffer<ArrayBuffer>;
-export declare const unpadRandomMax16: (e: Uint8Array | Buffer) => Uint8Array<ArrayBuffer>;
+export declare const unpadRandomMax16: (e: Uint8Array | Buffer) => Uint8Array<ArrayBufferLike>;
 export declare const generateParticipantHashV2: (participants: string[]) => string;
 export declare const encodeWAMessage: (message: proto.IMessage) => Buffer<ArrayBuffer>;
 export declare const generateRegistrationId: () => number;
@@ -27,7 +30,7 @@ export declare const delayCancellable: (ms: number) => {
     delay: Promise<void>;
     cancel: () => void;
 };
-export declare function promiseTimeout<T>(ms: number | undefined, promise: (resolve: (v: T) => void, reject: (error: any) => void) => void): Promise<T>;
+export declare function promiseTimeout<T>(ms: number | undefined, promise: (resolve: (v: T) => void, reject: (error: unknown) => void) => void): Promise<T>;
 export declare const generateMessageIDV2: (userId?: string) => string;
 export declare const generateMessageID: () => string;
 export declare function bindWaitForEvent<T extends keyof BaileysEventMap>(ev: BaileysEventEmitter, event: T): (check: (u: BaileysEventMap[T]) => Promise<boolean | undefined>, timeoutMs?: number) => Promise<void>;
@@ -80,11 +83,7 @@ export declare const getCodeFromWSError: (error: Error) => number;
  * @param platform AuthenticationCreds.platform
  */
 export declare const isWABusinessPlatform: (platform: string) => platform is "smba" | "smbi";
-export declare function trimUndefined(obj: {
-    [_: string]: any;
-}): {
-    [_: string]: any;
-};
+export declare function trimUndefined<T extends object>(obj: T): T;
 export declare function bytesToCrockford(buffer: Buffer): string;
 export declare function encodeNewsletterMessage(message: proto.IMessage): Uint8Array;
 //# sourceMappingURL=generics.d.ts.map

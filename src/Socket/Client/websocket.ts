@@ -33,11 +33,14 @@ export class WebSocketClient extends AbstractSocketClient {
 
 		this.socket.setMaxListeners(0)
 
-		const events = ['close', 'error', 'upgrade', 'message', 'open', 'ping', 'pong', 'unexpected-response']
-
-		for (const event of events) {
-			this.socket?.on(event, (...args: any[]) => this.emit(event, ...args))
-		}
+		this.socket.on('close', (...args) => this.emit('close', ...args))
+		this.socket.on('error', (...args) => this.emit('error', ...args))
+		this.socket.on('upgrade', (...args) => this.emit('upgrade', ...args))
+		this.socket.on('message', (...args) => this.emit('message', ...args))
+		this.socket.on('open', (...args) => this.emit('open', ...args))
+		this.socket.on('ping', (...args) => this.emit('ping', ...args))
+		this.socket.on('pong', (...args) => this.emit('pong', ...args))
+		this.socket.on('unexpected-response', (...args) => this.emit('unexpected-response', ...args))
 	}
 
 	async close() {

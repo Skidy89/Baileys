@@ -35,7 +35,8 @@ import {
 	makeNoiseHandler,
 	promiseTimeout,
 	signedKeyPair,
-	xmppSignedPreKey
+	xmppSignedPreKey,
+	toError
 } from '../Utils'
 import {
 	assertNodeErrorFree,
@@ -178,18 +179,30 @@ export const makeSocket = (config: SocketConfig) => {
 		const result = await wMexQuery(variables, queryId, query, generateMessageTag)
 		const child = getBinaryNodeChild(result, 'result')
 		if (child?.content) {
-			const data = JSON.parse(child.content.toString())
+			const parsed: unknown = JSON.parse(child.content.toString())
+			if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+				const responseData = parsed as Record<string, unknown>
+				const errors = Array.isArray(responseData.errors) ? responseData.errors : []
+				const firstError = errors[0]
+				if (firstError && typeof firstError === 'object' && !Array.isArray(firstError)) {
+					const gqlError = firstError as Record<string, unknown>
+					const message = typeof gqlError.message === 'string' ? gqlError.message : 'Unknown error'
+					const extensions = gqlError.extensions
+					const rawCode =
+						typeof extensions === 'object' && extensions !== null && 'error_code' in extensions
+							? extensions.error_code
+							: undefined
+					const parsedCode = typeof rawCode === 'number' ? rawCode : typeof rawCode === 'string' ? Number(rawCode) : 400
+					const errorCode = Number.isInteger(parsedCode) && parsedCode >= 400 ? parsedCode : 400
+					throw new Boom(`GraphQL server error: ${message}`, { statusCode: errorCode, data: gqlError })
+				}
 
-			if (data.errors && data.errors.length > 0) {
-				const errorMessages = data.errors.map((err: Error) => err.message || 'Unknown error').join(', ')
-				const firstError = data.errors[0]
-				const errorCode = firstError.extensions?.error_code || 400
-				throw new Boom(`GraphQL server error: ${errorMessages}`, { statusCode: errorCode, data: firstError })
-			}
-
-			const response = dataPath ? data?.data?.[dataPath] : data?.data
-			if (typeof response !== 'undefined') {
-				return response as T
+				const responseRoot = responseData.data
+				const response =
+					dataPath && typeof responseRoot === 'object' && responseRoot !== null && !Array.isArray(responseRoot)
+						? (responseRoot as Record<string, unknown>)[dataPath]
+						: responseRoot
+				if (typeof response !== 'undefined') return response as T
 			}
 		}
 
@@ -219,9 +232,7 @@ export const makeSocket = (config: SocketConfig) => {
 		let onErr: ((err: Error) => void) | undefined
 		try {
 			const result = await promiseTimeout<T>(timeoutMs, (resolve, reject) => {
-				onRecv = data => {
-					resolve(data)
-				}
+				onRecv = data => resolve(data)
 
 				onErr = err => {
 					reject(
@@ -239,14 +250,6 @@ export const makeSocket = (config: SocketConfig) => {
 				return () => reject(new Boom('Query Cancelled'))
 			})
 			return result
-		} catch (error) {
-			// Catch timeout and return undefined instead of throwing
-			if (error instanceof Boom && error.output?.statusCode === DisconnectReason.timedOut) {
-				logger?.warn?.({ msgId }, 'timed out waiting for message')
-				return undefined
-			}
-
-			throw error
 		} finally {
 			if (onRecv) ws.off(`TAG:${msgId}`, onRecv)
 			if (onErr) {
@@ -264,11 +267,9 @@ export const makeSocket = (config: SocketConfig) => {
 
 		const msgId = node.attrs.id
 
-		const result = await promiseTimeout<any>(timeoutMs, async (resolve, reject) => {
-			const result = waitForMessage(msgId, timeoutMs).catch(reject)
-			sendNode(node)
-				.then(async () => resolve(await result))
-				.catch(reject)
+		const result = await promiseTimeout<BinaryNode>(timeoutMs, async (resolve, reject) => {
+			void waitForMessage<BinaryNode>(msgId, timeoutMs).then(resolve, reject)
+			void sendNode(node).catch(reject)
 		})
 
 		if (result && 'tag' in result) {
@@ -715,7 +716,7 @@ export const makeSocket = (config: SocketConfig) => {
 		for (const handler of socketEndHandlers) {
 			try {
 				await handler(error)
-			} catch (err) {
+						} catch (err) {
 				if (logger) logger.error({ err }, 'error in socket end handler')
 			}
 		}
@@ -891,9 +892,9 @@ export const makeSocket = (config: SocketConfig) => {
 	ws.on('open', async () => {
 		try {
 			await validateConnection()
-		} catch (err: any) {
+		} catch (err) {
 			if (logger) logger.error({ err }, 'error in validating connection')
-			void end(err)
+			void end(toError(err))
 		}
 	})
 	ws.on('error', mapWebSocketError(end))
@@ -926,8 +927,16 @@ export const makeSocket = (config: SocketConfig) => {
 
 		const pairDeviceNode = getBinaryNodeChild(stanza, 'pair-device')
 		const refNodes = getBinaryNodeChildren(pairDeviceNode, 'ref')
-		const noiseKeyB64 = Buffer.from(creds.noiseKey.public).toString('base64')
-		const identityKeyB64 = Buffer.from(creds.signedIdentityKey.public).toString('base64')
+		const noiseKeyB64 = Buffer.from(
+			creds.noiseKey.public.buffer,
+			creds.noiseKey.public.byteOffset,
+			creds.noiseKey.public.byteLength
+		).toString('base64')
+		const identityKeyB64 = Buffer.from(
+			creds.signedIdentityKey.public.buffer,
+			creds.signedIdentityKey.public.byteOffset,
+			creds.signedIdentityKey.public.byteLength
+		).toString('base64')
 		const advB64 = creds.advSecretKey
 
 		let qrMs = qrTimeout || 60_000 // time to let a QR live
@@ -973,9 +982,9 @@ export const makeSocket = (config: SocketConfig) => {
 
 			await sendNode(reply)
 			void sendUnifiedSession()
-		} catch (error: any) {
-			if (logger) logger.info({ trace: error.stack }, 'error in pairing')
-			void end(error)
+		} catch (error) {
+			if (logger) logger.info({ trace: toError(error).stack }, 'error in pairing')
+			void end(toError(error))
 		}
 	})
 	// login complete

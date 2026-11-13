@@ -1,5 +1,5 @@
 import { proto } from '../../WAProto/index.js';
-import type { LIDMappingStore } from '../Signal/lid-mapping.js';
+import type { LIDMappingStore } from '../Signal/lid-mapping';
 type DecryptGroupSignalOpts = {
     group: string;
     authorJid: string;

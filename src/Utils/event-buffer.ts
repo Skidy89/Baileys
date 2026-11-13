@@ -33,6 +33,7 @@ const BUFFERABLE_EVENT = [
 ] as const
 
 type BufferableEvent = (typeof BUFFERABLE_EVENT)[number]
+type BufferableEventEntry = { [E in BufferableEvent]: [event: E, eventData: BaileysEventMap[E]] }[BufferableEvent]
 
 /**
  * A map that contains a list of all events that have been triggered
@@ -53,8 +54,7 @@ type BaileysBufferableEventEmitter = BaileysEventEmitter & {
 	 * */
 	buffer(): void
 	/** buffers all events till the promise completes */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	createBufferedFunction<A extends any[], T>(work: (...args: A) => Promise<T>): (...args: A) => Promise<T>
+	createBufferedFunction<A extends unknown[], T>(work: (...args: A) => Promise<T>): (...args: A) => Promise<T>
 	/**
 	 * flushes all buffered events
 	 * @returns returns true if the flush actually happened, otherwise false
@@ -198,7 +198,7 @@ export const makeEventBuffer = (logger: ILogger | undefined): BaileysBufferableE
 			}
 
 			if (isBuffering && BUFFERABLE_EVENT_SET.has(event)) {
-				append(data, historyCache, event as BufferableEvent, evData, logger)
+				append(data, historyCache, [event as BufferableEvent, evData] as BufferableEventEntry, logger)
 				return true
 			}
 
@@ -288,14 +288,13 @@ const makeBufferData = (): BufferedEventData => {
 	}
 }
 
-function append<E extends BufferableEvent>(
+function append(
 	data: BufferedEventData,
 	historyCache: Set<string>,
-	event: E,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	eventData: any,
+	entry: BufferableEventEntry,
 	logger: ILogger | undefined
 ) {
+	const [event, eventData] = entry
 	switch (event) {
 		case 'messaging-history.set':
 			for (const chat of eventData.chats as Chat[]) {
@@ -337,7 +336,7 @@ function append<E extends BufferableEvent>(
 			}
 
 			data.historySets.empty = false
-			data.historySets.syncType = eventData.syncType
+			data.historySets.syncType = eventData.syncType ?? undefined
 			if (eventData.pastParticipants?.length) {
 				const merged = new Map<string, proto.IPastParticipants>()
 				const sigOf = (p: proto.IPastParticipant) => `${p.userJid || ''}:${p.leaveTs || ''}:${p.leaveReason || ''}`
@@ -367,7 +366,7 @@ function append<E extends BufferableEvent>(
 
 			data.historySets.progress = eventData.progress
 			data.historySets.chunkOrder = eventData.chunkOrder
-			data.historySets.peerDataRequestSessionId = eventData.peerDataRequestSessionId
+			data.historySets.peerDataRequestSessionId = eventData.peerDataRequestSessionId ?? undefined
 			data.historySets.isLatest = eventData.isLatest || data.historySets.isLatest
 
 			break

@@ -11,7 +11,12 @@ import {
 } from './Protocols'
 import { USyncUser } from './USyncUser'
 
-export type USyncQueryResultList = { [protocol: string]: unknown; id: string }
+export type USyncQueryResultList = {
+	[protocol: string]: unknown
+	id: string
+	privacy?: { token?: string; modeTs?: number }
+	isBlockedByContact?: boolean
+}
 
 export type USyncQueryResult = {
 	list: USyncQueryResultList[]

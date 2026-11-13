@@ -10,7 +10,7 @@ import {
 	isPnUser,
 	jidNormalizedUser
 } from '../WABinary'
-import { packr } from './generics'
+import { packr } from './auth-state-serialization'
 
 // Same phone-number pattern as WABinary's isJidBot, applied against the user
 // part so the check is invariant to @c.us ↔ @s.whatsapp.net normalization.

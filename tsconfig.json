@@ -25,6 +25,7 @@
     "noImplicitThis": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
+    "noImplicitAny": true,
 
     // Interop
     "esModuleInterop": true,
