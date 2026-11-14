@@ -824,7 +824,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			}
 
 			const countChild = getBinaryNodeChild(node, 'count')
-			const count = +countChild!.attrs.value!
+			const count = +countChild!.attrs.value! || 0
 			const shouldUploadMorePreKeys = count < MIN_PREKEY_COUNT
 
 			if (logger) logger.debug({ count, shouldUploadMorePreKeys }, 'recv pre-key count')

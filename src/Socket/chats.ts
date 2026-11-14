@@ -1136,6 +1136,9 @@ export const makeChatsSocket = (config: SocketConfig) => {
 			case 'groups':
 				// handled in groups.ts
 				break
+			case "newsletter_metadata":
+				// todo!
+				break
 			default:
 				if (logger) logger.info({ node }, 'received unknown sync')
 				break

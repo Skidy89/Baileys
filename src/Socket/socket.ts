@@ -544,7 +544,7 @@ export const makeSocket = (config: SocketConfig) => {
 			content: [{ tag: 'count', attrs: {} }]
 		})
 		const countChild = getBinaryNodeChild(result, 'count')!
-		return +countChild.attrs.value!
+		return +countChild.attrs?.value! || 0
 	}
 
 	// WAWeb has no time throttle here; the server drives uploads via PreKeyLow notifications.
