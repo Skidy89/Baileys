@@ -612,16 +612,16 @@ export const makeChatsSocket = (config: SocketConfig) => {
 								collectionsToHandle.delete(name)
 							}
 						} catch (error) {
-			const err = error instanceof Error ? error : new Error(String(error))
+							const err = error instanceof Error ? error : new Error(String(error))
 							attemptsMap[name] = (attemptsMap[name] || 0) + 1
 
 							const logData = {
 								name,
 								attempt: attemptsMap[name],
 								version: states[name].version,
-				statusCode: error instanceof Boom ? error.output.statusCode : undefined,
-				errorType: err.name,
-				error: err.stack
+								statusCode: error instanceof Boom ? error.output.statusCode : undefined,
+								errorType: err.name,
+								error: err.stack
 							}
 
 							if (isMissingKeyError(error) && attemptsMap[name] >= MAX_SYNC_ATTEMPTS) {
@@ -1136,7 +1136,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
 			case 'groups':
 				// handled in groups.ts
 				break
-			case "newsletter_metadata":
+			case 'newsletter_metadata':
 				// todo!
 				break
 			default:

@@ -1,9 +1,11 @@
 import type Long from 'long';
 import { proto } from '../../WAProto/index.js';
-import { packr } from './auth-state-serialization.js';
-import type { BaileysEventEmitter, BaileysEventMap, ConnectionState, WACallUpdateType, WAMessageKey, WAVersion } from '../Types/index.js';
-import { type BinaryNode } from '../WABinary/index.js';
+import { packr } from './auth-state-serialization';
+import type { BaileysEventEmitter, BaileysEventMap, ConnectionState, WACallUpdateType, WAMessageKey, WAVersion } from '../Types';
+import { type BinaryNode } from '../WABinary';
 export { packr };
+export declare const isLid: (j?: string) => boolean;
+export declare const isPn: (j?: string) => boolean;
 export declare const getKeyAuthor: (key: WAMessageKey | undefined | null, meId?: string) => string;
 export declare const isStringNullOrEmpty: (value: string | null | undefined) => value is null | undefined | "";
 export declare const toError: (error: unknown) => Error;

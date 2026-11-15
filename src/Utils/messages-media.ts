@@ -765,14 +765,14 @@ export const uploadWithNodeHttp = async (
 							resolve(undefined)
 							return
 						}
-					const result = parsed as Record<string, unknown>
-					resolve({
-						...(typeof result.url === 'string' ? { url: result.url } : {}),
-						...(typeof result.direct_path === 'string' ? { direct_path: result.direct_path } : {}),
-						...(typeof result.meta_hmac === 'string' ? { meta_hmac: result.meta_hmac } : {}),
-						...(typeof result.ts === 'number' ? { ts: result.ts } : {}),
-						...(typeof result.fbid === 'number' ? { fbid: result.fbid } : {})
-					})
+						const result = parsed as Record<string, unknown>
+						resolve({
+							...(typeof result.url === 'string' ? { url: result.url } : {}),
+							...(typeof result.direct_path === 'string' ? { direct_path: result.direct_path } : {}),
+							...(typeof result.meta_hmac === 'string' ? { meta_hmac: result.meta_hmac } : {}),
+							...(typeof result.ts === 'number' ? { ts: result.ts } : {}),
+							...(typeof result.fbid === 'number' ? { fbid: result.fbid } : {})
+						})
 					} catch {
 						resolve(undefined)
 					}

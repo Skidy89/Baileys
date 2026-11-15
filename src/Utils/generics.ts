@@ -17,6 +17,9 @@ import { type BinaryNode, getAllBinaryNodeChildren, jidDecode } from '../WABinar
 import { sha256 } from './crypto'
 export { packr }
 
+export const isLid = (j?: string) => !!j && j.endsWith('@lid')
+export const isPn = (j?: string) => !!j && j.endsWith('@s.whatsapp.net')
+
 export const getKeyAuthor = (key: WAMessageKey | undefined | null, meId = 'me') =>
 	(key?.fromMe ? meId : key?.participantAlt || key?.remoteJidAlt || key?.participant || key?.remoteJid) || ''
 
@@ -27,8 +30,7 @@ export const isStringNullOrEmpty = (value: string | null | undefined): value is 
 export const toError = (error: unknown): Error => (error instanceof Error ? error : new Error(String(error)))
 
 /** Creates a Buffer view over bytes that are only read, without copying them. */
-export const toBufferView = (bytes: Uint8Array): Buffer =>
-	Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+export const toBufferView = (bytes: Uint8Array): Buffer => Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength)
 
 export const writeRandomPadMax16 = (msg: Uint8Array) => {
 	const pad = randomBytes(1)
@@ -402,10 +404,7 @@ export const getCodeFromWSError = (error: Error) => {
 		if (!Number.isNaN(code) && code >= 400) {
 			statusCode = code
 		}
-	} else if (
-		(error as Error & { code?: string })?.code?.startsWith('E') ||
-		error?.message?.includes('timed out')
-	) {
+	} else if ((error as Error & { code?: string })?.code?.startsWith('E') || error?.message?.includes('timed out')) {
 		// handle ETIMEOUT, ENOTFOUND etc
 		statusCode = 408
 	}

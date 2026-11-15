@@ -116,7 +116,7 @@ export function makeCacheableSignalKeyStore(
 			await Promise.all(
 				ids.map(id =>
 					cacheLocks.withLock({ namespace: type, id }, async () => {
-							const item = await getCachedValue(type, id)
+						const item = await getCachedValue(type, id)
 						// `null` is the SignalDataSet delete sentinel. A cached
 						// `null` (from a previous `set({ type: { id: null } })`)
 						// must be treated as a miss for the read API, which

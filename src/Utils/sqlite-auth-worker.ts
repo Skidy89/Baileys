@@ -49,12 +49,8 @@ const statements = {
 		'INSERT INTO signal_keys (type, id, value) VALUES (?, ?, ?) ON CONFLICT(type, id) DO UPDATE SET value = excluded.value'
 	),
 	keyDelete: db.prepare('DELETE FROM signal_keys WHERE type = ? AND id = ?'),
-	keyList: db.prepare(
-		'SELECT id, value FROM signal_keys WHERE type = ? AND (? IS NULL OR id > ?) ORDER BY id LIMIT ?'
-	),
-	keyListIds: db.prepare(
-		'SELECT id FROM signal_keys WHERE type = ? AND (? IS NULL OR id > ?) ORDER BY id LIMIT ?'
-	),
+	keyList: db.prepare('SELECT id, value FROM signal_keys WHERE type = ? AND (? IS NULL OR id > ?) ORDER BY id LIMIT ?'),
+	keyListIds: db.prepare('SELECT id FROM signal_keys WHERE type = ? AND (? IS NULL OR id > ?) ORDER BY id LIMIT ?'),
 	clearKeys: db.prepare('DELETE FROM signal_keys')
 }
 
@@ -115,6 +111,9 @@ port.on('message', (request: WorkerRequest) => {
 	try {
 		port!.postMessage(respond(request))
 	} catch (error) {
-		port!.postMessage({ id: request.id, error: error instanceof Error ? error.message : String(error) } satisfies WorkerResponse)
+		port!.postMessage({
+			id: request.id,
+			error: error instanceof Error ? error.message : String(error)
+		} satisfies WorkerResponse)
 	}
 })

@@ -288,7 +288,10 @@ export const prepareWAMessageMedia = async (
 					uploadData.backgroundArgb = await assertColor(options.backgroundColor!)
 					logger?.debug('computed backgroundColor audio status')
 				} catch (error) {
-					logger?.warn({ trace: error instanceof Error ? error.stack : undefined }, 'background color validation failed')
+					logger?.warn(
+						{ trace: error instanceof Error ? error.stack : undefined },
+						'background color validation failed'
+					)
 				}
 			})()
 		)

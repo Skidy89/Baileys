@@ -1,4 +1,4 @@
-import type { KeyPair } from '../Types/index.js';
+import type { KeyPair } from '../Types';
 export declare const generateSignalPubKey: (pubKey: Uint8Array | Buffer) => Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>;
 export declare const Curve: {
     generateKeyPair: () => KeyPair;

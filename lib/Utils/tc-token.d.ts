@@ -1,5 +1,5 @@
-import type { SignalKeyStoreWithTransaction } from '../Types/index.js';
-import type { BinaryNode } from '../WABinary/index.js';
+import type { SignalKeyStoreWithTransaction } from '../Types';
+import type { BinaryNode } from '../WABinary';
 /** Sentinel key under `tctoken` store holding a JSON array of tracked storage JIDs for cross-session pruning. */
 export declare const TC_TOKEN_INDEX_KEY = "__index";
 /** Read the persisted tctoken JID index and return its entries (never contains the sentinel key itself). */

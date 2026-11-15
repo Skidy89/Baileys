@@ -314,7 +314,10 @@ const sharedSqliteWorkers = new Map<string, Promise<SharedSqliteAuthWorker>>()
 async function createSqliteAuthWorker(dbPath: string): Promise<SharedSqliteAuthWorker> {
 	const client = new SqliteAuthWorkerClient(dbPath)
 	try {
-		const serializedCreds = await client.request<Uint8Array>({ op: 'initialize', initialCreds: packr.pack(initAuthCreds()) })
+		const serializedCreds = await client.request<Uint8Array>({
+			op: 'initialize',
+			initialCreds: packr.pack(initAuthCreds())
+		})
 		const creds = packr.unpack(serializedCreds) as AuthenticationCreds
 		const keys = createWorkerSignalKeyStore(client)
 		return { client, state: { creds, keys }, references: 0 }
@@ -324,7 +327,9 @@ async function createSqliteAuthWorker(dbPath: string): Promise<SharedSqliteAuthW
 	}
 }
 
-async function acquireSqliteAuthWorker(dbPath: string): Promise<{ shared: SharedSqliteAuthWorker; release: () => void }> {
+async function acquireSqliteAuthWorker(
+	dbPath: string
+): Promise<{ shared: SharedSqliteAuthWorker; release: () => void }> {
 	const key = dbPath === ':memory:' ? dbPath : resolve(dbPath)
 	let pending = sharedSqliteWorkers.get(key)
 	if (!pending) {

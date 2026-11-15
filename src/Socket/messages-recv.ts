@@ -424,7 +424,8 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			return
 		}
 		const validUpdates = updates.filter(
-			(update): update is Record<string, unknown> => typeof update === 'object' && update !== null && !Array.isArray(update)
+			(update): update is Record<string, unknown> =>
+				typeof update === 'object' && update !== null && !Array.isArray(update)
 		)
 
 		if (logger) logger.info({ operation, updates }, 'got mex newsletter notification')
@@ -434,7 +435,12 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				for (const update of validUpdates) {
 					const jid = update.jid
 					const settings = update.settings
-					if (typeof jid === 'string' && typeof settings === 'object' && settings !== null && !Array.isArray(settings)) {
+					if (
+						typeof jid === 'string' &&
+						typeof settings === 'object' &&
+						settings !== null &&
+						!Array.isArray(settings)
+					) {
 						const settingsRecord = settings as Record<string, unknown>
 						const updateSettings = {
 							...(typeof settingsRecord.name === 'string' ? { name: settingsRecord.name } : {}),
@@ -471,10 +477,16 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 					const addedProfiles = Array.isArray(update.added_profiles) ? update.added_profiles : []
 					const mappings = []
 					for (const profile of addedProfiles) {
-						const profileRecord = typeof profile === 'object' && profile !== null ? profile as Record<string, unknown> : undefined
-						const pn = typeof profile === 'string' ? profile :
-							typeof profileRecord?.pn === 'string' ? profileRecord.pn :
-								typeof profileRecord?.jid === 'string' ? profileRecord.jid : undefined
+						const profileRecord =
+							typeof profile === 'object' && profile !== null ? (profile as Record<string, unknown>) : undefined
+						const pn =
+							typeof profile === 'string'
+								? profile
+								: typeof profileRecord?.pn === 'string'
+									? profileRecord.pn
+									: typeof profileRecord?.jid === 'string'
+										? profileRecord.jid
+										: undefined
 						if (lid && pn) {
 							const mapping = { lid, pn }
 							ev.emit('lid-mapping.update', mapping)
@@ -564,11 +576,11 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 							const contentBuf =
 								typeof plaintextNode.content === 'string'
 									? Buffer.from(plaintextNode.content, 'binary')
-								: Buffer.from(
-										(plaintextNode.content as Uint8Array).buffer,
-										(plaintextNode.content as Uint8Array).byteOffset,
-										(plaintextNode.content as Uint8Array).byteLength
-									)
+									: Buffer.from(
+											(plaintextNode.content as Uint8Array).buffer,
+											(plaintextNode.content as Uint8Array).byteOffset,
+											(plaintextNode.content as Uint8Array).byteLength
+										)
 							const messageProto = proto.Message.decode(contentBuf).toJSON()
 							const fullMessage = proto.WebMessageInfo.fromObject({
 								key: {
@@ -827,8 +839,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			let count = 0
 			if (!countChild) {
 				count = 0
-			}
-			else {
+			} else {
 				count = +countChild!.attrs?.value! || 0
 			}
 			const shouldUploadMorePreKeys = count < MIN_PREKEY_COUNT
@@ -859,7 +870,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		}
 	}
 
-	const handleGroupNotification = (fullNode: BinaryNode, child: BinaryNode, msg: Partial<WAMessage>) => {
+	const handleGroupNotification = async (fullNode: BinaryNode, child: BinaryNode, msg: Partial<WAMessage>) => {
 		// TODO: Support PN/LID (Here is only LID now)
 
 		const actingParticipantLid = fullNode.attrs.participant
@@ -911,12 +922,10 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			case 'demote':
 			case 'remove':
 			case 'add':
-			case 'leave':
 				const stubType = `GROUP_PARTICIPANT_${child.tag.toUpperCase()}`
 				msg.messageStubType = WAMessageStubType[stubType as keyof typeof WAMessageStubType]
 
 				const participants = getBinaryNodeChildren(child, 'participant').map(({ attrs }) => {
-					// TODO: Store LID MAPPINGS
 					return {
 						id: attrs.jid!,
 						phoneNumber: isLidUser(attrs.jid) && isPnUser(attrs.phone_number) ? attrs.phone_number : undefined,
@@ -926,6 +935,24 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 					}
 				})
 
+				const lidMappings: { lid: string; pn: string }[] = []
+				for (const p of participants) {
+					if (p.phoneNumber) lidMappings.push({ lid: p.id, pn: p.phoneNumber })
+					else if (p.lid) lidMappings.push({ lid: p.lid, pn: p.id })
+				}
+				if (
+					actingParticipantLid &&
+					actingParticipantPn &&
+					isLidUser(actingParticipantLid) &&
+					isPnUser(actingParticipantPn)
+				) {
+					lidMappings.push({ lid: actingParticipantLid, pn: actingParticipantPn })
+				}
+				if (lidMappings.length) {
+					await sock.signalRepository.lidMapping
+						.storeLIDPNMappings(lidMappings)
+						.catch(err => logger?.warn({ err }, 'failed to store LID mappings from group notification'))
+				}
 				if (
 					participants.length === 1 &&
 					// if recv. "remove" message and sender removed themselves
@@ -988,7 +1015,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				break
 			case 'revoked_membership_requests':
 				const isDenied = areJidsSameUser(affectedParticipantLid, actingParticipantLid)
-				// TODO: LIDMAPPING SUPPORT
+				await sock.signalRepository.lidMapping.storeLIDPNMappings([{ lid: affectedParticipantLid, pn: affectedParticipantPn }])
 				msg.messageStubType = WAMessageStubType.GROUP_MEMBERSHIP_JOIN_APPROVAL_REQUEST_NON_ADMIN_ADD
 				msg.messageStubParameters = [
 					JSON.stringify({ lid: affectedParticipantLid, pn: affectedParticipantPn }),
@@ -1108,7 +1135,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				break
 			case 'w:gp2':
 				// TODO: HANDLE PARTICIPANT_PN
-				handleGroupNotification(node, child!, result)
+				await handleGroupNotification(node, child!, result)
 				break
 			case 'mediaretry':
 				const event = decodeMediaRetryNode(node)
@@ -1956,7 +1983,11 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 							})
 							if (logger) logger.debug({ from: ackFrom }, 'completed 463 token recovery issuance')
 						} catch (err) {
-							if (logger) logger.debug({ from: ackFrom, err: err instanceof Error ? err.message : String(err) }, 'failed 463 token recovery issuance')
+							if (logger)
+								logger.debug(
+									{ from: ackFrom, err: err instanceof Error ? err.message : String(err) },
+									'failed 463 token recovery issuance'
+								)
 						} finally {
 							inFlight463Recoveries.delete(ackFrom)
 						}
@@ -2178,7 +2209,8 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 
 			if (logger) logger.debug({ mutated, remaining: survivors.size }, 'pruned expired tctokens')
 		} catch (err) {
-			if (logger) logger.warn({ err: err instanceof Error ? err.message : String(err) }, 'failed to prune expired tctokens')
+			if (logger)
+				logger.warn({ err: err instanceof Error ? err.message : String(err) }, 'failed to prune expired tctokens')
 		}
 	}
 

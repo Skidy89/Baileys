@@ -148,8 +148,15 @@ export const MAX_SYNC_ATTEMPTS = 2
  * In Baileys we retry with a snapshot which may use a different key.
  */
 export const isMissingKeyError = (error: unknown): boolean => {
-	return typeof error === 'object' && error !== null && 'data' in error &&
-		typeof error.data === 'object' && error.data !== null && 'isMissingKey' in error.data && error.data.isMissingKey === true
+	return (
+		typeof error === 'object' &&
+		error !== null &&
+		'data' in error &&
+		typeof error.data === 'object' &&
+		error.data !== null &&
+		'isMissingKey' in error.data &&
+		error.data.isMissingKey === true
+	)
 }
 
 /**

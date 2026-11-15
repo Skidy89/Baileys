@@ -754,10 +754,15 @@ const processMessage = async (
 					break
 				}
 				if (
-					typeof parsedParticipant !== 'object' || parsedParticipant === null || Array.isArray(parsedParticipant) ||
-					!('lid' in parsedParticipant) || !('pn' in parsedParticipant) ||
-					typeof parsedParticipant.lid !== 'string' || typeof parsedParticipant.pn !== 'string'
-				) break
+					typeof parsedParticipant !== 'object' ||
+					parsedParticipant === null ||
+					Array.isArray(parsedParticipant) ||
+					!('lid' in parsedParticipant) ||
+					!('pn' in parsedParticipant) ||
+					typeof parsedParticipant.lid !== 'string' ||
+					typeof parsedParticipant.pn !== 'string'
+				)
+					break
 				const participant: LIDMapping = { lid: parsedParticipant.lid, pn: parsedParticipant.pn }
 				const action = message.messageStubParameters?.[1] as RequestJoinAction
 				const method = message.messageStubParameters?.[2] as RequestJoinMethod

@@ -2,7 +2,7 @@ import { Boom } from '@hapi/boom'
 import { proto } from '../../WAProto/index.js'
 import type { GroupMetadata, GroupParticipant, ParticipantAction, SocketConfig, WAMessageKey } from '../Types'
 import { WAMessageAddressingMode, WAMessageStubType } from '../Types'
-import { generateMessageID, unixTimestampSeconds } from '../Utils'
+import { generateMessageID, isLid, isPn, unixTimestampSeconds } from '../Utils'
 import {
 	type BinaryNode,
 	getBinaryNodeChild,
@@ -54,18 +54,32 @@ export const makeGroupsSocket = (config: SocketConfig) => {
 				}
 			]
 		})
+
 		const data: { [_: string]: GroupMetadata } = {}
+		const lidMappings = new Map<string, { lid: string; pn: string }>()
+
 		const groupsChild = getBinaryNodeChild(result, 'groups')
 		if (groupsChild) {
-			const groups = getBinaryNodeChildren(groupsChild, 'group')
-			for (const groupNode of groups) {
-				const meta = extractGroupMetadata({
-					tag: 'result',
-					attrs: {},
-					content: [groupNode]
-				})
+			for (const groupNode of getBinaryNodeChildren(groupsChild, 'group')) {
+				const meta = extractGroupMetadata({ tag: 'result', attrs: {}, content: [groupNode] })
 				data[meta.id] = meta
+
+				for (const p of getBinaryNodeChildren(groupNode, 'participant')) {
+					const { jid, phone_number, lid } = p.attrs
+					if (!jid || !phone_number || !lid) {
+						continue
+					}
+					if (isLid(jid) && isPn(phone_number)) {
+						lidMappings.set(jid, { lid: jid, pn: phone_number })
+					} else if (isPn(jid) && isLid(lid)) {
+						lidMappings.set(lid, { lid, pn: jid })
+					}
+				}
 			}
+		}
+
+		if (lidMappings.size) {
+			await sock.signalRepository.lidMapping.storeLIDPNMappings([...lidMappings.values()])
 		}
 
 		// TODO: properly parse LID / PN DATA

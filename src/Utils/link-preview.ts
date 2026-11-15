@@ -96,8 +96,11 @@ export const getUrlInfo = async (
 			} else {
 				try {
 					urlInfo.jpegThumbnail = image ? (await getCompressedJpegThumbnail(image, opts)).buffer : undefined
-		} catch (error) {
-					opts.logger?.debug({ err: error instanceof Error ? error.stack : String(error), url: previewLink }, 'error in generating thumbnail')
+				} catch (error) {
+					opts.logger?.debug(
+						{ err: error instanceof Error ? error.stack : String(error), url: previewLink },
+						'error in generating thumbnail'
+					)
 				}
 			}
 

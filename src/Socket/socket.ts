@@ -507,7 +507,6 @@ export const makeSocket = (config: SocketConfig) => {
 		const handshake = proto.HandshakeMessage.decode(result)
 		if (logger) logger.trace({ handshake }, 'handshake recv from WA')
 
-
 		const keyEnc = await noise.processHandshake(handshake, creds.noiseKey)
 
 		let node: proto.IClientPayload
@@ -716,7 +715,7 @@ export const makeSocket = (config: SocketConfig) => {
 		for (const handler of socketEndHandlers) {
 			try {
 				await handler(error)
-						} catch (err) {
+			} catch (err) {
 				if (logger) logger.error({ err }, 'error in socket end handler')
 			}
 		}
@@ -967,8 +966,6 @@ export const makeSocket = (config: SocketConfig) => {
 	ws.on('CB:iq,,pair-success', async (stanza: BinaryNode) => {
 		if (logger) logger.debug('pair success recv')
 		try {
-			
-
 			updateServerTimeOffset(stanza)
 			const { reply, creds: updatedCreds } = configureSuccessfulPairing(stanza, creds)
 			if (logger)
