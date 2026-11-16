@@ -8,7 +8,7 @@ import { isHostedLidUser, isHostedPnUser, isLidUser, isPnUser } from '../WABinar
 import { toNumber } from './generics'
 import type { ILogger } from './logger.js'
 import { normalizeMessageContent } from './messages'
-import { downloadContentFromMessage } from './messages-media'
+import { downloadContentFromMessage } from './messages/media'
 
 const inflatePromise = promisify(inflate)
 

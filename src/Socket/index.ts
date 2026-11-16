@@ -1,6 +1,6 @@
 import { DEFAULT_CONNECTION_CONFIG } from '../Defaults'
 import type { UserFacingSocketConfig } from '../Types'
-import { makeMessagesRecvSocket } from './messages-recv'
+import { makeMessagesRecvSocket } from './messages/receive'
 
 // export the last socket layer
 const makeWASocket = (config: UserFacingSocketConfig): ReturnType<typeof makeMessagesRecvSocket> => {

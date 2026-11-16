@@ -82,7 +82,6 @@ export const makeGroupsSocket = (config: SocketConfig) => {
 			await sock.signalRepository.lidMapping.storeLIDPNMappings([...lidMappings.values()])
 		}
 
-		// TODO: properly parse LID / PN DATA
 		sock.ev.emit('groups.update', Object.values(data))
 
 		return data

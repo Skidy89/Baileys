@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3'
 import { parentPort, workerData } from 'node:worker_threads'
-import type { SignalDataSet, SignalDataType, SignalDataTypeMap } from '../Types'
-import { packr } from './auth-state-serialization'
+import type { SignalDataSet, SignalDataType, SignalDataTypeMap } from '../../Types'
+import { packr } from '../auth-state-serialization'
 
 const port = parentPort
 if (!port) throw new Error('SQLite auth worker must run in a worker thread')

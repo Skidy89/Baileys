@@ -36,7 +36,7 @@ import {
 	processSyncAction
 } from '../Utils'
 import { makeMutex } from '../Utils/make-mutex'
-import processMessage from '../Utils/process-message'
+import processMessage from '../Utils/messages/process'
 import { buildTcTokenFromJid } from '../Utils/tc-token-utils'
 import {
 	type BinaryNode,

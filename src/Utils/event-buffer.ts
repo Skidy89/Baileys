@@ -15,7 +15,7 @@ import { WAMessageStatus } from '../Types'
 import { trimUndefined } from './generics'
 import type { ILogger } from './logger'
 import { updateMessageWithReaction, updateMessageWithReceipt } from './messages'
-import { isRealMessage, shouldIncrementChatUnread } from './process-message'
+import { isRealMessage, shouldIncrementChatUnread } from './messages/process'
 
 const BUFFERABLE_EVENT = [
 	'messaging-history.set',

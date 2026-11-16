@@ -272,7 +272,7 @@ export function makeLibSignalRepository(
 				return null
 			}
 
-			return { baseKey: new Uint8Array(baseKey), registrationId }
+			return { baseKey, registrationId }
 		},
 
 		async injectE2ESession({ jid, session }) {

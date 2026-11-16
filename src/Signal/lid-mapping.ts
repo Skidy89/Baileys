@@ -74,7 +74,7 @@ export class LIDMappingStore {
 			}
 		}
 
-		const pairMap: { [_: string]: string } = {}
+		const pairMap = new Map<string, string>()
 		for (const { pnUser, lidUser } of validatedPairs) {
 			const existingLidUser = existingMappings.get(pnUser)
 			if (existingLidUser === lidUser) {
@@ -82,14 +82,14 @@ export class LIDMappingStore {
 				continue
 			}
 
-			pairMap[pnUser] = lidUser
+			pairMap.set(pnUser, lidUser)
 		}
 
-		if (Object.keys(pairMap).length === 0) return
-		if (this.logger) this.logger.trace({ pairMap }, `Storing ${Object.keys(pairMap).length} pn mappings`)
+		if (pairMap.size === 0) return
+		if (this.logger) this.logger.trace(`Storing ${pairMap.size} pn mappings`)
 
 		const batchData: { [key: string]: string } = {}
-		for (const [pnUser, lidUser] of Object.entries(pairMap)) {
+		for (const [pnUser, lidUser] of pairMap) {
 			batchData[pnUser] = lidUser
 			batchData[`${lidUser}_reverse`] = pnUser
 		}
@@ -99,7 +99,7 @@ export class LIDMappingStore {
 		}, 'lid-mapping')
 
 		// Update cache after successful DB write
-		for (const [pnUser, lidUser] of Object.entries(pairMap)) {
+		for (const [pnUser, lidUser] of pairMap) {
 			this.mappingCache.set(`pn:${pnUser}`, lidUser)
 			this.mappingCache.set(`lid:${lidUser}`, pnUser)
 		}
@@ -237,7 +237,8 @@ export class LIDMappingStore {
 			}
 		}
 
-		return Object.values(successfulPairs).length > 0 ? Object.values(successfulPairs) : null
+		const pairs = Object.values(successfulPairs)
+		return pairs.length > 0 ? pairs : null
 	}
 
 	async getPNForLID(lid: string): Promise<string | null> {
@@ -322,7 +323,8 @@ export class LIDMappingStore {
 			}
 		}
 
-		return Object.values(successfulPairs).length ? Object.values(successfulPairs) : null
+		const pairs = Object.values(successfulPairs)
+		return pairs.length ? pairs : null
 	}
 
 	/**

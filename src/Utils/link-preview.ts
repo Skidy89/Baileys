@@ -1,7 +1,7 @@
 import type { WAMediaUploadFunction, WAUrlInfo } from '../Types'
 import type { ILogger } from './logger'
 import { prepareWAMessageMedia } from './messages'
-import { extractImageThumb, getHttpStream } from './messages-media'
+import { extractImageThumb, getHttpStream } from './messages/media'
 
 const THUMBNAIL_WIDTH_PX = 192
 
