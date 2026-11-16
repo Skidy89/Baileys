@@ -1,4 +1,4 @@
-import type { BinaryNode } from '../WABinary';
+import type { BinaryNode } from '../WABinary/index.js';
 /**
  * Builds an ACK stanza for a received node.
  * Pure function -- no I/O, no side effects.

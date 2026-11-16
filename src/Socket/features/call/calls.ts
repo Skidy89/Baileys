@@ -2,6 +2,7 @@
 import { randomBytes, hkdfSync } from 'node:crypto'
 import type { GroupSession } from '@skidy89/signal-protocol'
 import { proto } from '../../../../WAProto/index.js'
+import { unpadRandomMax16 } from '../../../Utils/generics'
 import { type BinaryNode, getBinaryNodeChild, getBinaryNodeChildren } from '../../../WABinary'
 import type { VoipConfig } from '@skidy89/signal-protocol'
 import type { CallMediaStream } from './call-media'
@@ -29,6 +30,7 @@ export type CallState = {
 
 const CAPABILITY_AUDIO = Buffer.from([1, 5, 247, 9, 224, 59, 19])
 const CAPABILITY_VIDEO = Buffer.from([1, 5, 247, 9, 224, 59, 83])
+const CAPABILITY_PREACCEPT = Buffer.from([1, 5, 247, 9, 224, 59, 7])
 const OPUS_SETTINGS = Buffer.from('{"encode":{"use_mlow_codec_v1":"false"},"options":{"enable_48khz_rtp_clock":"false"}}')
 
 export const newCallId = () => `00${randomBytes(15).toString('hex')}`
@@ -82,7 +84,7 @@ export const buildPreaccept = (callId: string, to: string, creator: string, id: 
 			...(video ? [{ tag: 'video', attrs: { dec: 'H264', device_orientation: '0' } }] : []),
 			{ tag: 'net', attrs: { medium: '2' } },
 			{ tag: 'encopt', attrs: { keygen: '2' } },
-			{ tag: 'capability', attrs: { ver: '1' }, content: CAPABILITY_AUDIO }
+			{ tag: 'capability', attrs: { ver: '1' }, content: CAPABILITY_PREACCEPT }
 		]
 	}]
 })
@@ -119,7 +121,7 @@ export const getCallKey = async (
 	if (!(enc.content instanceof Uint8Array)) throw new Error('call offer has no encrypted key')
 	const clear = await decryptMessage({ jid: from, type: enc.attrs.type === 'pkmsg' ? 'pkmsg' : 'msg', ciphertext: enc.content })
 	try {
-		const callKey = proto.Message.Call.decode(clear).callKey
+		const callKey = proto.Message.decode(unpadRandomMax16(clear)).call?.callKey
 		if (!callKey || callKey.length !== 32) throw new Error('call offer has an invalid call key')
 		return Buffer.from(callKey)
 	} finally {

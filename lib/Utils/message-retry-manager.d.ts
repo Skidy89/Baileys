@@ -1,5 +1,5 @@
 import type { proto } from '../../WAProto/index.js';
-import type { ILogger } from './logger';
+import type { ILogger } from './logger.js';
 export interface RecentMessageKey {
     to: string;
     id: string;

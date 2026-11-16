@@ -1,4 +1,4 @@
-import type { SignalDataSet, SignalDataType } from '../Types';
+import type { SignalDataSet, SignalDataType } from '../Types/index.js';
 export type WorkerCommand = {
     op: 'initialize';
     initialCreds: Uint8Array;

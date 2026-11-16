@@ -1,5 +1,5 @@
 import { proto } from '../../WAProto/index.js';
-import type { SocketConfig } from '../Types';
+import type { SocketConfig } from '../Types/index.js';
 export declare const UNAUTHORIZED_CODES: number[];
 export declare const DEFAULT_ORIGIN = "https://web.whatsapp.com";
 export declare const CALL_VIDEO_PREFIX = "https://call.whatsapp.com/video/";

@@ -36,6 +36,7 @@ import {
 	derivePairingCodeKey,
 	encodeBigEndian,
 	encodeSignedDeviceIdentity,
+	encodeWAMessage,
 	extractAddressingContext,
 	extractE2ESessionFromRetryReceipt,
 	getHistoryMsg,
@@ -93,6 +94,7 @@ import { binaryPack, GroupSession } from '@skidy89/signal-protocol'
 import { encodeBinaryNode } from '../../WABinary'
 import { callAck, parseCall, rejectCallNode } from '../features/call/call-events'
 import { createCallMediaStream } from '../features/call/call-media'
+import { queueAudioFile, type QueueAudioFileOptions } from '../features/call/media-file'
 import { buildAccept, buildOffer, buildPreaccept, buildTerminate, buildVideoState, getCallKey, mediaConfigFromRelay, newCallId, type CallState } from '../features/call/calls'
 
 type MexGqlData = Record<string, unknown>
@@ -149,6 +151,21 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 	} = sock
 
 	const getLIDForPN = signalRepository.lidMapping.getLIDForPN.bind(signalRepository.lidMapping)
+	const getPNForLID = signalRepository.lidMapping.getPNForLID.bind(signalRepository.lidMapping)
+	const callUserMatches = async (jid: string, expected: string) => {
+		if (areJidsSameUser(jid, expected)) return true
+		const normalizedJid = jid.replace(/:\d+@/, '@')
+		const normalizedExpected = expected.replace(/:\d+@/, '@')
+		if (isLidUser(normalizedExpected)) {
+			const pn = await getPNForLID(normalizedExpected)
+			if (pn && areJidsSameUser(jid, pn)) return true
+		}
+		if (isLidUser(normalizedJid)) {
+			const pn = await getPNForLID(normalizedJid)
+			if (pn && areJidsSameUser(pn, expected)) return true
+		}
+		return false
+	}
 
 	/** this mutex ensures that each retryRequest will wait for the previous one to finish */
 	const retryMutex = makeMutex()
@@ -643,7 +660,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		const deviceJids = devices.map(device => device.jid)
 		await assertSessions(deviceJids)
 		const callKey = randomBytes(32)
-		const clearKey = proto.Message.Call.encode({ callKey }).finish()
+		const clearKey = encodeWAMessage({ call: { callKey } })
 		let encrypted: Array<{ jid: string; type: 'msg' | 'pkmsg'; ciphertext: Uint8Array }>
 		try {
 			encrypted = await Promise.all(devices.map(async device => ({
@@ -670,13 +687,14 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		}
 		calls.set(callId, call)
 		try {
-			const ack = await query(offer)
+			const ack = await query(offer, 20_000)
 			const relay = getBinaryNodeChild(ack, 'relay')
 			if (!relay) throw new Boom('Call offer acknowledgement did not include a relay')
+			call.status = 'ringing'
 			call.relay = relay
 			const media = createCallMediaStream(mediaConfigFromRelay(relay, callId, 'outgoing', ownLid, peer, callKey, call.video))
 			call.media = media
-			media.on('error', error => logger?.error({ error, callId }, 'call media transport failed'))
+			media.on('error', error => logger?.error({ err: error, callId }, 'call media transport failed'))
 			return call
 		} catch (error) {
 			finishCall(call)
@@ -705,10 +723,10 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		const from = call.offerFrom || call.creator
 		const preaccept = buildPreaccept(callId, from, call.creator, generateMessageID(), call.video)
 		await sendNode(preaccept)
-		const callKey = await getCallKey(signalRepository.decryptMessage.bind(signalRepository), from, enc)
+		const callKey = await getCallKey(signalRepository.decryptMessage.bind(signalRepository), call.creator, enc)
 		try {
 			const media = createCallMediaStream(mediaConfigFromRelay(relay, callId, 'incoming', own.lid, call.peer, callKey, call.video))
-			media.on('error', error => logger?.error({ error, callId }, 'call media transport failed'))
+			media.on('error', error => logger?.error({ err: error, callId }, 'call media transport failed'))
 			call.callKey = callKey
 			call.relay = relay
 			call.media = media
@@ -782,6 +800,12 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		if (replace) media.clearAudio()
 		const bytes = Buffer.from(pcm.buffer, pcm.byteOffset, pcm.byteLength)
 		media.write(bytes)
+	}
+
+	const queueAudioFileInCall = (callId: string, path: string, options?: QueueAudioFileOptions) => {
+		const media = calls.get(callId)?.media
+		if (!media) throw new Boom(`Call ${callId} has no media stream`)
+		return queueAudioFile(media, path, options)
 	}
 
 	const setCallVolume = (callId: string, gain: number) => {
@@ -2261,7 +2285,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 	ws.on('CB:call', async (node: BinaryNode) => {
 		try {
 			const call = parseCall(node)
-			if (call && (call.status !== 'offer' || call.isGroup || areJidsSameUser(call.creator || call.from, call.from))) {
+			if (call && (call.status !== 'offer' || call.isGroup || await callUserMatches(call.creator || call.from, call.from))) {
 				const action = Array.isArray(node.content) ? node.content[0] : undefined
 				const current = calls.get(call.id)
 				if (call.status === 'offer') {
@@ -2300,7 +2324,9 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 					}
 				} else if (current) {
 					const expectedPeer = current.direction === 'outgoing' ? current.peer : current.creator
-					if (areJidsSameUser(call.from, expectedPeer)) {
+					const matchesPeer = await callUserMatches(call.from, expectedPeer) ||
+						(!!call.callerPn && await callUserMatches(call.callerPn, expectedPeer))
+					if (matchesPeer) {
 						if (call.status === 'preaccept' || call.status === 'ringing') current.status = 'ringing'
 						else if (call.status === 'accept') {
 							current.status = 'connected'
@@ -2465,6 +2491,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		acceptVideoUpgrade,
 		rejectVideoUpgrade,
 		playInCall,
+		queueAudioFileInCall,
 		setCallVolume,
 		pauseCallMedia,
 		resumeCallMedia,

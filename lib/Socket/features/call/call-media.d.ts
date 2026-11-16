@@ -1,0 +1,43 @@
+import { CallEngine, type VoipConfig } from '@skidy89/signal-protocol';
+import { Duplex, type DuplexOptions } from 'node:stream';
+export type { VoipConfig, VoipOutput } from '@skidy89/signal-protocol';
+export type CallMediaOptions = DuplexOptions & {
+    /** Called for each H.264 Annex-B access unit received from the peer. */
+    onVideo?: (frame: Buffer) => void;
+};
+/**
+ * RelayChannel transport around skid-signal's Rust call engine.
+ * Writable input and readable output are 16 kHz, mono, signed 16-bit little-endian PCM.
+ */
+export declare class CallMediaStream extends Duplex {
+    #private;
+    constructor(config: VoipConfig | {
+        engine: CallEngine;
+        relayIp: string;
+        relayPort: number;
+    }, options?: CallMediaOptions);
+    get elapsedMs(): number;
+    _read(): void;
+    _write(chunk: Buffer, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void;
+    _final(callback: (error?: Error | null) => void): void;
+    /** Send one H.264 Annex-B access unit; call `enableVideo()` first. */
+    writeVideoFrame(frame: Uint8Array): void;
+    startVideoFrames(frames: Uint8Array[], fps?: number, gated?: boolean): boolean;
+    releaseVideo(): void;
+    stopVideo(): void;
+    pauseMedia(): void;
+    resumeMedia(): void;
+    clearAudio(): void;
+    setVolume(gain: number): void;
+    get volume(): number;
+    get paused(): boolean;
+    get queuedSeconds(): number;
+    enableVideo(gated?: boolean): boolean;
+    rekeyRecv(peerLid: string): boolean;
+    disableVideo(): void;
+    get stats(): string;
+    _destroy(error: Error | null, callback: (error?: Error | null) => void): void;
+}
+export declare const createCallMediaStream: (config: VoipConfig, options?: CallMediaOptions) => CallMediaStream;
+export declare const createCallMediaStreamFromEngine: (engine: CallEngine, relayIp: string, relayPort: number, options?: CallMediaOptions) => CallMediaStream;
+//# sourceMappingURL=call-media.d.ts.map

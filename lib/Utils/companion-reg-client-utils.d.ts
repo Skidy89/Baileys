@@ -1,5 +1,5 @@
-import type { WABrowserDescription } from '../Types';
-import type { BinaryNode } from '../WABinary';
+import type { WABrowserDescription } from '../Types/index.js';
+import type { BinaryNode } from '../WABinary/index.js';
 export declare enum CompanionWebClientType {
     UNKNOWN = 0,
     CHROME = 1,

@@ -1,4 +1,6 @@
 import { Boom } from '@hapi/boom'
+import { createReadStream } from 'node:fs'
+import { resolve } from 'node:path'
 import readline from 'readline'
 import makeWASocket, { AnyMessageContent, delay, DisconnectReason, fetchLatestBaileysVersion, getAggregateVotesInPollMessage, getHistoryMsg, GroupMetadata, isJidBot, isJidBroadcast, isJidMetaAI, isJidNewsletter, jidDecode, makeCacheableSignalKeyStore, normalizeMessageContent, PatchedMessageWithRecipientJID, proto, useMultiFileAuthState, WAMessageContent, migrateAuthState, useSqliteAuthState, WAVersion, downloadMediaMessage, generateWAMessageFromContent, prepareWAMessageMedia, BinaryNode } from '../src'
 import P from 'pino'
@@ -14,6 +16,10 @@ const logger = P({
 
 const doReplies = process.argv.includes('--do-reply')
 const usePairingCode = process.argv.includes('--use-pairing-code')
+const testCallAudio = process.argv.includes('--test-call-audio')
+let commandSocket: ReturnType<typeof makeWASocket> | undefined
+let commandReady = false
+
 
 // external map to store retry counts of messages when decryption/encryption fails
 // keep this out of the socket itself, so as to prevent a message decryption/encryption loop across socket restarts
@@ -56,6 +62,7 @@ const startSock = async() => {
 			}
 		}
 	})
+	commandSocket = sock
 
 
 
@@ -85,6 +92,23 @@ const startSock = async() => {
 	sock.ev.process(
 		// events is a map for event name => event data
 		async(events) => {
+			if (events['call']) {
+				console.log('call updates', events['call'].map(({ id, status, from }) => ({ id, status, from })))
+			}
+			if (events['call'] && testCallAudio) {
+				for (const update of events['call']) {
+					if (update.status !== 'offer') continue
+					try {
+						const call = await sock.acceptCall(update.id)
+						void sock.queueAudioFileInCall(call.callId, createReadStream(resolve('vendor/test.mp3')))
+							.catch(error => logger.error({ err: error, callId: call.callId }, 'failed to stream example call audio'))
+						console.log(`Streaming vendor/test.mp3 into call ${call.callId}`)
+					} catch (error) {
+						logger.error({ err: error, callId: update.id }, 'failed to accept call for audio example')
+					}
+				}
+			}
+
 			// something about the connection changed
 			// maybe it closed, or we received all offline message or connection opened
 			if(events['connection.update']) {
@@ -93,7 +117,12 @@ const startSock = async() => {
 				if (qr) {
 					qrcode.generate(qr, { small: true })
 				}
+				if (connection === 'open') {
+					commandReady = true
+					console.log('Type "call <jid>" to call a contact and stream vendor/test.mp3')
+				}
 				if(connection === 'close') {
+					commandReady = false
 					// reconnect if not logged out
 					if((lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut) {
 						startSock()
@@ -157,6 +186,7 @@ const startSock = async() => {
 				console.log('exiting...')
 				process.exit(0)
 			  }
+
 			  
 			  if (text == "test") {
 				console.time("test")
@@ -211,6 +241,26 @@ const startSock = async() => {
 
 	return sock
 }
+
+rl.on('line', line => {
+	const [command, target] = line.trim().split(/\s+/, 2)
+	if (command !== 'call') return
+	if (!target) {
+		console.log('Usage: call <jid>')
+		return
+	}
+	if (!commandReady || !commandSocket) {
+		console.log('Wait until WhatsApp is connected before starting a call')
+		return
+	}
+	const sock = commandSocket
+	void (async () => {
+		console.log(`Calling ${target}; waiting for the server offer ACK`)
+		const call = await sock.startCall(target)
+		console.log(`Call ${call.callId} was accepted by the server; streaming vendor/test.mp3 while waiting for the peer`)
+		await sock.queueAudioFileInCall(call.callId, createReadStream(resolve('vendor/test.mp3')))
+	})().catch(error => logger.error({ err: error, to: target }, 'failed to start example audio call'))
+})
 
 startSock()
 

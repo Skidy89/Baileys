@@ -1,5 +1,5 @@
-import type { SocketConfig, WAMessageKey, MessageReceiptType } from '../../Types';
-import { type BinaryNode } from '../../WABinary';
+import type { SocketConfig, WAMessageKey, MessageReceiptType } from '../../Types/index.js';
+import { type BinaryNode } from '../../WABinary/index.js';
 type ReceiptDependencies = Pick<SocketConfig, 'logger'> & {
     sendNode: (node: BinaryNode) => Promise<void>;
     fetchPrivacySettings: () => Promise<{

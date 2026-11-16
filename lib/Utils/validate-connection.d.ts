@@ -1,6 +1,6 @@
 import { proto } from '../../WAProto/index.js';
-import type { AuthenticationCreds, SignalCreds, SocketConfig } from '../Types';
-import { type BinaryNode } from '../WABinary';
+import type { AuthenticationCreds, SignalCreds, SocketConfig } from '../Types/index.js';
+import { type BinaryNode } from '../WABinary/index.js';
 export declare const generateLoginNode: (userJid: string, config: SocketConfig) => proto.IClientPayload;
 export declare const generateRegistrationNode: ({ registrationId, signedPreKey, signedIdentityKey }: SignalCreds, config: SocketConfig) => proto.ClientPayload;
 export declare const configureSuccessfulPairing: (stanza: BinaryNode, { advSecretKey, signedIdentityKey, signalIdentities }: Pick<AuthenticationCreds, "advSecretKey" | "signedIdentityKey" | "signalIdentities">) => {
