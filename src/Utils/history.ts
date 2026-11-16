@@ -12,28 +12,8 @@ import { downloadContentFromMessage } from './messages/media'
 
 const inflatePromise = promisify(inflate)
 
-const extractPnFromMessages = (messages: proto.IHistorySyncMsg[]): string | undefined => {
-	for (const msgItem of messages) {
-		const message = msgItem.message
-		// Only extract from outgoing messages (fromMe: true) in 1:1 chats
-		// because userReceipt.userJid is the recipient's JID
-		if (!message?.key?.fromMe || !message.userReceipt?.length) {
-			continue
-		}
-
-		const userJid = message.userReceipt[0]?.userJid
-		if (userJid && (isPnUser(userJid) || isHostedPnUser(userJid))) {
-			return userJid
-		}
-	}
-
-	return undefined
-}
-
 export const downloadHistory = async (msg: proto.Message.IHistorySyncNotification, options: RequestInit) => {
 	const stream = await downloadContentFromMessage(msg, 'md-msg-hist', { options })
-	// Pipe decrypted stream directly through zlib inflate
-	// This avoids allocating an intermediate buffer for the compressed data
 	const inflater = createInflate()
 	const chunks: Buffer[] = []
 	inflater.on('data', (chunk: Buffer) => chunks.push(chunk))
@@ -76,24 +56,24 @@ export const processHistoryMessage = (item: proto.IHistorySync, logger?: ILogger
 				const chatId = chat.id!
 				const isLid = isLidUser(chatId) || isHostedLidUser(chatId)
 				const isPn = isPnUser(chatId) || isHostedPnUser(chatId)
+				const shouldExtractPnFromReceipt = isLid && !chat.pnJid
 				if (isLid && chat.pnJid) {
 					lidPnMappings.push({ lid: chatId, pn: chat.pnJid })
 				} else if (isPn && chat.lidJid) {
 					lidPnMappings.push({ lid: chat.lidJid, pn: chatId })
-				} else if (isLid && !chat.pnJid) {
-					// Fallback: extract PN from userReceipt in messages when pnJid is missing
-					const pnFromReceipt = extractPnFromMessages(chat.messages || [])
-					if (pnFromReceipt) {
-						lidPnMappings.push({ lid: chatId, pn: pnFromReceipt })
-					}
 				}
 
 				const msgs = chat.messages || []
 				delete chat.messages
+				let pnFromReceipt: string | undefined
 
 				for (const item of msgs) {
 					const message = item.message! as WAMessage
 					messages.push(message)
+					if (shouldExtractPnFromReceipt && !pnFromReceipt && message.key.fromMe && message.userReceipt?.length) {
+						const userJid = message.userReceipt[0]?.userJid
+						if (userJid && (isPnUser(userJid) || isHostedPnUser(userJid))) pnFromReceipt = userJid
+					}
 
 					if (!chat.messages?.length) {
 						// keep only the most recent message in the chat array
@@ -115,6 +95,7 @@ export const processHistoryMessage = (item: proto.IHistorySync, logger?: ILogger
 						})
 					}
 				}
+				if (pnFromReceipt) lidPnMappings.push({ lid: chatId, pn: pnFromReceipt })
 
 				chats.push(chat)
 			}

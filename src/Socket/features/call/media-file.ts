@@ -46,6 +46,12 @@ export interface CallFileOptions {
 	fileOptions?: VideoFileOptions
 }
 
+export type ResolvedCallFiles = CallFileOptions & {
+	audioIn?: Int16Array
+	videoFrames?: Uint8Array[]
+	videoFps?: number
+}
+
 const MAX_BYTES = 512 * 1024 * 1024
 const AUDIO_BYTES_PER_MS = 32
 const AUDIO_FRAME_BYTES = 1920
@@ -216,22 +222,16 @@ export async function decodeVideoFile(
 }
 
 /** Turn `audioFile` / `videoFile` into the `audioIn` / `videoFrames` the media session takes. */
-export async function resolveCallFiles<
-	T extends CallFileOptions & {
-		audioIn?: Int16Array
-		videoFrames?: Uint8Array[]
-		videoFps?: number
-	},
->(o: T): Promise<T> {
+export async function resolveCallFiles<T extends CallFileOptions>(o: T): Promise<T & ResolvedCallFiles> {
 	if (!o.audioFile && !o.videoFile) return o
-	const next = { ...o }
+	const next: T & ResolvedCallFiles = { ...o }
 	if (o.videoFile) {
 		const v = await decodeVideoFile(o.videoFile, o.fileOptions)
 		next.videoFrames = v.frames
 		next.videoFps = v.fps
 	}
 	const sound = o.audioFile ?? o.videoFile
-	if (sound && !o.audioIn) {
+	if (sound && !(o as T & ResolvedCallFiles).audioIn) {
 		try {
 			next.audioIn = await decodeAudioFile(sound, o.fileOptions)
 		} catch (e) {

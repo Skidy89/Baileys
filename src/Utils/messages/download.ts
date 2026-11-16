@@ -3,7 +3,7 @@ import type { Transform } from 'stream'
 import { proto } from '../../../WAProto/index.js'
 import type { MediaType } from '../../Defaults'
 import type { DownloadableMessage, WAMessage } from '../../Types'
-import { downloadContentFromMessage, type MediaDownloadOptions } from './media'
+import { downloadContentFromMessage, toBuffer, type MediaDownloadOptions } from './media'
 import type { ILogger } from '../logger'
 import { extractMessageContent, getContentType } from './content'
 
@@ -68,12 +68,7 @@ export const downloadMediaMessage = async <Type extends 'buffer' | 'stream'>(
 
 		const stream = await downloadContentFromMessage(download, mediaType, options)
 		if (type === 'buffer') {
-			const bufferArray: Buffer[] = []
-			for await (const chunk of stream) {
-				bufferArray.push(chunk)
-			}
-
-			return Buffer.concat(bufferArray)
+			return toBuffer(stream)
 		}
 
 		return stream

@@ -21,6 +21,11 @@ export interface CallFileOptions {
     videoFile?: string;
     fileOptions?: VideoFileOptions;
 }
+export type ResolvedCallFiles = CallFileOptions & {
+    audioIn?: Int16Array;
+    videoFrames?: Uint8Array[];
+    videoFps?: number;
+};
 /** Decode any audio (or the sound of a video) to 16 kHz mono PCM. */
 export declare function decodeAudioFile(path: string, o?: MediaFileOptions): Promise<Int16Array>;
 /** Decode in an ffmpeg child and enqueue PCM at playback speed; calls on one stream run in order. */
@@ -31,9 +36,5 @@ export declare function decodeVideoFile(path: string, o?: VideoFileOptions): Pro
     fps: number;
 }>;
 /** Turn `audioFile` / `videoFile` into the `audioIn` / `videoFrames` the media session takes. */
-export declare function resolveCallFiles<T extends CallFileOptions & {
-    audioIn?: Int16Array;
-    videoFrames?: Uint8Array[];
-    videoFps?: number;
-}>(o: T): Promise<T>;
+export declare function resolveCallFiles<T extends CallFileOptions>(o: T): Promise<T & ResolvedCallFiles>;
 //# sourceMappingURL=media-file.d.ts.map

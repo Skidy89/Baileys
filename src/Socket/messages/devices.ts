@@ -1,20 +1,12 @@
-import type { AuthenticationState, PossiblyExtendedCacheStore } from '../../Types'
 import type NodeCache from '@cacheable/node-cache'
-import type { USyncQueryResult } from '../../WAUSync/USyncQuery'
-import { USyncQuery, USyncUser } from '../../WAUSync'
-import { extractDeviceJids } from '../../Utils'
-import {
-	type FullJid,
-	isHostedLidUser,
-	isLidUser,
-	jidDecode,
-	jidEncode,
-	jidNormalizedUser,
-	type JidWithDevice
-} from '../../WABinary'
+import type { AuthenticationState, PossiblyExtendedCacheStore } from '../../Types'
 import type { SignalRepositoryWithLIDStore } from '../../Types/Signal'
-import type { Mutex } from '../../Utils/make-mutex'
+import { extractDeviceJids } from '../../Utils'
 import type { ILogger } from '../../Utils/logger'
+import type { Mutex } from '../../Utils/make-mutex'
+import { type FullJid, isHostedLidUser, isLidUser, jidDecode, jidEncode, type JidWithDevice } from '../../WABinary'
+import { USyncQuery, USyncUser } from '../../WAUSync'
+import type { USyncQueryResult } from '../../WAUSync/USyncQuery'
 
 export type DeviceWithJid = JidWithDevice & { jid: string }
 type DeviceCache = NodeCache<JidWithDevice[]> | PossiblyExtendedCacheStore
@@ -45,40 +37,49 @@ export const makeDeviceResolver = (dependencies: Dependencies) => {
 		}
 
 		const toFetch: string[] = []
+		const jidsWithUser: { jid: string; user: string | undefined }[] = []
+		const usersToFetch = useCache ? new Set<string>() : undefined
 
-		const jidsWithUser = jids
-			.map(jid => {
-				const decoded = jidDecode(jid)
-				const user = decoded?.user
-				const device = decoded?.device
-				const isExplicitDevice = typeof device === 'number' && device >= 0
+		for (const jid of jids) {
+			const decoded = jidDecode(jid)
+			const user = decoded?.user
+			const device = decoded?.device
+			const isExplicitDevice = typeof device === 'number' && device >= 0
 
-				if (isExplicitDevice && user) {
-					deviceResults.push({
-						user,
-						device,
-						jid
-					})
-					return null
-				}
+			if (isExplicitDevice && user) {
+				deviceResults.push({ user, device, jid })
+				continue
+			}
 
-				jid = jidNormalizedUser(jid)
-				return { jid, user }
-			})
-			.filter(jid => jid !== null)
-
-		let mgetDevices: undefined | Record<string, FullJid[] | undefined>
-
-		if (useCache && userDevicesCache.mget) {
-			const usersToFetch = jidsWithUser.map(j => j?.user).filter(Boolean) as string[]
-			mgetDevices = await userDevicesCache.mget<FullJid[]>(usersToFetch)
+			const normalizedJid = decoded
+				? jidEncode(decoded.user, decoded.server === 'c.us' ? 's.whatsapp.net' : decoded.server)
+				: ''
+			jidsWithUser.push({ jid: normalizedJid, user })
+			if (user) usersToFetch?.add(user)
 		}
 
-		for (const { jid, user } of jidsWithUser) {
+		let mgetDevices: undefined | Record<string, FullJid[] | undefined>
+		const userKeysToFetch = usersToFetch ? [...usersToFetch] : []
+
+		if (useCache && userDevicesCache.mget) {
+			mgetDevices = await userDevicesCache.mget<FullJid[]>(userKeysToFetch)
+		}
+
+		const cachedDeviceLists =
+			useCache && !userDevicesCache.mget
+				? new Map(
+						await Promise.all(
+							userKeysToFetch.map(
+								async user => [user, (await userDevicesCache.get<FullJid[]>(user)) as FullJid[] | undefined] as const
+							)
+						)
+					)
+				: undefined
+
+		for (let i = 0; i < jidsWithUser.length; i++) {
+			const { jid, user } = jidsWithUser[i]!
 			if (useCache) {
-				const devices =
-					mgetDevices?.[user!] ||
-					(userDevicesCache.mget ? undefined : ((await userDevicesCache.get<FullJid[]>(user!)) as FullJid[]))
+				const devices = mgetDevices?.[user!] || cachedDeviceLists?.get(user!)
 				if (devices) {
 					const devicesWithJid = devices.map(d => ({
 						...d,
@@ -115,15 +116,31 @@ export const makeDeviceResolver = (dependencies: Dependencies) => {
 		const result = await executeUSyncQuery(query)
 
 		if (result) {
-			// TODO: LID MAP this stuff (lid protocol will now return lid with devices)
 			const lidResults = result.list.filter(a => !!a.lid)
 			if (lidResults.length > 0) {
 				if (logger) logger.trace('Storing LID maps from device call')
-				await signalRepository.lidMapping.storeLIDPNMappings(lidResults.map(a => ({ lid: a.lid as string, pn: a.id })))
+				const mappings = lidResults.flatMap(a => {
+					const lid = a.lid as string
+					const pn = a.id
+					const decodedLid = jidDecode(lid)
+					const decodedPn = jidDecode(pn)
+					const devices = (a.devices as { deviceList?: { id: number; isHosted?: boolean }[] } | undefined)
+						?.deviceList
+					return [
+						{ lid, pn },
+						...(decodedLid && decodedPn
+							? (devices ?? []).filter(device => device.id > 0).map(({ id, isHosted }) => ({
+									lid: jidEncode(decodedLid.user, isHosted ? 'hosted.lid' : 'lid', id),
+									pn: jidEncode(decodedPn.user, isHosted ? 'hosted' : decodedPn.server, id)
+								}))
+							: [])
+					]
+				})
+				await signalRepository.lidMapping.storeLIDPNMappings(mappings)
 
 				// Force-refresh sessions for newly mapped LIDs to align identity addressing
 				try {
-					const lids = lidResults.map(a => a.lid as string)
+					const lids = mappings.map(({ lid }) => lid)
 					if (lids.length) {
 						await assertSessions(lids, true)
 					}
@@ -190,14 +207,11 @@ export const makeDeviceResolver = (dependencies: Dependencies) => {
 				}
 			}
 
-			if (Object.keys(userDeviceUpdates).length > 0) {
+			const updatedUserIds = Object.keys(userDeviceUpdates)
+			if (updatedUserIds.length > 0) {
 				try {
 					await authState.keys.set({ 'device-list': userDeviceUpdates })
-					if (logger)
-						logger.debug(
-							{ userCount: Object.keys(userDeviceUpdates).length },
-							'stored user device lists for bulk migration'
-						)
+					if (logger) logger.debug({ userCount: updatedUserIds.length }, 'stored user device lists for bulk migration')
 				} catch (error) {
 					if (logger) logger.warn({ error }, 'failed to store user device lists')
 				}
@@ -206,5 +220,6 @@ export const makeDeviceResolver = (dependencies: Dependencies) => {
 
 		return deviceResults
 	}
+
 	return { getUSyncDevices }
 }

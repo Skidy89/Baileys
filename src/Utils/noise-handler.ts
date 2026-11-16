@@ -151,7 +151,7 @@ export const makeNoiseHandler = ({
 				logger.trace(`recv ${newData.length} bytes`)
 			}
 
-			frameDecoder.feed(Buffer.from(newData))
+			frameDecoder.feed(Buffer.isBuffer(newData) ? newData : Buffer.from(newData))
 			let frame: Buffer | null
 			while ((frame = frameDecoder.nextFrame())) {
 				let decodedFrame: Uint8Array | BinaryNode = frame

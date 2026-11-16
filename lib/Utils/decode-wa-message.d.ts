@@ -52,7 +52,10 @@ export declare const extractAddressingContext: (stanza: BinaryNode) => {
  * Decode the received node as a message.
  * @note this will only parse the message, not decrypt it
  */
-export declare function decodeMessageNode(stanza: BinaryNode, meId: string, meLid: string): {
+export declare function decodeMessageNode(stanza: BinaryNode, meId: string, meLid: string, ownJidUsers?: {
+    meIdUser: string | undefined;
+    meLidUser: string | undefined;
+}): {
     fullMessage: WAMessage;
     author: string;
     sender: string;

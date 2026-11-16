@@ -69,6 +69,7 @@ export const makeGroupsSocket = (config: SocketConfig) => {
 					if (!jid || !phone_number || !lid) {
 						continue
 					}
+
 					if (isLid(jid) && isPn(phone_number)) {
 						lidMappings.set(jid, { lid: jid, pn: phone_number })
 					} else if (isPn(jid) && isLid(lid)) {
@@ -351,6 +352,7 @@ export const extractGroupMetadata = (result: BinaryNode) => {
 	const groupId = group.attrs.id.includes('@') ? group.attrs.id : jidEncode(group.attrs.id, 'g.us')
 	const eph = getBinaryNodeChild(group, 'ephemeral')?.attrs.expiration
 	const memberAddMode = getBinaryNodeChildString(group, 'member_add_mode') === 'all_member_add'
+	const participantNodes = getBinaryNodeChildren(group, 'participant')
 	const metadata: GroupMetadata = {
 		id: groupId,
 		notify: group.attrs.notify,
@@ -360,7 +362,7 @@ export const extractGroupMetadata = (result: BinaryNode) => {
 		subjectOwnerPn: group.attrs.s_o_pn,
 		subjectOwnerUsername: group.attrs.s_o_username,
 		subjectTime: +group.attrs.s_t!,
-		size: group.attrs.size ? +group.attrs.size : getBinaryNodeChildren(group, 'participant').length,
+		size: group.attrs.size ? +group.attrs.size : participantNodes.length,
 		creation: +group.attrs.creation!,
 		owner: group.attrs.creator ? jidNormalizedUser(group.attrs.creator) : undefined,
 		ownerPn: group.attrs.creator_pn ? jidNormalizedUser(group.attrs.creator_pn) : undefined,
@@ -379,7 +381,7 @@ export const extractGroupMetadata = (result: BinaryNode) => {
 		isCommunityAnnounce: !!getBinaryNodeChild(group, 'default_sub_group'),
 		joinApprovalMode: !!getBinaryNodeChild(group, 'membership_approval_mode'),
 		memberAddMode,
-		participants: getBinaryNodeChildren(group, 'participant').map(({ attrs }) => {
+		participants: participantNodes.map(({ attrs }) => {
 			return {
 				id: attrs.jid!,
 				phoneNumber: isLidUser(attrs.jid) && isPnUser(attrs.phone_number) ? attrs.phone_number : undefined,

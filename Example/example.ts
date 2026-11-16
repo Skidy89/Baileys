@@ -1,13 +1,11 @@
 import { Boom } from '@hapi/boom'
-import { createReadStream } from 'node:fs'
 import { resolve } from 'node:path'
 import readline from 'readline'
 import makeWASocket, { AnyMessageContent, delay, DisconnectReason, fetchLatestBaileysVersion, getAggregateVotesInPollMessage, getHistoryMsg, GroupMetadata, isJidBot, isJidBroadcast, isJidMetaAI, isJidNewsletter, jidDecode, makeCacheableSignalKeyStore, normalizeMessageContent, PatchedMessageWithRecipientJID, proto, useMultiFileAuthState, WAMessageContent, migrateAuthState, useSqliteAuthState, WAVersion, downloadMediaMessage, generateWAMessageFromContent, prepareWAMessageMedia, BinaryNode } from '../src'
 import P from 'pino'
 
 import qrcode from 'qrcode-terminal'
-import { Readable } from 'stream'
-import { writeFile } from 'fs/promises'
+
 const logger = P({
   level: "debug",
   
@@ -17,6 +15,7 @@ const logger = P({
 const doReplies = process.argv.includes('--do-reply')
 const usePairingCode = process.argv.includes('--use-pairing-code')
 const testCallAudio = process.argv.includes('--test-call-audio')
+
 let commandSocket: ReturnType<typeof makeWASocket> | undefined
 let commandReady = false
 
@@ -99,10 +98,8 @@ const startSock = async() => {
 				for (const update of events['call']) {
 					if (update.status !== 'offer') continue
 					try {
-						const call = await sock.acceptCall(update.id)
-						void sock.queueAudioFileInCall(call.callId, createReadStream(resolve('vendor/test.mp3')))
-							.catch(error => logger.error({ err: error, callId: call.callId }, 'failed to stream example call audio'))
-						console.log(`Streaming vendor/test.mp3 into call ${call.callId}`)
+						const call = await sock.acceptCall(update.id, { audioFile: resolve('vendor/test.mp3') })
+						console.log(`Accepted call ${call.callId} with vendor/test.mp3`)
 					} catch (error) {
 						logger.error({ err: error, callId: update.id }, 'failed to accept call for audio example')
 					}
@@ -256,9 +253,8 @@ rl.on('line', line => {
 	const sock = commandSocket
 	void (async () => {
 		console.log(`Calling ${target}; waiting for the server offer ACK`)
-		const call = await sock.startCall(target)
-		console.log(`Call ${call.callId} was accepted by the server; streaming vendor/test.mp3 while waiting for the peer`)
-		await sock.queueAudioFileInCall(call.callId, createReadStream(resolve('vendor/test.mp3')))
+		const call = await sock.startCall(target, { audioFile: resolve('vendor/test.mp3') })
+		console.log(`Call ${call.callId} was offered with vendor/test.mp3`)
 	})().catch(error => logger.error({ err: error, to: target }, 'failed to start example audio call'))
 })
 

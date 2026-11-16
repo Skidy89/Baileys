@@ -509,12 +509,12 @@ export const makeChatsSocket = (config: SocketConfig) => {
 				// sometimes a single patch request will not return all the patches (God knows why)
 				// so we fetch till they're all done (this is determined by the "has_more_patches" flag)
 				while (collectionsToHandle.size) {
+					const currentVersions = await authState.keys.get('app-state-sync-version', [...collectionsToHandle])
 					const states = {} as { [T in WAPatchName]: LTHashState }
 					const nodes: BinaryNode[] = []
 
 					for (const name of collectionsToHandle as Set<WAPatchName>) {
-						const result = await authState.keys.get('app-state-sync-version', [name])
-						let state = result[name]
+						let state = currentVersions[name]
 
 						if (state) {
 							state = ensureLTHashStateVersion(state)

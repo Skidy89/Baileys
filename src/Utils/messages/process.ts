@@ -34,7 +34,7 @@ import { aesDecryptGCM, hmacSign } from '../crypto'
 import { getKeyAuthor, toNumber } from '../generics'
 import { downloadAndProcessHistorySyncNotification } from '../history'
 import type { ILogger } from '../logger'
-import { buildMergedTcTokenIndexWrite, resolveTcTokenJid } from '../tc-token-utils'
+import { buildMergedTcTokenIndexWrite } from '../tc-token-utils'
 
 type ProcessMessageContext = {
 	shouldProcessHistoryMsg: boolean
@@ -56,6 +56,13 @@ const REAL_MSG_STUB_TYPES = new Set([
 ])
 
 const REAL_MSG_REQ_ME_STUB_TYPES = new Set([WAMessageStubType.GROUP_PARTICIPANT_ADD])
+
+const SELF_ONLY_PROTOCOL_TYPES = new Set<proto.Message.ProtocolMessage.Type>([
+	proto.Message.ProtocolMessage.Type.HISTORY_SYNC_NOTIFICATION,
+	proto.Message.ProtocolMessage.Type.APP_STATE_SYNC_KEY_SHARE,
+	proto.Message.ProtocolMessage.Type.LID_MIGRATION_MAPPING_SYNC,
+	proto.Message.ProtocolMessage.Type.PEER_DATA_OPERATION_REQUEST_RESPONSE_MESSAGE
+])
 
 const parseGroupParticipant = (raw: string): GroupParticipant | undefined => {
 	let parsed: unknown
@@ -97,39 +104,42 @@ async function storeTcTokensFromHistorySync(
 	keyStore: SignalKeyStoreWithTransaction,
 	logger?: ILogger
 ) {
-	const getLIDForPN = signalRepository.lidMapping.getLIDForPN.bind(signalRepository.lidMapping)
-
-	const candidates: { storageJid: string; token: Buffer; ts: number; senderTs?: number }[] = []
+	const candidates: { jid: string; token: Buffer; ts: number; senderTs?: number }[] = []
+	const jidsToResolve = new Set<string>()
 	for (const chat of chats) {
 		const ts = chat.tcTokenTimestamp ? toNumber(chat.tcTokenTimestamp) : 0
 		if (chat.tcToken?.length && ts > 0) {
 			const jid = jidNormalizedUser(chat.id!)
-			const storageJid = await resolveTcTokenJid(jid, getLIDForPN)
 			candidates.push({
-				storageJid,
+				jid,
 				token: Buffer.from(chat.tcToken),
 				ts,
 				senderTs: chat.tcTokenSenderTimestamp ? toNumber(chat.tcTokenSenderTimestamp) : undefined
 			})
+			if (!isLidUser(jid)) jidsToResolve.add(jid)
 		}
 	}
 
 	if (!candidates.length) {
 		return
 	}
+	const mappings = jidsToResolve.size ? await signalRepository.lidMapping.getLIDsForPNs([...jidsToResolve]) : null
+	const lidByPn = new Map(mappings?.map(({ pn, lid }) => [pn, lid]))
 
-	const jids = candidates.map(c => c.storageJid)
+	const jids = candidates.map(({ jid }) => (isLidUser(jid) ? jid : (lidByPn.get(jid) ?? jid)))
 	const existing = await keyStore.get('tctoken', jids)
 	const entries: Record<string, { token: Buffer; timestamp?: string; senderTimestamp?: number }> = {}
 
-	for (const c of candidates) {
-		const existingEntry = existing[c.storageJid]
+	for (let i = 0; i < candidates.length; i++) {
+		const c = candidates[i]!
+		const storageJid = jids[i]!
+		const existingEntry = existing[storageJid]
 		const existingTs = existingEntry?.timestamp ? Number(existingEntry.timestamp) : 0
 		if (existingTs > 0 && existingTs >= c.ts) {
 			continue
 		}
 
-		entries[c.storageJid] = {
+		entries[storageJid] = {
 			...existingEntry,
 			token: c.token,
 			timestamp: String(c.ts),
@@ -137,11 +147,12 @@ async function storeTcTokensFromHistorySync(
 		}
 	}
 
-	if (Object.keys(entries).length) {
-		logger?.debug({ count: Object.keys(entries).length }, 'storing tctokens from history sync')
+	const entryJids = Object.keys(entries)
+	if (entryJids.length) {
+		logger?.debug({ count: entryJids.length }, 'storing tctokens from history sync')
 		try {
 			// Include updated __index so cross-session pruning picks these JIDs up.
-			const indexWrite = await buildMergedTcTokenIndexWrite(keyStore, Object.keys(entries))
+			const indexWrite = await buildMergedTcTokenIndexWrite(keyStore, entryJids)
 			await keyStore.set({ tctoken: { ...entries, ...indexWrite } })
 		} catch (err) {
 			logger?.warn({ err }, 'failed to store tctokens from history sync')
@@ -202,8 +213,7 @@ export const cleanMessage = (message: WAMessage, meId: string, meLid: string) =>
 }
 
 // TODO: target:audit AUDIT THIS FUNCTION AGAIN
-export const isRealMessage = (message: WAMessage) => {
-	const normalizedContent = normalizeMessageContent(message.message)
+const isRealMessageContent = (message: WAMessage, normalizedContent: ReturnType<typeof normalizeMessageContent>) => {
 	const hasSomeContent = !!getContentType(normalizedContent)
 	return (
 		(!!normalizedContent ||
@@ -215,6 +225,9 @@ export const isRealMessage = (message: WAMessage) => {
 		!normalizedContent?.pollUpdateMessage
 	)
 }
+
+export const isRealMessage = (message: WAMessage) =>
+	isRealMessageContent(message, normalizeMessageContent(message.message))
 
 export const shouldIncrementChatUnread = (message: WAMessage) => !message.key.fromMe && !message.messageStubType
 
@@ -342,7 +355,8 @@ const processMessage = async (
 	const { accountSettings } = creds
 
 	const chat: Partial<Chat> = { id: jidNormalizedUser(getChatId(message.key)) }
-	const isRealMsg = isRealMessage(message)
+	const content = normalizeMessageContent(message.message)
+	const isRealMsg = isRealMessageContent(message, content)
 
 	if (isRealMsg) {
 		chat.messages = [{ message }]
@@ -352,8 +366,6 @@ const processMessage = async (
 			chat.unreadCount = (chat.unreadCount || 0) + 1
 		}
 	}
-
-	const content = normalizeMessageContent(message.message)
 
 	// unarchive chat if it's a real message, or someone reacted to our message
 	// and we've the unarchive chats setting on
@@ -384,16 +396,10 @@ const processMessage = async (
 		// for the reference architecture — whatsmeow's `handleProtocolMessage`
 		// only contains self-only types because edits are unwrapped from
 		// `EditedMessage` BEFORE this dispatch and revokes aren't routed here.
-		const SELF_ONLY_TYPES = new Set<proto.Message.ProtocolMessage.Type>([
-			proto.Message.ProtocolMessage.Type.HISTORY_SYNC_NOTIFICATION,
-			proto.Message.ProtocolMessage.Type.APP_STATE_SYNC_KEY_SHARE,
-			proto.Message.ProtocolMessage.Type.LID_MIGRATION_MAPPING_SYNC,
-			proto.Message.ProtocolMessage.Type.PEER_DATA_OPERATION_REQUEST_RESPONSE_MESSAGE
-		])
 		if (
 			protocolMsg.type !== null &&
 			protocolMsg.type !== undefined &&
-			SELF_ONLY_TYPES.has(protocolMsg.type) &&
+			SELF_ONLY_PROTOCOL_TYPES.has(protocolMsg.type) &&
 			!message.key.fromMe
 		) {
 			logger?.warn(
@@ -456,14 +462,15 @@ const processMessage = async (
 					let newAppStateSyncKeyId = ''
 					await keyStore.transaction(async () => {
 						const newKeys: string[] = []
+						const keyDataById: Record<string, proto.Message.IAppStateSyncKeyData> = {}
 						for (const { keyData, keyId } of keys) {
 							const strKeyId = Buffer.from(keyId!.keyId!).toString('base64')
 							newKeys.push(strKeyId)
-
-							await keyStore.set({ 'app-state-sync-key': { [strKeyId]: keyData! } })
+							keyDataById[strKeyId] = keyData!
 
 							newAppStateSyncKeyId = strKeyId
 						}
+						await keyStore.set({ 'app-state-sync-key': keyDataById })
 
 						logger?.info({ newAppStateSyncKeyId, newKeys }, 'injecting new app state sync keys')
 					}, meId)

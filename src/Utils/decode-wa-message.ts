@@ -3,7 +3,6 @@ import { proto } from '../../WAProto/index.js'
 import type { WAMessage, WAMessageKey } from '../Types'
 import type { SignalRepositoryWithLIDStore } from '../Types/Signal'
 import {
-	areJidsSameUser,
 	type BinaryNode,
 	isHostedLidUser,
 	isHostedPnUser,
@@ -13,7 +12,8 @@ import {
 	isJidNewsletter,
 	isJidStatusBroadcast,
 	isLidUser,
-	isPnUser
+	isPnUser,
+	jidDecode
 	//	transferDevice
 } from '../WABinary'
 import { toError, unpadRandomMax16 } from './generics'
@@ -59,6 +59,11 @@ export const DECRYPTION_RETRY_CONFIG = {
 	baseDelayMs: 100,
 	sessionRecordErrors: ['No session record', 'SessionError: No session record']
 }
+
+const ownJidUsersCache = new WeakMap<
+	SignalRepositoryWithLIDStore,
+	{ meId: string; meLid: string; meIdUser: string | undefined; meLidUser: string | undefined }
+>()
 
 /** NACK reason codes we send to the server (client → server) */
 export const NACK_REASONS = {
@@ -141,7 +146,12 @@ export const extractAddressingContext = (stanza: BinaryNode) => {
  * Decode the received node as a message.
  * @note this will only parse the message, not decrypt it
  */
-export function decodeMessageNode(stanza: BinaryNode, meId: string, meLid: string) {
+export function decodeMessageNode(
+	stanza: BinaryNode,
+	meId: string,
+	meLid: string,
+	ownJidUsers = { meIdUser: jidDecode(meId)?.user, meLidUser: jidDecode(meLid)?.user }
+) {
 	let msgType: MessageType
 	let chatId: string
 	let author: string
@@ -162,27 +172,22 @@ export function decodeMessageNode(stanza: BinaryNode, meId: string, meLid: strin
 
 	const addressingContext = extractAddressingContext(stanza)
 
-	const isMe = (jid: string) => areJidsSameUser(jid, meId)
-	const isMeLid = (jid: string) => areJidsSameUser(jid, meLid)
-
 	if (isPnUser(from) || isLidUser(from) || isHostedLidUser(from) || isHostedPnUser(from)) {
+		const fromUser = jidDecode(from)?.user
+		const senderIsMe = fromUser === ownJidUsers.meIdUser || fromUser === ownJidUsers.meLidUser
 		if (recipient && !isJidMetaAI(recipient)) {
-			if (!isMe(from) && !isMeLid(from)) {
+			if (!senderIsMe) {
 				throw new Boom('receipient present, but msg not from me', { data: stanza })
 			}
 
-			if (isMe(from) || isMeLid(from)) {
-				fromMe = true
-			}
+			fromMe = senderIsMe
 
 			chatId = recipient
 		} else {
 			// Peer-routed self stanzas (history sync, app-state sync, etc.) arrive
 			// with `from` set to our own device but no `recipient` attribute —
 			// still mark as fromMe so self-only protocolMessage handlers run.
-			if (isMe(from) || isMeLid(from)) {
-				fromMe = true
-			}
+			fromMe = senderIsMe
 
 			chatId = from
 		}
@@ -194,9 +199,8 @@ export function decodeMessageNode(stanza: BinaryNode, meId: string, meLid: strin
 			throw new Boom('No participant in group message')
 		}
 
-		if (isMe(participant) || isMeLid(participant)) {
-			fromMe = true
-		}
+		const participantUser = jidDecode(participant)?.user
+		fromMe = participantUser === ownJidUsers.meIdUser || participantUser === ownJidUsers.meLidUser
 
 		msgType = 'group'
 		author = participant
@@ -206,7 +210,7 @@ export function decodeMessageNode(stanza: BinaryNode, meId: string, meLid: strin
 			throw new Boom('No participant in group message')
 		}
 
-		const isParticipantMe = isMe(participant)
+		const isParticipantMe = jidDecode(participant)?.user === ownJidUsers.meIdUser
 		if (isJidStatusBroadcast(from)) {
 			msgType = isParticipantMe ? 'direct_peer_status' : 'other_status'
 		} else {
@@ -221,9 +225,8 @@ export function decodeMessageNode(stanza: BinaryNode, meId: string, meLid: strin
 		chatId = from
 		author = from
 
-		if (isMe(from) || isMeLid(from)) {
-			fromMe = true
-		}
+		const fromUser = jidDecode(from)?.user
+		fromMe = fromUser === ownJidUsers.meIdUser || fromUser === ownJidUsers.meLidUser
 	} else {
 		throw new Boom('Unknown message type', { data: stanza })
 	}
@@ -271,7 +274,13 @@ export const decryptMessageNode = (
 	repository: SignalRepositoryWithLIDStore,
 	logger: ILogger | undefined
 ) => {
-	const { fullMessage, author, sender } = decodeMessageNode(stanza, meId, meLid)
+	let ownJidUsers = ownJidUsersCache.get(repository)
+	if (!ownJidUsers || ownJidUsers.meId !== meId || ownJidUsers.meLid !== meLid) {
+		ownJidUsers = { meId, meLid, meIdUser: jidDecode(meId)?.user, meLidUser: jidDecode(meLid)?.user }
+		ownJidUsersCache.set(repository, ownJidUsers)
+	}
+
+	const { fullMessage, author, sender } = decodeMessageNode(stanza, meId, meLid, ownJidUsers)
 	return {
 		fullMessage,
 		category: stanza.attrs.category,

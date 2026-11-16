@@ -15,12 +15,13 @@ import type {
 	WAMediaUploadFunction,
 	WAMessageContent
 } from '../../../Types'
-import { toError } from '../../generics'
+import { toBufferView, toError } from '../../generics'
 import type { ILogger } from '../../logger'
 import { encodeBase64EncodedStringForUpload, getHttpStream, getMediaKeys } from './upload'
 export const DEF_MEDIA_HOST = 'mmg.whatsapp.net'
 
 const AES_CHUNK_SIZE = 16
+const MEDIA_UPLOAD_READ_SIZE = 256 * 1024
 
 const toSmallestChunkSize = (num: number) => {
 	return Math.floor(num / AES_CHUNK_SIZE) * AES_CHUNK_SIZE
@@ -111,7 +112,8 @@ export const downloadEncryptedContent = async (
 		headers
 	})
 
-	let remainingBytes = Buffer.from([])
+	const remainingBytes = Buffer.allocUnsafe(AES_CHUNK_SIZE)
+	let remainingLength = 0
 
 	let aes: Crypto.Decipher
 
@@ -130,29 +132,47 @@ export const downloadEncryptedContent = async (
 
 	const output = new Transform({
 		transform(chunk, _, callback) {
-			let data = remainingBytes.length ? Buffer.concat([remainingBytes, chunk]) : chunk
-
-			const decryptLength = toSmallestChunkSize(data.length)
-			remainingBytes = data.slice(decryptLength)
-			data = data.slice(0, decryptLength)
-
-			if (!aes) {
-				let ivValue = iv
-				if (firstBlockIsIV) {
-					ivValue = data.slice(0, AES_CHUNK_SIZE)
-					data = data.slice(AES_CHUNK_SIZE)
-				}
-
-				aes = Crypto.createDecipheriv('aes-256-cbc', cipherKey, ivValue)
-				// if an end byte that is not EOF is specified
-				// stop auto padding (PKCS7) -- otherwise throws an error for decryption
-				if (endByte) {
-					aes.setAutoPadding(false)
-				}
-			}
-
 			try {
-				pushBytes(aes.update(data), b => this.push(b))
+				const data = Buffer.isBuffer(chunk) ? chunk : toBufferView(chunk)
+				let offset = 0
+
+				const decrypt = (bytes: Buffer) => {
+					if (!aes) {
+						let ivValue = iv
+						if (firstBlockIsIV) {
+							ivValue = bytes.subarray(0, AES_CHUNK_SIZE)
+							bytes = bytes.subarray(AES_CHUNK_SIZE)
+						}
+
+						aes = Crypto.createDecipheriv('aes-256-cbc', cipherKey, ivValue)
+						// if an end byte that is not EOF is specified
+						// stop auto padding (PKCS7) -- otherwise throws an error for decryption
+						if (endByte) {
+							aes.setAutoPadding(false)
+						}
+					}
+
+					if (bytes.length) pushBytes(aes.update(bytes), b => this.push(b))
+				}
+
+				if (remainingLength) {
+					const needed = AES_CHUNK_SIZE - remainingLength
+					if (data.length < needed) {
+						remainingLength += data.copy(remainingBytes, remainingLength)
+						callback()
+						return
+					}
+
+					data.copy(remainingBytes, remainingLength, 0, needed)
+					remainingLength = 0
+					decrypt(remainingBytes)
+					offset = needed
+				}
+
+				const decryptLength = toSmallestChunkSize(data.length - offset)
+				const end = offset + decryptLength
+				if (decryptLength) decrypt(data.subarray(offset, end))
+				if (end < data.length) remainingLength = data.copy(remainingBytes, 0, end)
 				callback()
 			} catch (error) {
 				callback(toError(error))
@@ -167,6 +187,8 @@ export const downloadEncryptedContent = async (
 			}
 		}
 	})
+	fetched.once('error', error => output.destroy(error))
+	output.once('close', () => fetched.destroy())
 	return fetched.pipe(output, { end: true })
 }
 
@@ -267,6 +289,7 @@ export const uploadWithNodeHttp = async (
 							resolve(undefined)
 							return
 						}
+
 						const result = parsed as Record<string, unknown>
 						resolve({
 							...(typeof result.url === 'string' ? { url: result.url } : {}),
@@ -288,7 +311,7 @@ export const uploadWithNodeHttp = async (
 			reject(new Error('Upload timeout'))
 		})
 
-		const stream = createReadStream(filePath)
+		const stream = createReadStream(filePath, { highWaterMark: MEDIA_UPLOAD_READ_SIZE })
 		stream.pipe(req)
 		stream.on('error', err => {
 			req.destroy()
@@ -428,5 +451,3 @@ export const getWAUploadToServer = (
 		return urls
 	}
 }
-
-

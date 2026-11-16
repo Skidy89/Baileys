@@ -17,10 +17,10 @@ export declare const xmppSignedPreKey: (key: SignedKeyPair) => BinaryNode;
 export declare const xmppPreKey: (pair: KeyPair, id: number) => BinaryNode;
 export declare const extractE2ESessionFromRetryReceipt: (receipt: BinaryNode) => {
     registrationId: number;
-    identityKey: Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>;
+    identityKey: Uint8Array<ArrayBufferLike> | Buffer<ArrayBuffer>;
     signedPreKey: {
         keyId: number;
-        publicKey: Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>;
+        publicKey: Uint8Array<ArrayBufferLike> | Buffer<ArrayBuffer>;
         signature: Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>;
     };
     preKey: {

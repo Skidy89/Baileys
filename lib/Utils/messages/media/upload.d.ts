@@ -47,6 +47,7 @@ export declare const getStream: (item: WAMediaUpload, opts?: RequestInit & {
 }>;
 export declare const getHttpStream: (url: string | URL, options?: RequestInit & {
     isStream?: true;
+    timeout?: number;
 }) => Promise<Readable>;
 type EncryptedStreamOptions = {
     saveOriginalFileIfRequired?: boolean;
@@ -57,7 +58,7 @@ type EncryptedStreamOptions = {
     mediaKey?: Buffer;
 };
 /** generates a thumbnail for a given media, if required */
-export declare function generateThumbnail(file: string, mediaType: 'video' | 'image', options: {
+export declare function generateThumbnail(file: string | Buffer, mediaType: 'video' | 'image', options: {
     logger?: ILogger;
 }): Promise<{
     thumbnail: string | undefined;

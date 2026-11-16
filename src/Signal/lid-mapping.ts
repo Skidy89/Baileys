@@ -135,6 +135,7 @@ export class LIDMappingStore {
 		const usyncFetch: { [_: string]: number[] } = {}
 		const successfulPairs: { [_: string]: LIDMapping } = {}
 		const pending: Array<{ pn: string; pnUser: string; decoded: ReturnType<typeof jidDecode> }> = []
+		const pendingUsers = new Set<string>()
 
 		const addResolvedPair = (pn: string, decoded: ReturnType<typeof jidDecode>, lidUser: string) => {
 			const normalizedLidUser = lidUser.toString()
@@ -172,10 +173,11 @@ export class LIDMappingStore {
 			}
 
 			pending.push({ pn, pnUser, decoded })
+			pendingUsers.add(pnUser)
 		}
 
 		if (pending.length) {
-			const pnUsers = [...new Set(pending.map(item => item.pnUser))]
+			const pnUsers = [...pendingUsers]
 			const stored = await this.keys.get('lid-mapping', pnUsers)
 			for (const pnUser of pnUsers) {
 				const lidUser = stored[pnUser]
@@ -270,6 +272,7 @@ export class LIDMappingStore {
 	private async _getPNsForLIDsImpl(lids: string[]): Promise<LIDMapping[] | null> {
 		const successfulPairs: { [_: string]: LIDMapping } = {}
 		const pending: Array<{ lid: string; lidUser: string; decoded: ReturnType<typeof jidDecode> }> = []
+		const pendingKeys = new Set<string>()
 
 		const addResolvedPair = (lid: string, decoded: ReturnType<typeof jidDecode>, pnUser: string) => {
 			if (!pnUser || typeof pnUser !== 'string') {
@@ -299,10 +302,11 @@ export class LIDMappingStore {
 			}
 
 			pending.push({ lid, lidUser, decoded })
+			pendingKeys.add(`${lidUser}_reverse`)
 		}
 
 		if (pending.length) {
-			const reverseKeys = [...new Set(pending.map(item => `${item.lidUser}_reverse`))]
+			const reverseKeys = [...pendingKeys]
 			const stored = await this.keys.get('lid-mapping', reverseKeys)
 
 			for (const { lid, lidUser, decoded } of pending) {

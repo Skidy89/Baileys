@@ -1,27 +1,28 @@
 import { Boom } from '@hapi/boom'
+import { FastResizeFilter, ResizeFilterType, ResizeFit, Transformer } from '@napi-rs/image'
 import * as Crypto from 'crypto'
 import { once } from 'events'
 import { createReadStream, createWriteStream, promises as fs, WriteStream } from 'fs'
 import type { IAudioMetadata } from 'music-metadata'
+import { execFile } from 'node:child_process'
+import { pipeline } from 'node:stream/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { Readable, Transform } from 'stream'
-import { pipeline } from 'node:stream/promises'
 import { URL } from 'url'
-import { ResizeFit, Transformer } from '@napi-rs/image'
 import { MEDIA_HKDF_KEY_MAPPING, type MediaType } from '../../../Defaults'
-import type {
-	MediaDecryptionKeyInfo,
-	WAGenericMediaMessage,
-	WAMediaUpload,
-	WAMessageContent
-} from '../../../Types'
+import type { MediaDecryptionKeyInfo, WAGenericMediaMessage, WAMediaUpload, WAMessageContent } from '../../../Types'
 import { hkdf } from '../../crypto'
 import { generateMessageID, toBufferView } from '../../generics'
 import type { ILogger } from '../../logger'
-import { exec } from 'node:child_process'
 
 const getTmpFilesDirectory = () => tmpdir()
+// shortcut: tuned for concurrent Node media encryption; rebenchmark for other runtimes or storage.
+const MEDIA_STREAM_CHUNK_SIZE = 1024 * 1024
+// shortcut: measured faster for concurrent Node HTTP reads; rebenchmark against production networks.
+const REMOTE_MEDIA_STREAM_CHUNK_SIZE = 256 * 1024
+// shortcut: use Triangle above 6 MP; it wins on speed at 8 MP and on speed/RSS at 10 MP+; rebenchmark when the codec changes.
+const FAST_RESIZE_MAX_PIXELS = 6_000_000
 
 export const hkdfInfoKey = (type: MediaType) => {
 	const hkdfInfo = MEDIA_HKDF_KEY_MAPPING[type]
@@ -35,19 +36,21 @@ export const getRawMediaUploadData = async (media: WAMediaUpload, mediaType: Med
 	const hasher = Crypto.createHash('sha256')
 	const filePath = join(tmpdir(), mediaType + generateMessageID())
 	const fileWriteStream = createWriteStream(filePath)
-
 	let fileLength = 0
-	try {
-		for await (const data of stream) {
-			fileLength += data.length
-			hasher.update(data)
-			if (!fileWriteStream.write(data)) {
-				await once(fileWriteStream, 'drain')
+	const hashStream = new Transform({
+		transform(data, _, callback) {
+			try {
+				fileLength += data.length
+				hasher.update(data)
+				callback(null, data)
+			} catch (error) {
+				callback(error as Error)
 			}
 		}
+	})
 
-		fileWriteStream.end()
-		await once(fileWriteStream, 'finish')
+	try {
+		await pipeline(stream, hashStream, fileWriteStream)
 		stream.destroy()
 		const fileSha256 = hasher.digest()
 		logger?.debug('hashed data for raw upload')
@@ -99,7 +102,7 @@ export const extractImageThumb = async (bufferOrFilePath: Readable | Buffer | st
 	const input = typeof bufferOrFilePath === 'string' ? await fs.readFile(bufferOrFilePath) : bufferOrFilePath
 	const image = new Transformer(input)
 	const dimensions = await image.metadata()
-	const buffer = await image.resize(width).jpeg(50)
+	const buffer = await image.resize({ width, filter: ResizeFilterType.Triangle }).jpeg(50)
 
 	return {
 		buffer,
@@ -120,19 +123,30 @@ export const generateProfilePicture = async (
 	let buffer: Buffer
 
 	const { width: w = 640, height: h = 640 } = dimensions || {}
+	const mediaUrl = !Buffer.isBuffer(mediaUpload) && 'url' in mediaUpload ? mediaUpload.url : undefined
+	const mediaUrlString = mediaUrl?.toString()
 
 	if (Buffer.isBuffer(mediaUpload)) {
 		buffer = mediaUpload
+	} else if (
+		mediaUrl !== undefined &&
+		!mediaUrlString?.startsWith('data:') &&
+		!mediaUrlString?.startsWith('http://') &&
+		!mediaUrlString?.startsWith('https://')
+	) {
+		buffer = await fs.readFile(mediaUrl)
 	} else {
-		// Use getStream to handle all WAMediaUpload types (Buffer, Stream, URL)
 		const { stream } = await getStream(mediaUpload)
-		// Convert the resulting stream to a buffer
 		buffer = await toBuffer(stream)
 	}
 
-	return {
-		img: await new Transformer(buffer).resize({ width: w, height: h, fit: ResizeFit.Cover }).jpeg(50)
-	}
+	const image = new Transformer(buffer)
+	const { width, height } = image.metadataSync()
+	const resized =
+		width * height > FAST_RESIZE_MAX_PIXELS
+			? image.resize({ width: w, height: h, fit: ResizeFit.Cover, filter: ResizeFilterType.Triangle })
+			: image.fastResize({ width: w, height: h, fit: ResizeFit.Cover, filter: FastResizeFilter.Hamming })
+	return { img: await resized.jpeg(50) }
 }
 
 /** gets the SHA256 of the given media message */
@@ -159,10 +173,39 @@ export async function getAudioDuration(buffer: Buffer | string | Readable) {
 }
 
 export const toReadable = (buffer: Buffer) => {
-	const readable = new Readable({ read: () => {} })
-	readable.push(buffer)
-	readable.push(null)
-	return readable
+	let offset = 0
+	return new Readable({
+		highWaterMark: MEDIA_STREAM_CHUNK_SIZE,
+		read() {
+			const end = Math.min(offset + MEDIA_STREAM_CHUNK_SIZE, buffer.length)
+			if (offset < end) {
+				const chunk = buffer.subarray(offset, end)
+				offset = end
+				this.push(chunk)
+			}
+
+			if (offset === buffer.length) this.push(null)
+		}
+	})
+}
+
+// Decode aligned Base64 slices so large data URLs do not allocate one full-size Buffer.
+const toBase64Readable = (base64: string) => {
+	const encodedChunkSize = Math.floor(MEDIA_STREAM_CHUNK_SIZE / 3) * 4
+	let offset = 0
+	return new Readable({
+		highWaterMark: MEDIA_STREAM_CHUNK_SIZE,
+		read() {
+			if (offset >= base64.length) {
+				this.push(null)
+				return
+			}
+
+			const end = Math.min(offset + encodedChunkSize, base64.length)
+			this.push(Buffer.from(base64.slice(offset, end), 'base64'))
+			offset = end
+		}
+	})
 }
 
 export const toBuffer = async (stream: Readable) => {
@@ -172,7 +215,7 @@ export const toBuffer = async (stream: Readable) => {
 	}
 
 	stream.destroy()
-	return Buffer.concat(chunks)
+	return chunks.length === 1 && Buffer.isBuffer(chunks[0]) ? chunks[0] : Buffer.concat(chunks)
 }
 
 export const getStream = async (item: WAMediaUpload, opts?: RequestInit & { maxContentLength?: number }) => {
@@ -187,31 +230,46 @@ export const getStream = async (item: WAMediaUpload, opts?: RequestInit & { maxC
 	const urlStr = item.url.toString()
 
 	if (urlStr.startsWith('data:')) {
-		const buffer = Buffer.from(urlStr.split(',')[1]!, 'base64')
-		return { stream: toReadable(buffer), type: 'buffer' } as const
+		const comma = urlStr.indexOf(',')
+		const nextComma = urlStr.indexOf(',', comma + 1)
+		const base64 = comma < 0 ? urlStr.split(',')[1]! : urlStr.slice(comma + 1, nextComma < 0 ? undefined : nextComma)
+		const isChunkableBase64 =
+			comma >= 0 &&
+			urlStr.slice(0, comma).toLowerCase().endsWith(';base64') &&
+			base64.length > MEDIA_STREAM_CHUNK_SIZE &&
+			/^[A-Za-z0-9+/_-]*={0,2}$/.test(base64)
+		const stream = isChunkableBase64 ? toBase64Readable(base64) : toReadable(Buffer.from(base64, 'base64'))
+		return { stream, type: 'buffer' } as const
 	}
 
 	if (urlStr.startsWith('http://') || urlStr.startsWith('https://')) {
 		return { stream: await getHttpStream(item.url, opts), type: 'remote' } as const
 	}
 
-	return { stream: createReadStream(item.url), type: 'file' } as const
+	return { stream: createReadStream(item.url, { highWaterMark: MEDIA_STREAM_CHUNK_SIZE }), type: 'file' } as const
 }
 
-export const getHttpStream = async (url: string | URL, options: RequestInit & { isStream?: true } = {}) => {
+export const getHttpStream = async (
+	url: string | URL,
+	options: RequestInit & { isStream?: true; timeout?: number } = {}
+) => {
 	const response = await fetch(url.toString(), {
 		dispatcher: options.dispatcher,
 		method: 'GET',
-		headers: options.headers as HeadersInit
+		headers: options.headers as HeadersInit,
+		signal: options.signal ?? (options.timeout ? AbortSignal.timeout(options.timeout) : undefined)
 	})
 	if (!response.ok) {
+		await response.body?.cancel().catch(() => undefined)
 		throw new Boom(`Failed to fetch stream from ${url}`, { statusCode: response.status, data: { url } })
 	}
 
 	// @ts-ignore Node18+ Readable.fromWeb exists
 	return response.body instanceof Readable
 		? response.body
-		: Readable.fromWeb(response.body as unknown as import('stream/web').ReadableStream)
+		: Readable.fromWeb(response.body as unknown as import('stream/web').ReadableStream, {
+				highWaterMark: REMOTE_MEDIA_STREAM_CHUNK_SIZE
+			})
 }
 
 type EncryptedStreamOptions = {
@@ -223,24 +281,41 @@ type EncryptedStreamOptions = {
 
 /** Extracts video thumb using FFMPEG */
 const extractVideoThumb = async (
-	path: string,
-	destPath: string,
+	file: string | Buffer,
 	time: string,
 	size: { width: number; height: number }
-) =>
-	new Promise<void>((resolve, reject) => {
-		const cmd = `ffmpeg -ss ${time} -i ${path} -y -vf scale=${size.width}:-1 -vframes 1 -f image2 ${destPath}`
-		exec(cmd, err => {
-			if (err) {
-				reject(err)
-			} else {
-				resolve()
-			}
-		})
+): Promise<Buffer> =>
+	new Promise((resolve, reject) => {
+		const isBuffer = Buffer.isBuffer(file)
+		const ffmpeg = execFile(
+			'ffmpeg',
+			[
+				'-ss',
+				time,
+				'-i',
+				isBuffer ? 'pipe:0' : file,
+				'-y',
+				'-vf',
+				`scale=${size.width}:-1`,
+				'-vframes',
+				'1',
+				'-f',
+				'image2pipe',
+				'-vcodec',
+				'mjpeg',
+				'pipe:1'
+			],
+			{ windowsHide: true, encoding: 'buffer' },
+			(err, stdout) => (err ? reject(err) : resolve(stdout))
+		)
+		if (isBuffer) {
+			ffmpeg.stdin?.on('error', () => undefined)
+			ffmpeg.stdin?.end(file)
+		}
 	})
 /** generates a thumbnail for a given media, if required */
 export async function generateThumbnail(
-	file: string,
+	file: string | Buffer,
 	mediaType: 'video' | 'image',
 	options: {
 		logger?: ILogger
@@ -258,13 +333,8 @@ export async function generateThumbnail(
 			}
 		}
 	} else if (mediaType === 'video') {
-		const imgFilename = join(getTmpFilesDirectory(), generateMessageID() + '.jpg')
 		try {
-			await extractVideoThumb(file, imgFilename, '00:00:00', { width: 32, height: 32 })
-			const buff = await fs.readFile(imgFilename)
-			thumbnail = buff.toString('base64')
-
-			await fs.unlink(imgFilename)
+			thumbnail = (await extractVideoThumb(file, '00:00:00', { width: 32, height: 32 })).toString('base64')
 		} catch (err) {
 			options.logger?.debug('could not generate video thumb: ' + err)
 		}
@@ -275,6 +345,7 @@ export async function generateThumbnail(
 		originalImageDimensions
 	}
 }
+
 export const encryptedStream = async (
 	media: WAMediaUpload,
 	mediaType: MediaType,
@@ -288,6 +359,10 @@ export const encryptedStream = async (
 		'starting media encryption'
 	)
 	let mac = Buffer.alloc(0)
+	if (providedKey && providedKey.length !== 32) {
+		throw new Boom('mediaKey must be 32 bytes', { statusCode: 400 })
+	}
+
 	const { stream, type } = await getStream(media, opts)
 
 	logger?.debug(
@@ -297,9 +372,6 @@ export const encryptedStream = async (
 		},
 		'fetched media stream'
 	)
-	if (providedKey && providedKey.length !== 32) {
-		throw new Boom('mediaKey must be 32 bytes', { statusCode: 400 })
-	}
 	const mediaKey = providedKey ?? Crypto.randomBytes(32)
 
 	const { cipherKey, iv, macKey } = await getMediaKeys(mediaKey, mediaType)
@@ -326,7 +398,6 @@ export const encryptedStream = async (
 
 	let fileLength = 0
 	let chunkCount = 0
-	let lastLoggedBytes = 0
 
 	const maxContentLength = opts?.maxContentLength
 
@@ -387,10 +458,6 @@ export const encryptedStream = async (
 
 						return
 					}
-				}
-
-				if (fileLength - lastLoggedBytes >= 10 * 1024 * 1024) {
-					lastLoggedBytes = fileLength
 				}
 
 				callback(null, encrypted)
@@ -505,4 +572,3 @@ export const encryptedStream = async (
 		throw error
 	}
 }
-

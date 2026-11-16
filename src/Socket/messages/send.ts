@@ -1,7 +1,7 @@
 import NodeCache from '@cacheable/node-cache'
 import { Boom } from '@hapi/boom'
 import { proto } from '../../../WAProto/index.js'
-import { DEFAULT_CACHE_TTLS, WA_DEFAULT_EPHEMERAL } from '../../Defaults'
+import { DEFAULT_CACHE_TTLS, MEDIA_KEYS, WA_DEFAULT_EPHEMERAL } from '../../Defaults'
 import type {
 	AnyMessageContent,
 	MessageRelayOptions,
@@ -28,10 +28,9 @@ import {
 	getWAUploadToServer,
 	MessageRetryManager,
 	normalizeMessageContent,
-	unixTimestampSeconds,
-	toError
+	toError,
+	unixTimestampSeconds
 } from '../../Utils'
-
 import { makeKeyedMutex, makeMutex } from '../../Utils/make-mutex'
 import { getMessageReportingToken, shouldIncludeReportingToken } from '../../Utils/reporting-utils'
 import {
@@ -46,7 +45,6 @@ import {
 	areJidsSameUser,
 	type BinaryNode,
 	type BinaryNodeAttributes,
-	type JidWithDevice,
 	isHostedLidUser,
 	isHostedPnUser,
 	isJidBot,
@@ -55,18 +53,19 @@ import {
 	isLidUser,
 	jidDecode,
 	jidEncode,
+	type JidWithDevice,
 	PSA_WID
 } from '../../WABinary'
 import { USyncQuery, USyncUser } from '../../WAUSync'
 import { makeGroupsSocket } from '../groups.js'
-import { makeMessageReceipts } from './receipts.js'
+import { type DeviceWithJid, makeDeviceResolver } from './devices.js'
 import { makeMediaConnectionManager } from './media-connection.js'
-import { makePrivacyTokenIssuer } from './privacy-tokens.js'
-import { getMessageType, getMediaType } from './types.js'
-import { makeParticipantNodeCreator } from './participant-nodes.js'
 import { makeMessageOperations } from './operations.js'
+import { makeParticipantNodeCreator } from './participant-nodes.js'
+import { makePrivacyTokenIssuer } from './privacy-tokens.js'
+import { makeMessageReceipts } from './receipts.js'
 import { makeSessionManager } from './sessions.js'
-import { makeDeviceResolver, type DeviceWithJid } from './devices.js'
+import { getMediaType, getMessageType } from './types.js'
 
 export const makeMessagesSocket = (config: SocketConfig) => {
 	const { logger, patchMessageBeforeSending, cachedGroupMetadata, enableRecentMessageCache, maxMsgRetryCount } = config
@@ -224,7 +223,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				return
 			}
 
-			if (normalizeMessageContent(message)?.pinInChatMessage || normalizeMessageContent(message)?.reactionMessage) {
+			const normalizedMessageContent = normalizeMessageContent(message)
+			if (normalizedMessageContent?.pinInChatMessage || normalizedMessageContent?.reactionMessage) {
 				extraAttrs['decrypt-fail'] = 'hide' // todo: expand for reactions and other types
 			}
 
@@ -273,7 +273,11 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				const additionalDevices = await getUSyncDevices(participantsList, !!useUserDevicesCache, false)
 				devices.push(...additionalDevices)
 				if (isGroup && senderKeyMap.size) {
-					const lidDevices = devices.filter(device => isLidUser(device.jid)).map(device => device.jid)
+					const lidDevices: string[] = []
+					for (const { jid } of devices) {
+						if (isLidUser(jid)) lidDevices.push(jid)
+					}
+
 					const pnMappings = await signalRepository.lidMapping.getPNsForLIDs(lidDevices)
 					for (const { lid, pn } of pnMappings || []) {
 						if (senderKeyMap.has(pn)) senderKeyMap.add(lid)
@@ -632,7 +636,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
 			// Fire-and-forget: issue our token to the contact AFTER message send.
 			// WA Web skips protocol messages and PSA/bot contacts (TcTokenChatAction: isRegularUser)
-			const isProtocolMsg = !!normalizeMessageContent(message)?.protocolMessage
+			const isProtocolMsg = !!normalizedMessageContent?.protocolMessage
 			const isBotOrPSA = destinationJid === PSA_WID || isJidBot(destinationJid) || isJidMetaAI(destinationJid)
 			if (
 				is1on1Send &&
@@ -762,15 +766,15 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							try {
 								const media = decryptMediaRetryData(result.media!, mediaKey, result.key.id!)
 								if (media.result !== proto.MediaRetryNotification.ResultType.SUCCESS) {
-									const resultStr = proto.MediaRetryNotification.ResultType[media.result!]
+									const resultStr = proto.MediaRetryNotification.ResultType[media.result]
 									throw new Boom(`Media re-upload failed by device (${resultStr})`, {
 										data: media,
-										statusCode: getStatusCodeForMediaRetry(media.result!) || 404
+										statusCode: getStatusCodeForMediaRetry(media.result) || 404
 									})
 								}
 
 								content.directPath = media.directPath
-								content.url = getUrlFromDirectPath(content.directPath!, mediaConnection.getMediaHost())
+								content.url = getUrlFromDirectPath(content.directPath, mediaConnection.getMediaHost())
 								if (logger) logger.debug({ directPath: media.directPath, key: result.key }, 'media update successful')
 							} catch (err) {
 								error = toError(err)
@@ -807,6 +811,14 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						: disappearingMessagesInChat
 				await groupToggleEphemeral(jid, value)
 			} else {
+				if (
+					typeof content === 'object' &&
+					content !== null &&
+					(MEDIA_KEYS.some(key => key in content) || 'product' in content)
+				) {
+					void refreshMediaConn().catch(error => logger?.debug({ err: error }, 'media connection prefetch failed'))
+				}
+
 				const fullMsg = await generateWAMessage(jid, content, {
 					logger,
 					userJid,

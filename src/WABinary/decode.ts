@@ -149,8 +149,7 @@ export const decodeDecompressedBinaryNode = (
 	}
 
 	const readAdJid = () => {
-		const rawDomainType = readByte()
-		const domainType = Number(rawDomainType)
+		const domainType = readByte()
 
 		const device = readByte()
 		const user = readString(readByte()!)
@@ -229,7 +228,7 @@ export const decodeDecompressedBinaryNode = (
 		const items: BinaryNode[] = []
 		const size = readListSize(tag)!
 		for (let i = 0; i < size; i++) {
-			items.push(decodeDecompressedBinaryNode(buffer, opts, indexRef))
+			items.push(decodeNode())
 		}
 
 		return items
@@ -249,60 +248,68 @@ export const decodeDecompressedBinaryNode = (
 		return value
 	}
 
-	const listSize = readListSize(readByte()!)
-	const header = readString(readByte()!)
-	if (!listSize || !header.length) {
-		throw new Error('invalid node')
-	}
+	const decodeNode = () => {
+		const listSize = readListSize(readByte()!)
+		const header = readString(readByte()!)
+		if (!listSize || !header.length) {
+			throw new Error('invalid node')
+		}
 
-	const attrs: BinaryNode['attrs'] = {}
-	let data: BinaryNode['content']
-	if (listSize === 0 || !header) {
-		throw new Error('invalid node')
-	}
+		const attrs: BinaryNode['attrs'] = {}
+		let data: BinaryNode['content']
 
-	// read the attributes in
-	const attributesLength = (listSize - 1) >> 1
-	for (let i = 0; i < attributesLength; i++) {
-		const key = readString(readByte()!)
-		const value = readString(readByte()!)
+		// read the attributes in
+		const attributesLength = (listSize - 1) >> 1
+		for (let i = 0; i < attributesLength; i++) {
+			const key = readString(readByte()!)
+			const value = readString(readByte()!)
 
-		attrs[key] = value
-	}
+			attrs[key] = value
+		}
 
-	if (listSize % 2 === 0) {
-		const tag = readByte()!
-		if (isListTag(tag)) {
-			data = readList(tag)
-		} else {
-			let decoded: Buffer | string
-			switch (tag) {
-				case TAGS.BINARY_8:
-					decoded = readBytes(readByte()!)
-					break
-				case TAGS.BINARY_20:
-					decoded = readBytes(readInt20())
-					break
-				case TAGS.BINARY_32:
-					decoded = readBytes(readInt(4))
-					break
-				default:
-					decoded = readString(tag)
-					break
+		if (listSize % 2 === 0) {
+			const tag = readByte()!
+			if (isListTag(tag)) {
+				data = readList(tag)
+			} else {
+				let decoded: Buffer | string
+				switch (tag) {
+					case TAGS.BINARY_8:
+						decoded = readBytes(readByte()!)
+						break
+					case TAGS.BINARY_20:
+						decoded = readBytes(readInt20())
+						break
+					case TAGS.BINARY_32:
+						decoded = readBytes(readInt(4))
+						break
+					default:
+						decoded = readString(tag)
+						break
+				}
+
+				data = decoded
 			}
+		}
 
-			data = decoded
+		return {
+			tag: header,
+			attrs,
+			content: data
 		}
 	}
 
-	return {
-		tag: header,
-		attrs,
-		content: data
-	}
+	return decodeNode()
 }
 
-export const decodeBinaryNode = async (buff: Buffer): Promise<BinaryNode> => {
-	const decompBuff = await decompressingIfRequired(buff)
-	return decodeDecompressedBinaryNode(decompBuff, constants)
+export const decodeBinaryNode = (buff: Buffer): Promise<BinaryNode> => {
+	try {
+		if (2 & buff.readUInt8()) {
+			return inflatePromise(buff.subarray(1)).then(decompBuff => decodeDecompressedBinaryNode(decompBuff, constants))
+		}
+
+		return Promise.resolve(decodeDecompressedBinaryNode(buff.subarray(1), constants))
+	} catch (error) {
+		return Promise.reject(error)
+	}
 }

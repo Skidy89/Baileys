@@ -94,7 +94,7 @@ import { binaryPack, GroupSession } from '@skidy89/signal-protocol'
 import { encodeBinaryNode } from '../../WABinary'
 import { callAck, parseCall, rejectCallNode } from '../features/call/call-events'
 import { createCallMediaStream } from '../features/call/call-media'
-import { queueAudioFile, type QueueAudioFileOptions } from '../features/call/media-file'
+import { queueAudioFile, resolveCallFiles, type CallFileOptions, type QueueAudioFileOptions, type ResolvedCallFiles } from '../features/call/media-file'
 import { buildAccept, buildOffer, buildPreaccept, buildTerminate, buildVideoState, getCallKey, mediaConfigFromRelay, newCallId, type CallState } from '../features/call/calls'
 
 type MexGqlData = Record<string, unknown>
@@ -183,6 +183,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			useClones: false
 		})
 	const calls = new Map<string, CallState>()
+	const pendingCallFiles = new WeakMap<CallState, ResolvedCallFiles>()
 	const lidMigrationLocks = makeLockManager()
 
 	// Debounce identity-change session refreshes per JID to avoid bursts
@@ -645,7 +646,17 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		call.callKey?.fill(0)
 	}
 
-	const startCall = async (to: string, options: { video?: boolean } = {}) => {
+	const applyCallFiles = async (call: CallState, files: ResolvedCallFiles) => {
+		if (!call.media) return
+		if (files.audioIn) call.media.speak(files.audioIn, true)
+		if (files.videoFrames) {
+			if (!call.media.startVideoFrames(files.videoFrames, files.videoFps)) throw new Boom('Could not start video file playback')
+			const to = call.peerDevice || call.offerFrom || call.peer
+			await sendNode(buildVideoState(call.callId, to, call.creator, generateMessageID(), 11))
+		}
+	}
+
+	const startCall = async (to: string, options: CallFileOptions & { video?: boolean } = {}) => {
 		const ownLid = authState.creds.me?.lid
 		if (!ownLid) throw new Boom('Cannot place a call before the account LID is available')
 		let peer = to.replace(/:\d+@/, '@')
@@ -657,6 +668,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		}
 		const devices = await getUSyncDevices([peer], false, false)
 		if (!devices.length) throw new Boom(`No call devices found for ${peer}`)
+		const files = await resolveCallFiles(options)
 		const deviceJids = devices.map(device => device.jid)
 		await assertSessions(deviceJids)
 		const callKey = randomBytes(32)
@@ -675,14 +687,14 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		clearKey.fill(0)
 		const callId = newCallId()
 		const offer = buildOffer({
-			callId, to: peer, creator: ownLid, id: generateMessageID(), video: !!options.video,
+			callId, to: peer, creator: ownLid, id: generateMessageID(), video: !!(options.video || options.videoFile),
 			keys: encrypted,
 			...(encrypted.some(key => key.type === 'pkmsg') && authState.creds.account && {
 				deviceIdentity: encodeSignedDeviceIdentity(authState.creds.account, true)
 			})
 		})
 		const call: CallState = {
-			callId, peer, creator: ownLid, direction: 'outgoing', video: !!options.video,
+			callId, peer, creator: ownLid, direction: 'outgoing', video: !!(options.video || options.videoFile),
 			devices: deviceJids, status: 'calling', startedAt: Date.now(), callKey
 		}
 		calls.set(callId, call)
@@ -690,11 +702,17 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			const ack = await query(offer, 20_000)
 			const relay = getBinaryNodeChild(ack, 'relay')
 			if (!relay) throw new Boom('Call offer acknowledgement did not include a relay')
-			call.status = 'ringing'
+			if (call.status === 'calling') call.status = 'ringing'
 			call.relay = relay
-			const media = createCallMediaStream(mediaConfigFromRelay(relay, callId, 'outgoing', ownLid, peer, callKey, call.video))
+			const media = createCallMediaStream(mediaConfigFromRelay(relay, callId, 'outgoing', ownLid, peer, callKey, call.video), { logger })
 			call.media = media
+			if (call.peerDevice) media.rekeyRecv(call.peerDevice)
+			media.on('media-event', event => {
+				if (!event.startsWith('RtcpReceived')) logger?.debug({ callId, event }, 'call media event')
+			})
 			media.on('error', error => logger?.error({ err: error, callId }, 'call media transport failed'))
+			if (call.status === 'connected') await applyCallFiles(call, files)
+			else if (options.audioFile || options.videoFile) pendingCallFiles.set(call, files)
 			return call
 		} catch (error) {
 			finishCall(call)
@@ -703,10 +721,11 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		}
 	}
 
-	const acceptCall = async (callId: string) => {
+	const acceptCall = async (callId: string, options: CallFileOptions = {}) => {
 		const call = calls.get(callId)
 		if (!call || call.direction !== 'incoming' || !call.offer) throw new Boom(`No incoming call offer ${callId}`)
 		if (call.lightweight) throw new Boom('Silent group calls cannot be answered from a companion device')
+		if (options.videoFile && !call.video) throw new Boom('Cannot send a video file in an audio-only call')
 		const own = authState.creds.me
 		if (!own?.lid) throw new Boom('Cannot answer a call before the account LID is available')
 		const action = Array.isArray(call.offer.content) ? call.offer.content[0] : undefined
@@ -723,15 +742,20 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		const from = call.offerFrom || call.creator
 		const preaccept = buildPreaccept(callId, from, call.creator, generateMessageID(), call.video)
 		await sendNode(preaccept)
+		const files = await resolveCallFiles(options)
 		const callKey = await getCallKey(signalRepository.decryptMessage.bind(signalRepository), call.creator, enc)
 		try {
 			const media = createCallMediaStream(mediaConfigFromRelay(relay, callId, 'incoming', own.lid, call.peer, callKey, call.video))
+			media.on('media-event', event => {
+				if (!event.startsWith('RtcpReceived')) logger?.debug({ callId, event }, 'call media event')
+			})
 			media.on('error', error => logger?.error({ err: error, callId }, 'call media transport failed'))
 			call.callKey = callKey
 			call.relay = relay
 			call.media = media
 			await sendNode(buildAccept(callId, from, call.creator, generateMessageID(), call.video))
 			call.status = 'connected'
+			await applyCallFiles(call, files)
 			return call
 		} catch (error) {
 			finishCall(call)
@@ -797,9 +821,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 	const playInCall = (callId: string, pcm: Int16Array, replace = false) => {
 		const media = calls.get(callId)?.media
 		if (!media) throw new Boom(`Call ${callId} has no media stream`)
-		if (replace) media.clearAudio()
-		const bytes = Buffer.from(pcm.buffer, pcm.byteOffset, pcm.byteLength)
-		media.write(bytes)
+		media.speak(pcm, replace)
 	}
 
 	const queueAudioFileInCall = (callId: string, path: string, options?: QueueAudioFileOptions) => {
@@ -2288,6 +2310,9 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			if (call && (call.status !== 'offer' || call.isGroup || await callUserMatches(call.creator || call.from, call.from))) {
 				const action = Array.isArray(node.content) ? node.content[0] : undefined
 				const current = calls.get(call.id)
+				if (call.status === 'terminate') {
+					logger?.debug({ callId: call.id, from: call.from, reason: action?.attrs.reason, mediaStats: current?.media?.stats }, 'call terminated')
+				}
 				if (call.status === 'offer') {
 					await callOfferCache.set(call.id, call)
 					if (call.isGroup && !current && authState.creds.me?.lid) {
@@ -2332,6 +2357,11 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 							current.status = 'connected'
 							current.peerDevice = call.from
 							if (current.direction === 'outgoing') current.media?.rekeyRecv(call.from)
+							const files = pendingCallFiles.get(current)
+							if (files) {
+								pendingCallFiles.delete(current)
+								await applyCallFiles(current, files)
+							}
 						} else if (call.status === 'reject' || call.status === 'terminate' || call.status === 'timeout') {
 							finishCall(current)
 						} else if (call.status === 'video' && call.videoState !== undefined) {

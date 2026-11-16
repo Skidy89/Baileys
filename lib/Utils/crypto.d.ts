@@ -1,5 +1,5 @@
 import type { KeyPair } from '../Types/index.js';
-export declare const generateSignalPubKey: (pubKey: Uint8Array | Buffer) => Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>;
+export declare const generateSignalPubKey: (pubKey: Uint8Array | Buffer) => Uint8Array<ArrayBufferLike> | Buffer<ArrayBuffer>;
 export declare const Curve: {
     generateKeyPair: () => KeyPair;
     generateKeyPairs: (count: number) => KeyPair[];
@@ -36,6 +36,6 @@ export declare function md5(buffer: Buffer): NonSharedBuffer;
 export declare function hkdf(buffer: Uint8Array | Buffer, expandedLength: number, info: {
     salt?: Buffer;
     info?: string;
-}): Buffer<ArrayBufferLike>;
+}): Buffer<ArrayBuffer>;
 export declare function derivePairingCodeKey(pairingCode: string, salt: Buffer): NonSharedBuffer;
 //# sourceMappingURL=crypto.d.ts.map

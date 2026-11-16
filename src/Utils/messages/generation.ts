@@ -1,6 +1,7 @@
 import { Boom } from '@hapi/boom'
 import { randomBytes } from 'crypto'
 import { promises as fs } from 'fs'
+import { fileURLToPath, URL } from 'node:url'
 import { proto } from '../../../WAProto/index.js'
 import {
 	CALL_AUDIO_PREFIX,
@@ -25,14 +26,9 @@ import type {
 import { WAMessageStatus, WAProto } from '../../Types'
 import { isJidGroup, isJidNewsletter, isJidStatusBroadcast, jidNormalizedUser } from '../../WABinary'
 import { generateMessageID, unixTimestampSeconds } from '../generics'
-import {
-	encryptedStream,
-	generateThumbnail,
-	getAudioDuration,
-	getRawMediaUploadData
-} from './media'
 import { shouldIncludeReportingToken } from '../reporting-utils'
 import { getContentType, normalizeMessageContent } from './content'
+import { encryptedStream, generateThumbnail, getAudioDuration, getRawMediaUploadData } from './media'
 
 type ExtractByKey<T, K extends PropertyKey> = T extends Record<K, unknown> ? T : never
 type RequireKey<T, K extends keyof T> = T & {
@@ -98,19 +94,14 @@ export const generateLinkPreviewIfRequired = async (
 	}
 }
 
-const assertColor = async (color: string | number) => {
-	let assertedColor
+const assertColor = (color: string | number) => {
 	if (typeof color === 'number') {
-		assertedColor = color > 0 ? color : 0xffffffff + Number(color) + 1
-	} else {
-		let hex = color.trim().replace('#', '')
-		if (hex.length <= 6) {
-			hex = 'FF' + hex.padStart(6, '0')
-		}
-
-		assertedColor = parseInt(hex, 16)
-		return assertedColor
+		return color >= 0 ? color : 0xffffffff + color + 1
 	}
+
+	let hex = color.trim().replace('#', '')
+	if (hex.length <= 6) hex = 'FF' + hex.padStart(6, '0')
+	return parseInt(hex, 16)
 }
 
 export const prepareWAMessageMedia = async (
@@ -172,12 +163,13 @@ export const prepareWAMessageMedia = async (
 			logger
 		)
 		const fileSha256B64 = fileSha256.toString('base64')
-		const { mediaUrl, directPath } = await options.upload(filePath, {
-			fileEncSha256B64: fileSha256B64,
-			mediaType: mediaType,
-			timeoutMs: options.mediaUploadTimeoutMs
-		})
-		await fs.unlink(filePath)
+		const { mediaUrl, directPath } = await options
+			.upload(filePath, {
+				fileEncSha256B64: fileSha256B64,
+				mediaType: mediaType,
+				timeoutMs: options.mediaUploadTimeoutMs
+			})
+			.finally(() => fs.unlink(filePath).catch(() => logger?.warn('failed to remove tmp file')))
 
 		if (!(mediaType in MessageTypeProto)) {
 			throw new Boom(`Unsupported newsletter media type: ${mediaType}`, { statusCode: 400 })
@@ -217,17 +209,61 @@ export const prepareWAMessageMedia = async (
 		options.shouldProccessJpegThumbnail === true &&
 		(mediaType === 'image' || mediaType === 'video') &&
 		typeof uploadData.jpegThumbnail === 'undefined'
-	const requiresAudioBackground = options.backgroundColor && mediaType === 'audio' && uploadData.ptt === true
+	const useOriginalMediaBuffer = Buffer.isBuffer(uploadData.media) && (mediaType === 'image' || mediaType === 'video')
+	const sourceMediaUrl =
+		typeof uploadData.media === 'object' && 'url' in uploadData.media ? uploadData.media.url : undefined
+	const mediaFilePath =
+		typeof sourceMediaUrl === 'string' &&
+		!sourceMediaUrl.startsWith('data:') &&
+		!sourceMediaUrl.startsWith('http://') &&
+		!sourceMediaUrl.startsWith('https://')
+			? sourceMediaUrl
+			: sourceMediaUrl instanceof URL && sourceMediaUrl.protocol === 'file:'
+				? fileURLToPath(sourceMediaUrl)
+				: undefined
+	const mediaBufferThumbnailPromise =
+		requiresThumbnailComputation && useOriginalMediaBuffer
+			? generateThumbnail(uploadData.media as Buffer, mediaType as 'image' | 'video', options)
+			: undefined
+	const mediaFileThumbnailPromise =
+		requiresThumbnailComputation && mediaFilePath
+			? generateThumbnail(mediaFilePath, mediaType as 'image' | 'video', options)
+			: undefined
+	void mediaBufferThumbnailPromise?.catch(() => undefined)
+	void mediaFileThumbnailPromise?.catch(() => undefined)
+	const requiresAudioBackground =
+		(typeof options.backgroundColor === 'number' || !!options.backgroundColor) &&
+		mediaType === 'audio' &&
+		uploadData.ptt === true
+	const audioDurationPromise =
+		requiresDurationComputation && Buffer.isBuffer(uploadData.media)
+			? getAudioDuration(uploadData.media)
+			: requiresDurationComputation && mediaFilePath
+				? getAudioDuration(mediaFilePath)
+				: undefined
+	void audioDurationPromise?.catch(() => undefined)
 
 	const { mediaKey, encFilePath, originalFilePath, fileEncSha256, fileSha256, fileLength } = await encryptedStream(
 		uploadData.media,
 		options.mediaTypeOverride || mediaType,
 		{
 			logger,
-			saveOriginalFileIfRequired: requiresThumbnailComputation,
+			saveOriginalFileIfRequired:
+				(requiresDurationComputation && !audioDurationPromise) ||
+				(requiresThumbnailComputation && !mediaBufferThumbnailPromise && !mediaFileThumbnailPromise),
 			opts: options.options
 		}
 	)
+	const cleanup = async () => {
+		try {
+			const unlinkPromises = [fs.unlink(encFilePath)]
+			if (originalFilePath) unlinkPromises.push(fs.unlink(originalFilePath))
+			await Promise.all(unlinkPromises)
+			logger?.debug('removed tmp files')
+		} catch {
+			logger?.warn('failed to remove tmp file')
+		}
+	}
 
 	const fileEncSha256B64 = fileEncSha256.toString('base64')
 
@@ -245,11 +281,9 @@ export const prepareWAMessageMedia = async (
 	if (requiresThumbnailComputation) {
 		processingTasks.push(
 			(async () => {
-				const { thumbnail, originalImageDimensions } = await generateThumbnail(
-					originalFilePath!,
-					mediaType as 'image' | 'video',
-					options
-				)
+				const { thumbnail, originalImageDimensions } = await (mediaBufferThumbnailPromise ??
+					mediaFileThumbnailPromise ??
+					generateThumbnail(originalFilePath!, mediaType as 'image' | 'video', options))
 				uploadData.jpegThumbnail = thumbnail
 				if (!uploadData.width && originalImageDimensions) {
 					uploadData.width = originalImageDimensions.width
@@ -261,11 +295,12 @@ export const prepareWAMessageMedia = async (
 			})()
 		)
 	}
+
 	if (requiresDurationComputation) {
 		processingTasks.push(
 			(async () => {
 				try {
-					uploadData.seconds = await getAudioDuration(originalFilePath!)
+					uploadData.seconds = await (audioDurationPromise ?? getAudioDuration(originalFilePath!))
 					logger?.debug('computed audio duration')
 				} catch (error) {
 					logger?.warn({ trace: error instanceof Error ? error.stack : undefined }, 'duration computation failed')
@@ -278,7 +313,7 @@ export const prepareWAMessageMedia = async (
 		processingTasks.push(
 			(async () => {
 				try {
-					uploadData.backgroundArgb = await assertColor(options.backgroundColor!)
+					uploadData.backgroundArgb = assertColor(options.backgroundColor!)
 					logger?.debug('computed backgroundColor audio status')
 				} catch (error) {
 					logger?.warn(
@@ -290,46 +325,42 @@ export const prepareWAMessageMedia = async (
 		)
 	}
 
-	const [{ mediaUrl, directPath }] = await Promise.all([uploadPromise, ...processingTasks])
-
-	const obj = WAProto.Message.fromObject({
-		[`${mediaType}Message`]: MessageTypeProto[mediaType as keyof typeof MessageTypeProto].fromObject({
-			url: mediaUrl,
-			directPath,
-			mediaKey,
-			fileEncSha256,
-			fileSha256,
-			fileLength,
-			mediaKeyTimestamp: unixTimestampSeconds(),
-			...uploadData,
-			media: undefined
-		})
+	const pendingTasks = [uploadPromise, ...processingTasks] as const
+	const [{ mediaUrl, directPath }] = await Promise.all(pendingTasks).catch(async error => {
+		await Promise.allSettled(pendingTasks)
+		await cleanup()
+		throw error
 	})
 
-	if (uploadData.ptv) {
-		obj.ptvMessage = obj.videoMessage
-		delete obj.videoMessage
-	}
+	try {
+		const obj = WAProto.Message.fromObject({
+			[`${mediaType}Message`]: MessageTypeProto[mediaType as keyof typeof MessageTypeProto].fromObject({
+				url: mediaUrl,
+				directPath,
+				mediaKey,
+				fileEncSha256,
+				fileSha256,
+				fileLength,
+				mediaKeyTimestamp: unixTimestampSeconds(),
+				...uploadData,
+				media: undefined
+			})
+		})
 
-	if (cacheableKey) {
-		logger?.debug({ cacheableKey }, 'set cache')
-		await options.mediaCache!.set(cacheableKey, WAProto.Message.encode(obj).finish())
-	}
-
-	const cleanup = async () => {
-		try {
-			const unlinkPromises = [fs.unlink(encFilePath)]
-			if (originalFilePath) unlinkPromises.push(fs.unlink(originalFilePath))
-			await Promise.all(unlinkPromises)
-			logger?.debug('removed tmp files')
-		} catch (error) {
-			logger?.warn('failed to remove tmp file')
+		if (uploadData.ptv) {
+			obj.ptvMessage = obj.videoMessage
+			delete obj.videoMessage
 		}
+
+		if (cacheableKey) {
+			logger?.debug({ cacheableKey }, 'set cache')
+			await options.mediaCache!.set(cacheableKey, WAProto.Message.encode(obj).finish())
+		}
+
+		return obj
+	} finally {
+		await cleanup()
 	}
-
-	await cleanup().catch(logger?.warn)
-
-	return obj
 }
 
 export const prepareDisappearingMessageSettingContent = (ephemeralExpiration?: number) => {
@@ -432,8 +463,8 @@ export const generateWAMessageContent = async (
 			}
 		}
 
-		if (options.backgroundColor) {
-			extContent.backgroundArgb = await assertColor(options.backgroundColor)
+		if (typeof options.backgroundColor === 'number' || options.backgroundColor) {
+			extContent.backgroundArgb = assertColor(options.backgroundColor)
 		}
 
 		if (options.font) {
@@ -777,5 +808,3 @@ export const generateWAMessage = async (jid: string, content: AnyMessageContent,
 	// Pass jid in the options to generateWAMessageContent
 	return generateWAMessageFromContent(jid, await generateWAMessageContent(content, { ...options, jid }), options)
 }
-
-

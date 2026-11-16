@@ -1,11 +1,11 @@
 import { Boom } from '@hapi/boom'
 import { proto } from '../../../WAProto/index.js'
 import type { AuthenticationState, SocketConfig } from '../../Types'
-import { encodeWAMessage } from '../../Utils'
-import { type BinaryNode, jidDecode } from '../../WABinary'
+import type { SignalRepository } from '../../Types/Signal'
+import { writeRandomPadMax16 } from '../../Utils/generics'
 import type { ILogger } from '../../Utils/logger'
 import { makeKeyedMutex } from '../../Utils/make-mutex'
-import type { SignalRepository } from '../../Types/Signal'
+import { type BinaryNode, jidDecode } from '../../WABinary'
 
 type Dependencies = {
 	patchMessageBeforeSending: SocketConfig['patchMessageBeforeSending']
@@ -28,23 +28,24 @@ export const makeParticipantNodeCreator =
 		if (!recipientJids.length) return { nodes: [] as BinaryNode[], shouldIncludeDeviceIdentity: false }
 
 		const patched = await patchMessageBeforeSending(message, recipientJids)
-		const patchedMessages: RecipientMessage[] = Array.isArray(patched)
+		const patchedMessages: RecipientMessage[] | undefined = Array.isArray(patched)
 			? (patched as unknown as RecipientMessage[])
-			: recipientJids.map(jid => ({ recipientJid: jid, message: patched }))
+			: undefined
 
 		let shouldIncludeDeviceIdentity = false
 		const meId = authState.creds.me!.id
+		const mePnUser = jidDecode(meId)?.user
 		const meLid = authState.creds.me?.lid
 		const meLidUser = meLid ? jidDecode(meLid)?.user : null
-		const encryptionPromises = patchedMessages.map(async ({ recipientJid: jid, message: patchedMessage }) => {
+		const encodedMessages = new WeakMap<proto.IMessage, Uint8Array>()
+		const encryptRecipient = async (jid: string | undefined, patchedMessage: proto.IMessage) => {
 			try {
 				if (!jid) return null
 				let msgToEncrypt = patchedMessage
 
 				if (dsmMessage) {
 					const { user: targetUser } = jidDecode(jid)!
-					const { user: ownPnUser } = jidDecode(meId)!
-					const isOwnUser = targetUser === ownPnUser || (meLidUser && targetUser === meLidUser)
+					const isOwnUser = targetUser === mePnUser || (meLidUser && targetUser === meLidUser)
 					const isExactSenderDevice = jid === meId || (meLid && jid === meLid)
 					if (isOwnUser && !isExactSenderDevice) {
 						msgToEncrypt = dsmMessage
@@ -52,7 +53,13 @@ export const makeParticipantNodeCreator =
 					}
 				}
 
-				const bytes = encodeWAMessage(msgToEncrypt)
+				let encoded = encodedMessages.get(msgToEncrypt)
+				if (!encoded) {
+					encoded = proto.Message.encode(msgToEncrypt).finish()
+					encodedMessages.set(msgToEncrypt, encoded)
+				}
+
+				const bytes = writeRandomPadMax16(encoded)
 				return await encryptionMutex.mutex(jid, async () => {
 					const { type, ciphertext } = await signalRepository.encryptMessage({ jid, data: bytes })
 					if (type === 'pkmsg') shouldIncludeDeviceIdentity = true
@@ -66,7 +73,10 @@ export const makeParticipantNodeCreator =
 				logger?.error({ jid, err }, 'Failed to encrypt for recipient')
 				return null
 			}
-		})
+		}
+		const encryptionPromises = patchedMessages
+			? patchedMessages.map(({ recipientJid, message }) => encryptRecipient(recipientJid, message))
+			: recipientJids.map(jid => encryptRecipient(jid, patched as proto.IMessage))
 
 		const nodes = (await Promise.all(encryptionPromises)).filter(node => node !== null) as BinaryNode[]
 		if (recipientJids.length > 0 && nodes.length === 0) throw new Boom('All encryptions failed', { statusCode: 500 })

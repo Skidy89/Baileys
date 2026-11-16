@@ -12,9 +12,9 @@ import type {
 	WAMessageKey
 } from '../Types'
 import { WAMessageStatus } from '../Types'
-import { trimUndefined } from './generics'
+import { getKeyAuthor, trimUndefined } from './generics'
 import type { ILogger } from './logger'
-import { updateMessageWithReaction, updateMessageWithReceipt } from './messages'
+import { updateMessageWithReaction } from './messages'
 import { isRealMessage, shouldIncrementChatUnread } from './messages/process'
 
 const BUFFERABLE_EVENT = [
@@ -45,6 +45,15 @@ type BufferableEventEntry = { [E in BufferableEvent]: [event: E, eventData: Bail
 type BaileysEventData = Partial<BaileysEventMap>
 
 const BUFFERABLE_EVENT_SET = new Set<BaileysEvent>(BUFFERABLE_EVENT)
+const MAX_HISTORY_CACHE_SIZE = 10000
+const addHistoryCacheKey = (cache: Set<string>, key: string) => {
+	if (cache.size < MAX_HISTORY_CACHE_SIZE) {
+		cache.add(key)
+		return false
+	}
+
+	return !cache.has(key)
+}
 
 type BaileysBufferableEventEmitter = BaileysEventEmitter & {
 	/** Use to process events in a batch */
@@ -73,13 +82,16 @@ type BaileysBufferableEventEmitter = BaileysEventEmitter & {
 export const makeEventBuffer = (logger: ILogger | undefined): BaileysBufferableEventEmitter => {
 	const ev = new EventEmitter()
 	const historyCache = new Set<string>()
+	let pastParticipantsByGroup = new Map<string, { entry: proto.IPastParticipants; signatures: Set<string> }>()
+	let bufferedReactionIndexes = new WeakMap<object, Set<string>>()
+	let bufferedReceiptIndexes = new WeakMap<object, Map<string, proto.IUserReceipt>>()
+	let historyCacheOverflowed = false
 
 	let data = makeBufferData()
 	let isBuffering = false
 	let bufferTimeout: NodeJS.Timeout | null = null
 	let flushPendingTimeout: NodeJS.Timeout | null = null // Add a specific timer for the debounced flush to prevent leak
 	let bufferCount = 0
-	const MAX_HISTORY_CACHE_SIZE = 10000 // Limit the history cache size to prevent memory bloat
 	const BUFFER_TIMEOUT_MS = 30000 // 30 seconds
 
 	// take the generic event and fire it as a baileys event
@@ -131,10 +143,10 @@ export const makeEventBuffer = (logger: ILogger | undefined): BaileysBufferableE
 			flushPendingTimeout = null
 		}
 
-		// Clear history cache if it exceeds the max size
-		if (historyCache.size > MAX_HISTORY_CACHE_SIZE) {
+		if (historyCacheOverflowed || historyCache.size > MAX_HISTORY_CACHE_SIZE) {
 			if (logger) logger.debug({ cacheSize: historyCache.size }, 'Clearing history cache')
 			historyCache.clear()
+			historyCacheOverflowed = false
 		}
 
 		const newData = makeBufferData()
@@ -154,6 +166,9 @@ export const makeEventBuffer = (logger: ILogger | undefined): BaileysBufferableE
 		}
 
 		data = newData
+		pastParticipantsByGroup.clear()
+		bufferedReactionIndexes = new WeakMap()
+		bufferedReceiptIndexes = new WeakMap()
 
 		if (logger) {
 			logger.trace({ conditionalChatUpdatesLeft }, 'released buffered events')
@@ -178,27 +193,43 @@ export const makeEventBuffer = (logger: ILogger | undefined): BaileysBufferableE
 			// If so, flush the buffered messages first to avoid type overshadowing
 			if (event === 'messages.upsert') {
 				const { type } = evData as BaileysEventMap['messages.upsert']
-				const existingUpserts = Object.values(data.messageUpserts)
-				if (existingUpserts.length > 0) {
-					const bufferedType = existingUpserts[0]!.type
-					if (bufferedType !== type) {
-						if (logger)
-							logger.debug({ bufferedType, newType: type }, 'messages.upsert type mismatch, emitting buffered messages')
-						// Emit the buffered messages with their correct type
-						ev.emit('event', {
-							'messages.upsert': {
-								messages: existingUpserts.map(m => m.message),
-								type: bufferedType
-							}
-						})
-						// Clear the message upserts from the buffer
-						data.messageUpserts = {}
-					}
+				let firstUpsert: BufferedEventData['messageUpserts'][string] | undefined
+				for (const key in data.messageUpserts) {
+					firstUpsert = data.messageUpserts[key]
+					break
+				}
+
+				if (firstUpsert && firstUpsert.type !== type) {
+					const existingUpserts = Object.values(data.messageUpserts)
+					const bufferedType = firstUpsert.type
+					if (logger)
+						logger.debug({ bufferedType, newType: type }, 'messages.upsert type mismatch, emitting buffered messages')
+					// Emit the buffered messages with their correct type
+					ev.emit('event', {
+						'messages.upsert': {
+							messages: existingUpserts.map(m => m.message),
+							type: bufferedType
+						}
+					})
+					// Clear the message upserts from the buffer
+					data.messageUpserts = {}
 				}
 			}
 
 			if (isBuffering && BUFFERABLE_EVENT_SET.has(event)) {
-				append(data, historyCache, [event as BufferableEvent, evData] as BufferableEventEntry, logger)
+				if (
+					append(
+						data,
+						historyCache,
+						[event as BufferableEvent, evData] as BufferableEventEntry,
+						logger,
+						pastParticipantsByGroup,
+						bufferedReactionIndexes,
+						bufferedReceiptIndexes
+					)
+				) {
+					historyCacheOverflowed = true
+				}
 				return true
 			}
 
@@ -254,6 +285,10 @@ export const makeEventBuffer = (logger: ILogger | undefined): BaileysBufferableE
 
 			// Clear history cache
 			historyCache.clear()
+			historyCacheOverflowed = false
+			pastParticipantsByGroup.clear()
+			bufferedReactionIndexes = new WeakMap()
+			bufferedReceiptIndexes = new WeakMap()
 			// Reset buffer data
 			data = makeBufferData()
 			isBuffering = false
@@ -292,9 +327,14 @@ function append(
 	data: BufferedEventData,
 	historyCache: Set<string>,
 	entry: BufferableEventEntry,
-	logger: ILogger | undefined
-) {
+	logger: ILogger | undefined,
+	pastParticipantsByGroup: Map<string, { entry: proto.IPastParticipants; signatures: Set<string> }>,
+	bufferedReactionIndexes: WeakMap<object, Set<string>>,
+	bufferedReceiptIndexes: WeakMap<object, Map<string, proto.IUserReceipt>>
+): boolean {
 	const [event, eventData] = entry
+	let historyCacheOverflowed = false
+
 	switch (event) {
 		case 'messaging-history.set':
 			for (const chat of eventData.chats as Chat[]) {
@@ -306,7 +346,7 @@ function append(
 
 				if (!existingChat && !historyCache.has(id)) {
 					data.historySets.chats[id] = chat
-					historyCache.add(id)
+					historyCacheOverflowed ||= addHistoryCacheKey(historyCache, id)
 
 					absorbingChatUpdate(chat)
 				}
@@ -321,7 +361,7 @@ function append(
 					const hasAnyName = contact.notify || contact.name || contact.verifiedName
 					if (!historyCache.has(historyContactId) || hasAnyName) {
 						data.historySets.contacts[contact.id] = contact
-						historyCache.add(historyContactId)
+						historyCacheOverflowed ||= addHistoryCacheKey(historyCache, historyContactId)
 					}
 				}
 			}
@@ -331,37 +371,34 @@ function append(
 				const existingMsg = data.historySets.messages[key]
 				if (!existingMsg && !historyCache.has(key)) {
 					data.historySets.messages[key] = message
-					historyCache.add(key)
+					historyCacheOverflowed ||= addHistoryCacheKey(historyCache, key)
 				}
 			}
 
 			data.historySets.empty = false
 			data.historySets.syncType = eventData.syncType ?? undefined
 			if (eventData.pastParticipants?.length) {
-				const merged = new Map<string, proto.IPastParticipants>()
 				const sigOf = (p: proto.IPastParticipant) => `${p.userJid || ''}:${p.leaveTs || ''}:${p.leaveReason || ''}`
-				const ingest = (entry: proto.IPastParticipants) => {
+				for (const entry of eventData.pastParticipants) {
 					const key = entry.groupJid ?? JSON.stringify(entry)
-					const existing = merged.get(key)
-					if (!existing) {
-						merged.set(key, { ...entry, pastParticipants: [...(entry.pastParticipants || [])] })
-						return
+					let indexed = pastParticipantsByGroup.get(key)
+					if (!indexed) {
+						const copy = { ...entry, pastParticipants: [...(entry.pastParticipants || [])] }
+						indexed = { entry: copy, signatures: new Set(copy.pastParticipants.map(sigOf)) }
+						pastParticipantsByGroup.set(key, indexed)
+						const pastParticipants = (data.historySets.pastParticipants ??= [])
+						pastParticipants.push(copy)
+						continue
 					}
 
-					const seen = new Set((existing.pastParticipants || []).map(sigOf))
 					for (const p of entry.pastParticipants || []) {
 						const sig = sigOf(p)
-						if (!seen.has(sig)) {
-							existing.pastParticipants!.push(p)
-							seen.add(sig)
+						if (!indexed.signatures.has(sig)) {
+							indexed.entry.pastParticipants!.push(p)
+							indexed.signatures.add(sig)
 						}
 					}
 				}
-
-				for (const entry of data.historySets.pastParticipants || []) ingest(entry)
-				for (const entry of eventData.pastParticipants) ingest(entry)
-
-				data.historySets.pastParticipants = [...merged.values()]
 			}
 
 			data.historySets.progress = eventData.progress
@@ -505,6 +542,7 @@ function append(
 
 				if (data.messageUpdates[key]) {
 					if (logger) logger.debug('absorbed prior message update in message upsert')
+					if ('userReceipt' in data.messageUpdates[key].update) bufferedReceiptIndexes.delete(message)
 					Object.assign(message, data.messageUpdates[key].update)
 					delete data.messageUpdates[key]
 				}
@@ -526,6 +564,8 @@ function append(
 				const keyStr = stringifyMessageKey(key)
 				const existing = data.historySets.messages[keyStr] || data.messageUpserts[keyStr]?.message
 				if (existing) {
+					if ('reactions' in update) bufferedReactionIndexes.delete(existing)
+					if ('userReceipt' in update) bufferedReceiptIndexes.delete(existing)
 					Object.assign(existing, update)
 					// if the message was received & read by us
 					// the chat counter must have been incremented
@@ -570,10 +610,10 @@ function append(
 				const keyStr = stringifyMessageKey(key)
 				const existing = data.messageUpserts[keyStr]
 				if (existing) {
-					updateMessageWithReaction(existing.message, reaction)
+					updateBufferedReaction(existing.message, reaction, bufferedReactionIndexes)
 				} else {
 					data.messageReactions[keyStr] = data.messageReactions[keyStr] || { key, reactions: [] }
-					updateMessageWithReaction(data.messageReactions[keyStr], reaction)
+					updateBufferedReaction(data.messageReactions[keyStr], reaction, bufferedReactionIndexes)
 				}
 			}
 
@@ -584,10 +624,10 @@ function append(
 				const keyStr = stringifyMessageKey(key)
 				const existing = data.messageUpserts[keyStr]
 				if (existing) {
-					updateMessageWithReceipt(existing.message, receipt)
+					updateBufferedReceipt(existing.message, receipt, bufferedReceiptIndexes)
 				} else {
-					data.messageReceipts[keyStr] = data.messageReceipts[keyStr] || { key, userReceipt: [] }
-					updateMessageWithReceipt(data.messageReceipts[keyStr], receipt)
+					const buffered = (data.messageReceipts[keyStr] ??= { key, userReceipt: [] })
+					updateBufferedReceipt(buffered, receipt, bufferedReceiptIndexes)
 				}
 			}
 
@@ -606,6 +646,8 @@ function append(
 		default:
 			throw new Error(`"${event}" cannot be buffered`)
 	}
+
+	return historyCacheOverflowed
 
 	function absorbingChatUpdate(existing: Chat) {
 		const chatId = existing.id || ''
@@ -676,12 +718,17 @@ function consolidateEvents(data: BufferedEventData) {
 		map['chats.delete'] = chatDeleteList
 	}
 
-	const messageUpsertList = Object.values(data.messageUpserts)
-	if (messageUpsertList.length) {
-		const type = messageUpsertList[0]!.type
+	const messages: WAMessage[] = []
+	let messageUpsertType: BaileysEventMap['messages.upsert']['type'] | undefined
+	for (const key in data.messageUpserts) {
+		const upsert = data.messageUpserts[key]!
+		if (!messages.length) messageUpsertType = upsert.type
+		messages.push(upsert.message)
+	}
+	if (messages.length) {
 		map['messages.upsert'] = {
-			messages: messageUpsertList.map(m => m.message),
-			type
+			messages,
+			type: messageUpsertType!
 		}
 	}
 
@@ -695,16 +742,20 @@ function consolidateEvents(data: BufferedEventData) {
 		map['messages.delete'] = { keys: messageDeleteList }
 	}
 
-	const messageReactionList = Object.values(data.messageReactions).flatMap(({ key, reactions }) =>
-		reactions.flatMap(reaction => ({ key, reaction }))
-	)
+	const messageReactionList: BaileysEventMap['messages.reaction'] = []
+	for (const id in data.messageReactions) {
+		const { key, reactions } = data.messageReactions[id]!
+		for (const reaction of reactions) messageReactionList.push({ key, reaction })
+	}
 	if (messageReactionList.length) {
 		map['messages.reaction'] = messageReactionList
 	}
 
-	const messageReceiptList = Object.values(data.messageReceipts).flatMap(({ key, userReceipt }) =>
-		userReceipt.flatMap(receipt => ({ key, receipt }))
-	)
+	const messageReceiptList: BaileysEventMap['message-receipt.update'] = []
+	for (const id in data.messageReceipts) {
+		const { key, userReceipt } = data.messageReceipts[id]!
+		for (const receipt of userReceipt) messageReceiptList.push({ key, receipt })
+	}
 	if (messageReceiptList.length) {
 		map['message-receipt.update'] = messageReceiptList
 	}
@@ -747,3 +798,49 @@ function concatChats<C extends Partial<Chat>>(a: C, b: Partial<Chat>) {
 }
 
 const stringifyMessageKey = (key: WAMessageKey) => `${key.remoteJid},${key.id},${key.fromMe ? '1' : '0'}`
+
+const updateBufferedReaction = (
+	target: Pick<WAMessage, 'reactions'>,
+	reaction: proto.IReaction,
+	indexes: WeakMap<object, Set<string>>
+) => {
+	let authors = indexes.get(target)
+	if (!authors) {
+		authors = new Set((target.reactions || []).map(existing => getKeyAuthor(existing.key)))
+		indexes.set(target, authors)
+	}
+
+	const author = getKeyAuthor(reaction.key)
+	if (authors.has(author)) {
+		updateMessageWithReaction(target, reaction)
+	} else {
+		reaction.text = reaction.text || ''
+		const reactions = target.reactions || (target.reactions = [])
+		reactions.push(reaction)
+		authors.add(author)
+	}
+}
+
+const updateBufferedReceipt = (
+	target: Pick<WAMessage, 'userReceipt'>,
+	receipt: proto.IUserReceipt,
+	indexes: WeakMap<object, Map<string, proto.IUserReceipt>>
+) => {
+	let index = indexes.get(target)
+	if (!index) {
+		index = new Map()
+		for (const existing of target.userReceipt || []) {
+			if (!index.has(existing.userJid)) index.set(existing.userJid, existing)
+		}
+		indexes.set(target, index)
+	}
+
+	const existing = index.get(receipt.userJid)
+	if (existing) {
+		Object.assign(existing, receipt)
+	} else {
+		const userReceipt = target.userReceipt || (target.userReceipt = [])
+		userReceipt.push(receipt)
+		index.set(receipt.userJid, receipt)
+	}
+}

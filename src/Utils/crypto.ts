@@ -1,5 +1,4 @@
-import { createCipheriv, createDecipheriv, createHash, createHmac, pbkdf2Sync, randomBytes } from 'crypto'
-import HKDF from 'futoin-hkdf'
+import { createCipheriv, createDecipheriv, createHash, createHmac, hkdfSync, pbkdf2Sync, randomBytes } from 'crypto'
 import { curve } from '@skidy89/signal-protocol'
 import type { KeyPair } from '../Types'
 import { KEY_BUNDLE_TYPE } from '../Defaults'
@@ -65,13 +64,15 @@ export function aesEncryptGCM(plaintext: Uint8Array, key: Uint8Array, iv: Uint8A
 export function aesDecryptGCM(ciphertext: Uint8Array, key: Uint8Array, iv: Uint8Array, additionalData: Uint8Array) {
 	const decipher = createDecipheriv('aes-256-gcm', key, iv)
 	// decrypt additional adata
-	const enc = ciphertext.slice(0, ciphertext.length - GCM_TAG_LENGTH)
-	const tag = ciphertext.slice(ciphertext.length - GCM_TAG_LENGTH)
+	const enc = ciphertext.subarray(0, ciphertext.length - GCM_TAG_LENGTH)
+	const tag = ciphertext.subarray(ciphertext.length - GCM_TAG_LENGTH)
 	// set additional data
 	decipher.setAAD(additionalData)
 	decipher.setAuthTag(tag)
 
-	return Buffer.concat([decipher.update(enc), decipher.final()])
+	const plaintext = decipher.update(enc)
+	const final = decipher.final()
+	return final.length ? Buffer.concat([plaintext, final]) : plaintext
 }
 
 export function aesEncryptCTR(plaintext: Uint8Array, key: Uint8Array, iv: Uint8Array) {
@@ -81,7 +82,9 @@ export function aesEncryptCTR(plaintext: Uint8Array, key: Uint8Array, iv: Uint8A
 
 export function aesDecryptCTR(ciphertext: Uint8Array, key: Uint8Array, iv: Uint8Array) {
 	const decipher = createDecipheriv('aes-256-ctr', key, iv)
-	return Buffer.concat([decipher.update(ciphertext), decipher.final()])
+	const plaintext = decipher.update(ciphertext)
+	const final = decipher.final()
+	return final.length ? Buffer.concat([plaintext, final]) : plaintext
 }
 
 /** decrypt AES 256 CBC; where the IV is prefixed to the buffer */
@@ -127,7 +130,15 @@ export function md5(buffer: Buffer) {
 
 // HKDF key expansion
 export function hkdf(buffer: Uint8Array | Buffer, expandedLength: number, info: { salt?: Buffer; info?: string }) {
-	return HKDF(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength), expandedLength, info)
+	return Buffer.from(
+		hkdfSync(
+			'sha256',
+			Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength),
+			info.salt ?? Buffer.alloc(0),
+			info.info ?? '',
+			expandedLength
+		)
+	)
 }
 
 export function derivePairingCodeKey(pairingCode: string, salt: Buffer) {

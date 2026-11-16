@@ -54,16 +54,20 @@ export const jidEncode = (user: string | number | null, server: JidServer, devic
 
 export const jidDecode = (jid: string | undefined): FullJid | undefined => {
 	// todo: investigate how to implement hosted ids in this case
-	const sepIdx = typeof jid === 'string' ? jid.indexOf('@') : -1
+	if (typeof jid !== 'string') return undefined
+
+	const sepIdx = jid.indexOf('@')
 	if (sepIdx < 0) {
 		return undefined
 	}
 
-	const server = jid!.slice(sepIdx + 1)
-	const userCombined = jid!.slice(0, sepIdx)
-
-	const [userAgent, device] = userCombined.split(':')
-	const [user, agent] = userAgent!.split('_')
+	const server = jid.slice(sepIdx + 1)
+	const colonIdx = jid.indexOf(':')
+	const deviceIdx = colonIdx >= 0 && colonIdx < sepIdx ? colonIdx : -1
+	const userAgentEnd = deviceIdx >= 0 ? deviceIdx : sepIdx
+	const underscoreIdx = jid.indexOf('_')
+	const agentIdx = underscoreIdx >= 0 && underscoreIdx < userAgentEnd ? underscoreIdx : -1
+	const user = jid.slice(0, agentIdx >= 0 ? agentIdx : userAgentEnd)
 
 	let domainType = WAJIDDomains.WHATSAPP
 	if (server === 'lid') {
@@ -72,21 +76,32 @@ export const jidDecode = (jid: string | undefined): FullJid | undefined => {
 		domainType = WAJIDDomains.HOSTED
 	} else if (server === 'hosted.lid') {
 		domainType = WAJIDDomains.HOSTED_LID
-	} else if (agent) {
-		domainType = parseInt(agent)
+	} else if (agentIdx >= 0) {
+		const nextUnderscore = jid.indexOf('_', agentIdx + 1)
+		const agentEnd = nextUnderscore >= 0 && nextUnderscore < userAgentEnd ? nextUnderscore : userAgentEnd
+		const agent = jid.slice(agentIdx + 1, agentEnd)
+		if (agent) domainType = parseInt(agent)
+	}
+
+	let device: number | undefined
+	if (deviceIdx >= 0) {
+		const nextColon = jid.indexOf(':', deviceIdx + 1)
+		const deviceEnd = nextColon >= 0 && nextColon < sepIdx ? nextColon : sepIdx
+		const deviceValue = jid.slice(deviceIdx + 1, deviceEnd)
+		device = deviceValue ? +deviceValue : undefined
 	}
 
 	return {
 		server: server as JidServer,
-		user: user!,
+		user,
 		domainType,
-		device: device ? +device : undefined
+		device
 	}
 }
 
 /** is the jid a user */
 export const areJidsSameUser = (jid1: string | undefined, jid2: string | undefined) =>
-	jidDecode(jid1)?.user === jidDecode(jid2)?.user
+	jid1 === jid2 || jidDecode(jid1)?.user === jidDecode(jid2)?.user
 /** is the jid Meta AI */
 export const isJidMetaAI = (jid: string | undefined) => jid?.endsWith('@bot')
 /** is the jid a PN user */
@@ -111,6 +126,13 @@ export const isJidBot = (jid: string | undefined): boolean => {
 }
 
 export const jidNormalizedUser = (jid: string | undefined) => {
+	if (typeof jid === 'string') {
+		const separator = jid.indexOf('@')
+		if (separator >= 0 && jid.indexOf(':') < 0 && jid.indexOf('_') < 0 && jid.slice(separator + 1) !== 'c.us') {
+			return jid
+		}
+	}
+
 	const result = jidDecode(jid)
 	if (!result) {
 		return ''
