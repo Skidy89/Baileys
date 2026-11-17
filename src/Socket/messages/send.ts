@@ -21,6 +21,7 @@ import {
 	encodeWAMessage,
 	encryptMediaRetryRequest,
 	generateMessageID,
+
 	generateParticipantHashV2,
 	generateWAMessage,
 	getStatusCodeForMediaRetry,
@@ -66,7 +67,6 @@ import { makePrivacyTokenIssuer } from './privacy-tokens.js'
 import { makeMessageReceipts } from './receipts.js'
 import { makeSessionManager } from './sessions.js'
 import { getMediaType, getMessageType } from './types.js'
-import { randomBytes } from 'node:crypto'
 
 export const makeMessagesSocket = (config: SocketConfig) => {
 	const { logger, patchMessageBeforeSending, cachedGroupMetadata, enableRecentMessageCache, maxMsgRetryCount } = config
@@ -216,16 +216,12 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					},
 					content: binaryNodeContent
 				}
-				if (logger) {
-					logger.debug({ msgId }, `sending newsletter message to ${jid}`)
-				}
-
+				logger?.debug({ msgId }, `sending newsletter message to ${jid}`)
 				await sendNode(stanza)
 				return
 			}
 
-			const normalizedMessageContent = normalizeMessageContent(message)
-			if (normalizedMessageContent?.pinInChatMessage || normalizedMessageContent?.reactionMessage) {
+			if (normalizeMessageContent(message)?.pinInChatMessage || normalizeMessageContent(message)?.reactionMessage) {
 				extraAttrs['decrypt-fail'] = 'hide' // todo: expand for reactions and other types
 			}
 
@@ -234,8 +230,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					(async () => {
 						let groupData = useCachedGroupMetadata && cachedGroupMetadata ? await cachedGroupMetadata(jid) : undefined // todo: should we rely on the cache specially if the cache is outdated and the metadata has new fields?
 						if (groupData && Array.isArray(groupData?.participants)) {
-							if (logger)
-								logger.trace({ jid, participants: groupData.participants.length }, 'using cached group metadata')
+							logger?.trace({ jid, participants: groupData.participants.length }, 'using cached group metadata')
 						} else if (!isStatus) {
 							groupData = await groupMetadata(jid) // TODO: start storing group participant list + addr mode in Signal & stop relying on this
 						}
@@ -244,17 +239,14 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					})(),
 					(async () => {
 						if (!participant && !isStatus) {
-							const result = await authState.keys.get('sender-key-memory', [jid])
+							// what if sender memory is less accurate than the cached metadata
+							// on participant change in group, we should do sender memory manipulation
+							const result = await authState.keys.get('sender-key-memory', [jid]) // TODO: check out what if the sender key memory doesn't include the LID stuff now?
 							const stored = result[jid]
-							if (Array.isArray(stored)) {
-								return new Set(stored)
-							}
-
-							// Read the previous object format while existing auth states migrate naturally.
-							return new Set(Object.keys(stored || {}).filter(deviceJid => stored?.[deviceJid]))
+							return Array.isArray(stored) ? Object.fromEntries(stored.map(deviceJid => [deviceJid, true])) : stored || {}
 						}
 
-						return new Set<string>()
+						return {}
 					})()
 				])
 
@@ -273,17 +265,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
 				const additionalDevices = await getUSyncDevices(participantsList, !!useUserDevicesCache, false)
 				devices.push(...additionalDevices)
-				if (isGroup && senderKeyMap.size) {
-					const lidDevices: string[] = []
-					for (const { jid } of devices) {
-						if (isLidUser(jid)) lidDevices.push(jid)
-					}
-
-					const pnMappings = await signalRepository.lidMapping.getPNsForLIDs(lidDevices)
-					for (const { lid, pn } of pnMappings || []) {
-						if (senderKeyMap.has(pn)) senderKeyMap.add(lid)
-					}
-				}
 
 				if (isGroup) {
 					additionalAttributes = {
@@ -311,20 +292,22 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				const senderKeyRecipients: string[] = []
 				for (const device of devices) {
 					const deviceJid = device.jid
-					const hasKey = senderKeyMap.has(deviceJid)
+					const hasKey = !!senderKeyMap[deviceJid]
 					if (
 						(!hasKey || !!participant) &&
 						!isHostedLidUser(deviceJid) &&
 						!isHostedPnUser(deviceJid) &&
 						device.device !== 99
 					) {
+						//todo: revamp all this logic
+						// the goal is to follow with what I said above for each group, and instead of a true false map of ids, we can set an array full of those the app has already sent pkmsgs
 						senderKeyRecipients.push(deviceJid)
-						senderKeyMap.add(deviceJid)
+						senderKeyMap[deviceJid] = true
 					}
 				}
 
 				if (senderKeyRecipients.length) {
-					if (logger) logger.debug({ senderKeyJids: senderKeyRecipients }, 'sending new sender key')
+					logger?.debug({ senderKeyJids: senderKeyRecipients }, 'sending new sender key')
 
 					const senderKeyMsg: proto.IMessage = {
 						senderKeyDistributionMessage: {
@@ -348,16 +331,16 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					content: ciphertext
 				})
 
-				await authState.keys.set({ 'sender-key-memory': { [jid]: [...senderKeyMap] } })
+				await authState.keys.set({ 'sender-key-memory': { [jid]: senderKeyMap } })
 			} else {
 				// ADDRESSING CONSISTENCY: Match own identity to conversation context
 				// TODO: investigate if this is true
 				let ownId = meId
 				if (isLid && meLid) {
 					ownId = meLid
-					if (logger) logger.debug({ to: jid, ownId }, 'Using LID identity for @lid conversation')
+					logger?.debug({ to: jid, ownId }, 'Using LID identity for @lid conversation')
 				} else {
-					if (logger) logger.debug({ to: jid, ownId }, 'Using PN identity for @s.whatsapp.net conversation')
+					logger?.debug({ to: jid, ownId }, 'Using PN identity for @s.whatsapp.net conversation')
 				}
 
 				const { user: ownUser } = jidDecode(ownId)!
@@ -400,14 +383,14 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						// Enumerate devices for sender and target with consistent addressing
 						const sessionDevices = await getUSyncDevices([senderIdentity, jid], true, false)
 						devices.push(...sessionDevices)
-						if (logger)
-							logger.debug(
-								{
-									deviceCount: devices.length,
-									devices: devices.map(d => `${d.user}:${d.device}@${jidDecode(d.jid)?.server}`)
-								},
-								'Device enumeration complete with unified addressing'
-							)
+
+						logger?.debug(
+							{
+								deviceCount: devices.length,
+								devices: devices.map(d => `${d.user}:${d.device}@${jidDecode(d.jid)?.server}`)
+							},
+							'Device enumeration complete with unified addressing'
+						)
 					}
 				}
 
@@ -420,7 +403,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				for (const { user, jid } of devices) {
 					const isExactSenderDevice = jid === meId || (meLid && jid === meLid)
 					if (isExactSenderDevice) {
-						if (logger) logger.debug({ jid, meId, meLid }, 'Skipping exact sender device (whatsmeow pattern)')
+						logger?.debug({ jid, meId, meLid }, 'Skipping exact sender device (whatsmeow pattern)')
 						continue
 					}
 
@@ -461,9 +444,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				const isMe = areJidsSameUser(participant!.jid, isParticipantLid ? meLid : meId)
 
 				let messageToSend = message
-				messageToSend.messageContextInfo = {
-					messageSecret: randomBytes(32)
-				}
 				if (isGroupOrStatus) {
 					let groupSenderIdentity: string | undefined
 					if (meLid && (await signalRepository.hasSenderKey({ group: destinationJid, meId: meLid }))) {
@@ -486,8 +466,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 								}
 							}
 						} catch (err) {
-							if (logger)
-								logger.warn({ err, jid: destinationJid }, 'failed to build SKDM for retry, sending without it')
+							logger?.warn({ err, jid: destinationJid }, 'failed to build SKDM for retry, sending without it')
 						}
 					}
 				}
@@ -532,14 +511,13 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					})
 				}
 			}
-			const isMedia = getMessageType(message)
 
 			const stanza: BinaryNode = {
 				tag: 'message',
 				attrs: {
 					id: msgId,
 					to: destinationJid,
-					type: isMedia,
+					type: getMessageType(message),
 					...(additionalAttributes || {})
 				},
 				content: binaryNodeContent
@@ -568,7 +546,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					attrs: {},
 					content: encodeSignedDeviceIdentity(authState.creds.account!, true)
 				})
-				if (logger) logger.debug({ jid }, 'adding device identity')
+
+				logger?.debug({ jid }, 'adding device identity')
 			}
 
 			if (
@@ -588,10 +567,10 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					const reportingNode = await getMessageReportingToken(encoded, reportingMessage, reportingKey)
 					if (reportingNode) {
 						;(stanza.content as BinaryNode[]).push(reportingNode)
-						if (logger) logger.trace({ jid }, 'added reporting token to message')
+						logger?.trace({ jid }, 'added reporting token to message')
 					}
 				} catch (error) {
-					if (logger) logger.warn({ jid, trace: toError(error).stack }, 'failed to attach reporting token')
+					logger?.warn({ jid, trace: toError(error).stack }, 'failed to attach reporting token')
 				}
 			}
 
@@ -607,8 +586,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
 			// Treat expired tokens the same as missing — clear from cache
 			if (tcTokenBuffer?.length && isTcTokenExpired(existingTokenEntry?.timestamp)) {
-				if (logger)
-					logger.debug({ jid: destinationJid, timestamp: existingTokenEntry?.timestamp }, 'tctoken expired, clearing')
+				logger?.debug({ jid: destinationJid, timestamp: existingTokenEntry?.timestamp }, 'tctoken expired, clearing')
 				tcTokenBuffer = undefined
 				// Preserve senderTimestamp so the fire-and-forget issuance dedupe survives cleanup.
 				const cleared =
@@ -617,9 +595,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						: null
 				try {
 					await authState.keys.set({ tctoken: { [tcTokenJid]: cleared } })
-				} catch (err) {
-					if (logger)
-						logger.debug({ jid: destinationJid, err: toError(err).message }, 'failed to persist tctoken expiry cleanup')
+				} catch (err: any) {
+					logger?.debug({ jid: destinationJid, err: err?.message }, 'failed to persist tctoken expiry cleanup')
 				}
 			}
 
@@ -635,13 +612,13 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				;(stanza.content as BinaryNode[]).push(...additionalNodes)
 			}
 
-			if (logger) logger.debug({ msgId }, `sending message to ${participants.length} devices`)
+			logger?.debug({ msgId }, `sending message to ${participants.length} devices`)
 
 			await sendNode(stanza)
 
 			// Fire-and-forget: issue our token to the contact AFTER message send.
 			// WA Web skips protocol messages and PSA/bot contacts (TcTokenChatAction: isRegularUser)
-			const isProtocolMsg = !!normalizedMessageContent?.protocolMessage
+			const isProtocolMsg = !!normalizeMessageContent(message)?.protocolMessage
 			const isBotOrPSA = destinationJid === PSA_WID || isJidBot(destinationJid) || isJidMetaAI(destinationJid)
 			if (
 				is1on1Send &&
@@ -678,8 +655,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						})
 					})
 					.catch(err => {
-						if (logger)
-							logger.debug({ jid: destinationJid, err: err?.message }, 'fire-and-forget tctoken issuance failed')
+						logger?.debug({ jid: destinationJid, err: err?.message }, 'fire-and-forget tctoken issuance failed')
 					})
 					.finally(() => {
 						inFlightTcTokenIssuance.delete(tcTokenJid)
@@ -692,7 +668,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			}
 		}, meId)
 
-		return msgId
+		return msgId!
 	}
 
 	const { updateMemberLabel, sendPeerDataOperationMessage } = makeMessageOperations(

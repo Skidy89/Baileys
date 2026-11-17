@@ -143,7 +143,7 @@ export const makeDeviceResolver = (dependencies: Dependencies) => {
 				try {
 					const lids = mappings.map(({ lid }) => lid)
 					if (lids.length) {
-						await assertSessions(lids)
+						await assertSessions(lids, true)
 					}
 				} catch (e) {
 					if (logger) logger.warn({ e, count: lidResults.length }, 'failed to assert sessions for newly mapped LIDs')
