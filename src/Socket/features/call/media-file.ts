@@ -62,7 +62,7 @@ const audioQueues = new WeakMap<Writable, Promise<void>>()
 function ffmpeg(args: string[], limit: number): Promise<Buffer> {
 	return new Promise((res, rej) => {
 		const p = spawn('ffmpeg', ['-v', 'error', '-nostdin', ...args], {
-			stdio: ['ignore', 'pipe', 'pipe'],
+			stdio: ['ignore', 'pipe', 'pipe']
 		})
 		const out: Buffer[] = []
 		let size = 0
@@ -78,9 +78,9 @@ function ffmpeg(args: string[], limit: number): Promise<Buffer> {
 		p.stderr.on('data', (b: Buffer) => {
 			if (err.length < 2000) err += b.toString()
 		})
-		p.on('error', (e) => rej(new Error(`ffmpeg could not be started: ${e.message}`)))
-		p.on('close', (code) =>
-			code === 0 ? res(Buffer.concat(out)) : rej(new Error(`ffmpeg failed: ${err.trim() || code}`)),
+		p.on('error', e => rej(new Error(`ffmpeg could not be started: ${e.message}`)))
+		p.on('close', code =>
+			code === 0 ? res(Buffer.concat(out)) : rej(new Error(`ffmpeg failed: ${err.trim() || code}`))
 		)
 	})
 }
@@ -93,7 +93,7 @@ export async function decodeAudioFile(path: string, o: MediaFileOptions = {}): P
 	const seconds = Math.max(1, Math.min(o.maxSeconds ?? 600, 3600))
 	const raw = await ffmpeg(
 		[...input(path), '-vn', '-t', String(seconds), '-ac', '1', '-ar', '16000', '-f', 's16le', '-'],
-		16000 * 2 * seconds + 4096,
+		16000 * 2 * seconds + 4096
 	)
 	if (!raw.length) throw new Error(`${path} has no audio`)
 	const even = raw.length - (raw.length % 2)
@@ -102,7 +102,11 @@ export async function decodeAudioFile(path: string, o: MediaFileOptions = {}): P
 }
 
 /** Decode in an ffmpeg child and enqueue PCM at playback speed; calls on one stream run in order. */
-export function queueAudioFile(media: Writable, source: string | Readable, o: QueueAudioFileOptions = {}): Promise<void> {
+export function queueAudioFile(
+	media: Writable,
+	source: string | Readable,
+	o: QueueAudioFileOptions = {}
+): Promise<void> {
 	const previous = audioQueues.get(media) ?? Promise.resolve()
 	const task = previous.catch(() => undefined).then(() => streamAudioFile(media, source, o))
 	audioQueues.set(media, task)
@@ -118,10 +122,26 @@ async function streamAudioFile(media: Writable, source: string | Readable, o: Qu
 	o.signal?.throwIfAborted()
 	const seconds = Math.max(1, Math.min(o.maxSeconds ?? 600, 3600))
 	const streamed = typeof source !== 'string'
-	const p = spawn('ffmpeg', [
-		'-v', 'error', '-nostdin', ...(streamed ? ['-i', 'pipe:0'] : input(source)), '-vn', '-t', String(seconds),
-		'-ac', '1', '-ar', '16000', '-f', 's16le', '-'
-	], { stdio: [streamed ? 'pipe' : 'ignore', 'pipe', 'pipe'] })
+	const p = spawn(
+		'ffmpeg',
+		[
+			'-v',
+			'error',
+			'-nostdin',
+			...(streamed ? ['-i', 'pipe:0'] : input(source)),
+			'-vn',
+			'-t',
+			String(seconds),
+			'-ac',
+			'1',
+			'-ar',
+			'16000',
+			'-f',
+			's16le',
+			'-'
+		],
+		{ stdio: [streamed ? 'pipe' : 'ignore', 'pipe', 'pipe'] }
+	)
 	let stderr = ''
 	p.stderr!.on('data', (chunk: Buffer) => {
 		if (stderr.length < 2000) stderr += chunk.toString()
@@ -135,10 +155,13 @@ async function streamAudioFile(media: Writable, source: string | Readable, o: Qu
 	o.signal?.addEventListener('abort', stop, { once: true })
 	media.once('close', stopOnClose)
 	const inputTask: Promise<Error | undefined> = streamed
-		? pipeline(source, p.stdin!).then(() => undefined, error => {
-			stop()
-			return error as Error
-		})
+		? pipeline(source, p.stdin!).then(
+				() => undefined,
+				error => {
+					stop()
+					return error as Error
+				}
+			)
 		: Promise.resolve(undefined)
 	try {
 		let pending = Buffer.alloc(0)
@@ -186,7 +209,7 @@ async function streamAudioFile(media: Writable, source: string | Readable, o: Qu
 /** Decode a video to H.264 access units (Annex-B, baseline, a keyframe every two seconds). */
 export async function decodeVideoFile(
 	path: string,
-	o: VideoFileOptions = {},
+	o: VideoFileOptions = {}
 ): Promise<{ frames: Uint8Array[]; fps: number }> {
 	const seconds = Math.max(1, Math.min(o.maxSeconds ?? 600, 3600))
 	const fps = Math.max(5, Math.min(Math.round(o.fps ?? 15), 30))
@@ -213,9 +236,9 @@ export async function decodeVideoFile(
 			'aud=1:repeat-headers=1',
 			'-f',
 			'h264',
-			'-',
+			'-'
 		],
-		MAX_BYTES,
+		MAX_BYTES
 	)
 	if (!raw.length) throw new Error(`${path} has no video`)
 	return { frames: splitAnnexB(raw), fps }

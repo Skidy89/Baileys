@@ -21,8 +21,9 @@ describe('Signal repository buffers', () => {
 			}
 			const repo = makeLibSignalRepository({ creds: {}, keys } as unknown as SignalAuthState, undefined)
 
-			const result = await (repo as unknown as { getSessionInfo(jid: string): Promise<{ baseKey: Uint8Array } | null> })
-				.getSessionInfo('123@s.whatsapp.net')
+			const result = await (
+				repo as unknown as { getSessionInfo(jid: string): Promise<{ baseKey: Uint8Array } | null> }
+			).getSessionInfo('123@s.whatsapp.net')
 
 			expect(result?.baseKey).toBe(baseKey)
 			repo.close?.()

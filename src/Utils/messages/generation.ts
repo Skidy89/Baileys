@@ -103,6 +103,16 @@ const assertColor = (color: string | number) => {
 	if (hex.length <= 6) hex = 'FF' + hex.padStart(6, '0')
 	return parseInt(hex, 16)
 }
+const matchMediaDomainInfo = (): proto.IContextInfo => {
+	const pairedBytes = randomBytes(32)
+	
+	return {
+		mediaDomainInfo: {
+			mediaKeyDomain: proto.MediaKeyDomain.MEDIA_KEY_DOMAIN_NON_E2EE,
+			e2EeMediaKey: pairedBytes
+		}
+	}
+}
 
 export const prepareWAMessageMedia = async (
 	message: AnyMediaMessageContent,
@@ -343,9 +353,14 @@ export const prepareWAMessageMedia = async (
 				fileLength,
 				mediaKeyTimestamp: unixTimestampSeconds(),
 				...uploadData,
+				contextInfo: {
+					...matchMediaDomainInfo()
+				},
 				media: undefined
 			})
 		})
+		
+		
 
 		if (uploadData.ptv) {
 			obj.ptvMessage = obj.videoMessage

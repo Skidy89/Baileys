@@ -124,15 +124,16 @@ export const makeDeviceResolver = (dependencies: Dependencies) => {
 					const pn = a.id
 					const decodedLid = jidDecode(lid)
 					const decodedPn = jidDecode(pn)
-					const devices = (a.devices as { deviceList?: { id: number; isHosted?: boolean }[] } | undefined)
-						?.deviceList
+					const devices = (a.devices as { deviceList?: { id: number; isHosted?: boolean }[] } | undefined)?.deviceList
 					return [
 						{ lid, pn },
 						...(decodedLid && decodedPn
-							? (devices ?? []).filter(device => device.id > 0).map(({ id, isHosted }) => ({
-									lid: jidEncode(decodedLid.user, isHosted ? 'hosted.lid' : 'lid', id),
-									pn: jidEncode(decodedPn.user, isHosted ? 'hosted' : decodedPn.server, id)
-								}))
+							? (devices ?? [])
+									.filter(device => device.id > 0)
+									.map(({ id, isHosted }) => ({
+										lid: jidEncode(decodedLid.user, isHosted ? 'hosted.lid' : 'lid', id),
+										pn: jidEncode(decodedPn.user, isHosted ? 'hosted' : decodedPn.server, id)
+									}))
 							: [])
 					]
 				})

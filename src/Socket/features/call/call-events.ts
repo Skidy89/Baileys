@@ -23,7 +23,8 @@ export const parseCall = (node: BinaryNode): WACallEvent | undefined => {
 		...(action.tag === 'offer' && {
 			isVideo: Array.isArray(action.content) && action.content.some(child => child.tag === 'video')
 		}),
-		...(action.tag === 'video' && /^\d{1,2}$/.test(action.attrs.state || '') && { videoState: Number(action.attrs.state) }),
+		...(action.tag === 'video' &&
+			/^\d{1,2}$/.test(action.attrs.state || '') && { videoState: Number(action.attrs.state) }),
 		status: getCallStatusFromNode(action),
 		date: Number.isFinite(timestamp) && timestamp > 0 ? new Date(timestamp * 1000) : new Date(),
 		offline: node.attrs.offline === 'true' || node.attrs.offline === '1'

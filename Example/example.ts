@@ -5,6 +5,8 @@ import makeWASocket, { AnyMessageContent, delay, DisconnectReason, fetchLatestBa
 import P from 'pino'
 
 import qrcode from 'qrcode-terminal'
+import { randomBytes } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 
 const logger = P({
   level: "debug",
@@ -199,6 +201,7 @@ const startSock = async() => {
 					heapTotal: ${toMB(process.memoryUsage().heapTotal)} MB
 					heapUsed: ${toMB(process.memoryUsage().heapUsed)} MB`, edit: result?.key })
 			  }
+			  
 
               if (!msg.key.fromMe && doReplies && !isJidNewsletter(msg.key?.remoteJid!)) {
 

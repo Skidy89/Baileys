@@ -267,4 +267,3 @@ export const aggregateMessageKeysNotFromMe = (keys: WAMessageKey[]) => {
 
 	return Object.values(keyMap)
 }
-

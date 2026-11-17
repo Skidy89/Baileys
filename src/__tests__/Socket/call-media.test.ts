@@ -13,31 +13,42 @@ const engine = {
 	enableVideo: jest.fn(() => true),
 	pollOutput: () => ({ kind: 0 }),
 	pollTimeout: () => null,
-	isAllocated: () => engineAllocated,
+	isAllocated: () => engineAllocated
 }
 
 jest.unstable_mockModule('@skidy89/signal-protocol', () => ({
 	CallEngine: { create: jest.fn() },
 	RelayChannel: class {
-		isOpen() { return relayOpen }
-		pollTransmit() { return null }
-		pollInbound() { return null }
-		pollTimeout() { return -1 }
-		handleDatagram() { return null }
+		isOpen() {
+			return relayOpen
+		}
+		pollTransmit() {
+			return null
+		}
+		pollInbound() {
+			return null
+		}
+		pollTimeout() {
+			return -1
+		}
+		handleDatagram() {
+			return null
+		}
 		close() {}
-	},
+	}
 }))
 
 jest.unstable_mockModule('node:dgram', () => ({
 	createSocket: () => {
 		const socket = Object.assign(new EventEmitter(), {
 			bind: (_port: number, callback: () => void) => queueMicrotask(callback),
-			send: (_packet: Buffer, _port: number, _address: string, callback?: (error?: Error | null) => void) => callback?.(),
-			close: jest.fn(),
+			send: (_packet: Buffer, _port: number, _address: string, callback?: (error?: Error | null) => void) =>
+				callback?.(),
+			close: jest.fn()
 		})
 		sockets.push(socket)
 		return socket
-	},
+	}
 }))
 
 const { CallMediaStream } = await import('../../Socket/features/call/call-media')

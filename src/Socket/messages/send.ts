@@ -66,6 +66,7 @@ import { makePrivacyTokenIssuer } from './privacy-tokens.js'
 import { makeMessageReceipts } from './receipts.js'
 import { makeSessionManager } from './sessions.js'
 import { getMediaType, getMessageType } from './types.js'
+import { randomBytes } from 'node:crypto'
 
 export const makeMessagesSocket = (config: SocketConfig) => {
 	const { logger, patchMessageBeforeSending, cachedGroupMetadata, enableRecentMessageCache, maxMsgRetryCount } = config
@@ -460,6 +461,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				const isMe = areJidsSameUser(participant!.jid, isParticipantLid ? meLid : meId)
 
 				let messageToSend = message
+				messageToSend.messageContextInfo = {
+					messageSecret: randomBytes(32)
+				}
 				if (isGroupOrStatus) {
 					let groupSenderIdentity: string | undefined
 					if (meLid && (await signalRepository.hasSenderKey({ group: destinationJid, meId: meLid }))) {
@@ -528,13 +532,14 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					})
 				}
 			}
+			const isMedia = getMessageType(message)
 
 			const stanza: BinaryNode = {
 				tag: 'message',
 				attrs: {
 					id: msgId,
 					to: destinationJid,
-					type: getMessageType(message),
+					type: isMedia,
 					...(additionalAttributes || {})
 				},
 				content: binaryNodeContent

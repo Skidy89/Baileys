@@ -19,7 +19,13 @@ import {
 	LabelAssociationType,
 	type MessageLabelAssociation
 } from '../../Types/LabelAssociation'
-import { type BinaryNode, getBinaryNodeChild, getBinaryNodeChildren, isJidGroup, jidNormalizedUser } from '../../WABinary'
+import {
+	type BinaryNode,
+	getBinaryNodeChild,
+	getBinaryNodeChildren,
+	isJidGroup,
+	jidNormalizedUser
+} from '../../WABinary'
 import { aesDecrypt, aesEncrypt, hmacSign } from '../crypto'
 import { toBufferView, toNumber } from '../generics'
 import type { ILogger } from '../logger'

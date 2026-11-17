@@ -7,11 +7,10 @@ import type { ILogger } from '../../../Utils/logger'
 
 export type { VoipConfig, VoipOutput } from '@skidy89/signal-protocol'
 
-
 const SAMPLE_RATE = 16000
 const FRAME_SAMPLES = 960
 const FRAME_MS = 60
-const MAX_QUEUED_AUDIO_BYTES = SAMPLE_RATE * 2 / 2
+const MAX_QUEUED_AUDIO_BYTES = (SAMPLE_RATE * 2) / 2
 
 export type CallMediaOptions = DuplexOptions & {
 	/** Called for each H.264 Annex-B access unit received from the peer. */
@@ -51,7 +50,11 @@ export class CallMediaStream extends Duplex {
 	#videoFrame = 0
 	#videoFps = 15
 
-	constructor(config: VoipConfig | { engine: CallEngine; relayIp: string; relayPort: number }, options: CallMediaOptions = {}, logger?: ILogger | undefined) {
+	constructor(
+		config: VoipConfig | { engine: CallEngine; relayIp: string; relayPort: number },
+		options: CallMediaOptions = {},
+		logger?: ILogger | undefined
+	) {
 		const { onVideo, ...streamOptions } = options
 		super({ ...streamOptions, allowHalfOpen: false })
 		this.logger = logger ?? options.logger
@@ -121,7 +124,11 @@ export class CallMediaStream extends Duplex {
 			this.#queuedBytes += copy.length
 			if (this.#queuedBytes > MAX_QUEUED_AUDIO_BYTES) {
 				this.logger?.debug(
-					{ queuedBytes: this.#queuedBytes, maxBytes: MAX_QUEUED_AUDIO_BYTES, droppedBytes: this.#queuedBytes - MAX_QUEUED_AUDIO_BYTES },
+					{
+						queuedBytes: this.#queuedBytes,
+						maxBytes: MAX_QUEUED_AUDIO_BYTES,
+						droppedBytes: this.#queuedBytes - MAX_QUEUED_AUDIO_BYTES
+					},
 					'Outgoing audio queue is full, dropping oldest audio'
 				)
 			}
@@ -170,7 +177,9 @@ export class CallMediaStream extends Duplex {
 				else this.#audio[0] = first.subarray(length)
 			}
 		}
-		const pcm = Array.from(frame, sample => Math.max(-32768, Math.min(32767, Math.round(sample * (this.#paused ? 0 : this.#gain)))))
+		const pcm = Array.from(frame, sample =>
+			Math.max(-32768, Math.min(32767, Math.round(sample * (this.#paused ? 0 : this.#gain))))
+		)
 		this.#engine.handleMicFrame(this.#now(), pcm)
 		this.#drain()
 	}
@@ -211,7 +220,10 @@ export class CallMediaStream extends Duplex {
 				moved = true
 				this.#socket.send(packet, this.#relay.port, this.#relay.address, error => {
 					if (error) {
-						this.logger?.error({ err: error, relayIp: this.#relay.address, relayPort: this.#relay.port }, 'Failed to send datagram to relay')
+						this.logger?.error(
+							{ err: error, relayIp: this.#relay.address, relayPort: this.#relay.port },
+							'Failed to send datagram to relay'
+						)
 						this.destroy(error)
 					}
 				})
@@ -262,7 +274,11 @@ export class CallMediaStream extends Duplex {
 					if (output.event === 'MediaConnected' || output.event === 'RelayAllocated') {
 						this.#markConnected(now, output.event)
 					}
-					if (output.event === 'RelayAllocateFailed' || output.event === 'RelayAllocateTimedOut' || output.event === 'MediaSetupFailed') {
+					if (
+						output.event === 'RelayAllocateFailed' ||
+						output.event === 'RelayAllocateTimedOut' ||
+						output.event === 'MediaSetupFailed'
+					) {
 						this.logger?.error({ event: output.event }, 'Call media setup failed')
 						this.destroy(new Error(`Call media setup failed: ${output.event}`))
 						return
@@ -280,18 +296,23 @@ export class CallMediaStream extends Duplex {
 		if (this.#timer) clearTimeout(this.#timer)
 		const relayTimeout = this.#channel.pollTimeout()
 		const engineTimeout = this.#started ? this.#engine.pollTimeout() : null
-		const timeouts = [relayTimeout, engineTimeout].filter((timeout): timeout is number => timeout !== null && timeout >= 0)
+		const timeouts = [relayTimeout, engineTimeout].filter(
+			(timeout): timeout is number => timeout !== null && timeout >= 0
+		)
 		if (timeouts.length && !this.#closed) {
-			this.#timer = setTimeout(() => {
-				const now = this.#now()
-				const error = this.#channel.handleTimeout(now)
-				if (error) {
-					this.logger?.error({ error }, 'Relay channel timeout handling failed')
-					return this.destroy(new Error(`Call relay: ${error}`))
-				}
-				if (this.#started) this.#engine.handleTimeout(now)
-				this.#drain()
-			}, Math.max(0, Math.min(...timeouts) - this.#now()))
+			this.#timer = setTimeout(
+				() => {
+					const now = this.#now()
+					const error = this.#channel.handleTimeout(now)
+					if (error) {
+						this.logger?.error({ error }, 'Relay channel timeout handling failed')
+						return this.destroy(new Error(`Call relay: ${error}`))
+					}
+					if (this.#started) this.#engine.handleTimeout(now)
+					this.#drain()
+				},
+				Math.max(0, Math.min(...timeouts) - this.#now())
+			)
 		}
 	}
 
@@ -328,12 +349,15 @@ export class CallMediaStream extends Duplex {
 	#startVideo() {
 		if (!this.#connected || this.#videoTimer || !this.#videoFrames.length) return
 		this.logger?.debug({ frames: this.#videoFrames.length, fps: this.#videoFps }, 'Starting video frame timer')
-		this.#videoTimer = setInterval(() => {
-			if (!this.#paused && this.#videoFrames.length) {
-				this.writeVideoFrame(this.#videoFrames[this.#videoFrame % this.#videoFrames.length]!)
-				this.#videoFrame++
-			}
-		}, Math.max(1, Math.round(1000 / Math.min(30, Math.max(1, this.#videoFps)))))
+		this.#videoTimer = setInterval(
+			() => {
+				if (!this.#paused && this.#videoFrames.length) {
+					this.writeVideoFrame(this.#videoFrames[this.#videoFrame % this.#videoFrames.length]!)
+					this.#videoFrame++
+				}
+			},
+			Math.max(1, Math.round(1000 / Math.min(30, Math.max(1, this.#videoFps))))
+		)
 	}
 
 	releaseVideo() {
@@ -361,7 +385,10 @@ export class CallMediaStream extends Duplex {
 	}
 
 	clearAudio() {
-		this.logger?.debug({ clearedBytes: this.#queuedBytes, clearedSamples: this.#audioIn ? this.#audioIn.length - this.#audioPos : 0 }, 'Clearing queued outgoing audio')
+		this.logger?.debug(
+			{ clearedBytes: this.#queuedBytes, clearedSamples: this.#audioIn ? this.#audioIn.length - this.#audioPos : 0 },
+			'Clearing queued outgoing audio'
+		)
 		this.#audio.length = 0
 		this.#queuedBytes = 0
 		this.#audioIn = undefined
@@ -433,6 +460,11 @@ export class CallMediaStream extends Duplex {
 	}
 }
 
-export const createCallMediaStream = (config: VoipConfig, options?: CallMediaOptions) => new CallMediaStream(config, options)
-export const createCallMediaStreamFromEngine = (engine: CallEngine, relayIp: string, relayPort: number, options?: CallMediaOptions) =>
-	new CallMediaStream({ engine, relayIp, relayPort }, options, options?.logger)
+export const createCallMediaStream = (config: VoipConfig, options?: CallMediaOptions) =>
+	new CallMediaStream(config, options)
+export const createCallMediaStreamFromEngine = (
+	engine: CallEngine,
+	relayIp: string,
+	relayPort: number,
+	options?: CallMediaOptions
+) => new CallMediaStream({ engine, relayIp, relayPort }, options, options?.logger)
