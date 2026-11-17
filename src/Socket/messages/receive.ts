@@ -669,7 +669,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			if (!call.media.startVideoFrames(files.videoFrames, files.videoFps))
 				throw new Boom('Could not start video file playback')
 			const to = call.peerDevice || call.offerFrom || call.peer
-			await sendNode(buildVideoState(call.callId, to, call.creator, generateMessageID(), 11))
+			await sendNode(buildVideoState(call.callId, to, call.creator, generateMessageID(), 11, { dec: 'H264', orientation: 0 }))
 		}
 	}
 
@@ -829,7 +829,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		if (!call?.media || !frames.length) throw new Boom(`Call ${callId} has no media stream or video frames`)
 		if (!call.media.startVideoFrames(frames, fps, true)) throw new Boom('This call did not negotiate video')
 		const to = call.peerDevice || call.offerFrom || call.peer
-		await sendNode(buildVideoState(callId, to, call.creator, generateMessageID(), 11))
+		await sendNode(buildVideoState(callId, to, call.creator, generateMessageID(), 11, { dec: 'H264', orientation: 0 }))
 	}
 
 	const disableCamera = async (callId: string) => {
@@ -846,7 +846,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		if (frames?.length) call.media.startVideoFrames(frames, fps)
 		else if (!call.media.enableVideo()) throw new Boom('This call cannot enable video')
 		const to = call.peerDevice || call.offerFrom || call.peer
-		await sendNode(buildVideoState(callId, to, call.creator, generateMessageID(), 4))
+		await sendNode(buildVideoState(callId, to, call.creator, generateMessageID(), 4, { dec: 'H264,AV1', orientation: 0 }))
 		call.videoRequest = false
 	}
 

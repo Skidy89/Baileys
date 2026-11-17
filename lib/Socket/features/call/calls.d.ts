@@ -39,7 +39,10 @@ export declare const buildOffer: (o: {
 export declare const buildPreaccept: (callId: string, to: string, creator: string, id: string, video: boolean) => BinaryNode;
 export declare const buildAccept: (callId: string, to: string, creator: string, id: string, video: boolean) => BinaryNode;
 export declare const buildTerminate: (callId: string, to: string, creator: string, id: string) => BinaryNode;
-export declare const buildVideoState: (callId: string, to: string, creator: string, id: string, state: number) => BinaryNode;
+export declare const buildVideoState: (callId: string, to: string, creator: string, id: string, state: number, o?: {
+    dec?: string;
+    orientation?: number;
+}) => BinaryNode;
 export declare const getCallKey: (decryptMessage: (opts: {
     jid: string;
     type: "msg" | "pkmsg";

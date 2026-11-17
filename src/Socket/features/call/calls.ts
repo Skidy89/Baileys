@@ -104,10 +104,16 @@ export const buildPreaccept = (
 			attrs: { 'call-id': callId, 'call-creator': creator },
 			content: [
 				{ tag: 'audio', attrs: { enc: 'opus', rate: '16000' } },
-				...(video ? [{ tag: 'video', attrs: { dec: 'H264', device_orientation: '0' } }] : []),
-				{ tag: 'net', attrs: { medium: '2' } },
+				...(video
+					? [
+							{
+								tag: 'video',
+								attrs: { dec: 'H264', device_orientation: '0', screen_width: '0', screen_height: '0' }
+							}
+						]
+					: []),
 				{ tag: 'encopt', attrs: { keygen: '2' } },
-				{ tag: 'capability', attrs: { ver: '1' }, content: CAPABILITY_PREACCEPT }
+				{ tag: 'capability', attrs: { ver: '1' }, content: video ? CAPABILITY_VIDEO : CAPABILITY_PREACCEPT }
 			]
 		}
 	]
@@ -143,11 +149,24 @@ export const buildVideoState = (
 	to: string,
 	creator: string,
 	id: string,
-	state: number
+	state: number,
+	o: { dec?: string; orientation?: number } = {}
 ): BinaryNode => ({
 	tag: 'call',
 	attrs: { id, to },
-	content: [{ tag: 'video', attrs: { 'call-id': callId, 'call-creator': creator, state: String(state) } }]
+	content: [
+		{
+			tag: 'video',
+			attrs: {
+				'call-id': callId,
+				'call-creator': creator,
+				state: String(state),
+				...(o.dec && { dec: o.dec }),
+				...(state === 11 && { voip_settings: 'video' }),
+				...(o.orientation !== undefined && { device_orientation: String(o.orientation) })
+			}
+		}
+	]
 })
 
 export const getCallKey = async (

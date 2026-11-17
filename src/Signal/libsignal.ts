@@ -261,7 +261,7 @@ export function makeLibSignalRepository(
 				getOpenSession?: () => { indexInfo?: { baseKey?: Buffer }; registrationId?: number } | undefined
 			} | null
 			if (!session) {
-				console.warn({ jid, addr }, 'getSessionInfo: no session found')
+				logger?.debug({ jid, addr }, 'no Signal session found while inspecting retry')
 				return null
 			}
 
