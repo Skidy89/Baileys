@@ -1,5 +1,13 @@
 import { parseAndInjectE2ESessions } from '../../Utils'
-import { type BinaryNode, isHostedLidUser, isHostedPnUser, isLidUser, isPnUser, S_WHATSAPP_NET } from '../../WABinary'
+import {
+	type BinaryNode,
+	isHostedLidUser,
+	isHostedPnUser,
+	isJidMetaAI,
+	isLidUser,
+	isPnUser,
+	S_WHATSAPP_NET
+} from '../../WABinary'
 import type { SignalRepositoryWithLIDStore } from '../../Types/Signal'
 import type { ILogger } from '../../Utils/logger'
 
@@ -27,7 +35,7 @@ export const makeSessionManager = ({ query, signalRepository, logger }: Dependen
 
 		if (jidsRequiringFetch.length) {
 			const wireJids = [
-				...jidsRequiringFetch.filter(jid => isLidUser(jid) || isHostedLidUser(jid)),
+				...jidsRequiringFetch.filter(jid => isLidUser(jid) || isHostedLidUser(jid) || !!isJidMetaAI(jid)),
 				...(
 					(await signalRepository.lidMapping.getLIDsForPNs(
 						jidsRequiringFetch.filter(jid => isPnUser(jid) || isHostedPnUser(jid))

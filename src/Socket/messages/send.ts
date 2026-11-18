@@ -21,7 +21,6 @@ import {
 	encodeWAMessage,
 	encryptMediaRetryRequest,
 	generateMessageID,
-
 	generateParticipantHashV2,
 	generateWAMessage,
 	getStatusCodeForMediaRetry,
@@ -67,6 +66,7 @@ import { makePrivacyTokenIssuer } from './privacy-tokens.js'
 import { makeMessageReceipts } from './receipts.js'
 import { makeSessionManager } from './sessions.js'
 import { getMediaType, getMessageType } from './types.js'
+import { prepareMessageForBot } from '../../Utils/msmsg.js'
 
 export const makeMessagesSocket = (config: SocketConfig) => {
 	const { logger, patchMessageBeforeSending, cachedGroupMetadata, enableRecentMessageCache, maxMsgRetryCount } = config
@@ -158,7 +158,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		const isNewsletter = server === 'newsletter'
 		const isGroupOrStatus = isGroup || isStatus
 		const finalJid = jid
-
+		if (isJidMetaAI(jid)) {
+			prepareMessageForBot(message, jid)
+		}
 		msgId = msgId || generateMessageID()
 		useUserDevicesCache = useUserDevicesCache !== false
 		useCachedGroupMetadata = useCachedGroupMetadata !== false && !isStatus
@@ -236,7 +238,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							// on participant change in group, we should do sender memory manipulation
 							const result = await authState.keys.get('sender-key-memory', [jid]) // TODO: check out what if the sender key memory doesn't include the LID stuff now?
 							const stored = result[jid]
-							return Array.isArray(stored) ? Object.fromEntries(stored.map(deviceJid => [deviceJid, true])) : stored || {}
+							return Array.isArray(stored)
+								? Object.fromEntries(stored.map(deviceJid => [deviceJid, true]))
+								: stored || {}
 						}
 
 						return {}

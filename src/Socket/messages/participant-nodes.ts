@@ -62,6 +62,7 @@ export const makeParticipantNodeCreator =
 				const bytes = writeRandomPadMax16(encoded)
 				return await encryptionMutex.mutex(jid, async () => {
 					const { type, ciphertext } = await signalRepository.encryptMessage({ jid, data: bytes })
+					logger?.debug({ jid, enc: type }, 'participant encryption')
 					if (type === 'pkmsg') shouldIncludeDeviceIdentity = true
 					return {
 						tag: 'to',

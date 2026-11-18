@@ -105,7 +105,7 @@ const assertColor = (color: string | number) => {
 }
 const matchMediaDomainInfo = (): proto.IContextInfo => {
 	const pairedBytes = randomBytes(32)
-	
+
 	return {
 		mediaDomainInfo: {
 			mediaKeyDomain: proto.MediaKeyDomain.MEDIA_KEY_DOMAIN_NON_E2EE,
@@ -359,8 +359,6 @@ export const prepareWAMessageMedia = async (
 				media: undefined
 			})
 		})
-		
-		
 
 		if (uploadData.ptv) {
 			obj.ptvMessage = obj.videoMessage

@@ -9,6 +9,24 @@ export const parseCall = (node: BinaryNode): WACallEvent | undefined => {
 	const from = node.attrs.from
 	if (!action || !id || !from) return undefined
 
+	if (
+		![
+			'offer',
+			'offer_notice',
+			'preaccept',
+			'ringing',
+			'accept',
+			'reject',
+			'terminate',
+			'timeout',
+			'transport',
+			'relaylatency',
+			'video',
+			'group_update',
+			'enc_rekey'
+		].includes(action.tag)
+	)
+		return undefined
 	const groupJid = action.attrs['group-jid']
 	const timestamp = Number(node.attrs.t)
 	return {
@@ -18,14 +36,18 @@ export const parseCall = (node: BinaryNode): WACallEvent | undefined => {
 		chatId: groupJid || from,
 		...(action.attrs.caller_pn && { callerPn: action.attrs.caller_pn }),
 		...(groupJid && { groupJid }),
-		...(action.attrs.type === 'group' && { isGroup: true }),
+		...((action.attrs.type === 'group' ||
+			groupJid ||
+			(Array.isArray(action.content) && action.content.some(child => child.tag === 'group_info'))) && {
+			isGroup: true
+		}),
 		...(action.attrs.lightweight === '1' && { lightweight: true }),
 		...(action.tag === 'offer' && {
 			isVideo: Array.isArray(action.content) && action.content.some(child => child.tag === 'video')
 		}),
 		...(action.tag === 'video' &&
 			/^\d{1,2}$/.test(action.attrs.state || '') && { videoState: Number(action.attrs.state) }),
-		status: getCallStatusFromNode(action),
+		status: action.tag === 'timeout' ? 'timeout' : getCallStatusFromNode(action),
 		date: Number.isFinite(timestamp) && timestamp > 0 ? new Date(timestamp * 1000) : new Date(),
 		offline: node.attrs.offline === 'true' || node.attrs.offline === '1'
 	}

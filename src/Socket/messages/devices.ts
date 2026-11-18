@@ -4,7 +4,15 @@ import type { SignalRepositoryWithLIDStore } from '../../Types/Signal'
 import { extractDeviceJids } from '../../Utils'
 import type { ILogger } from '../../Utils/logger'
 import type { Mutex } from '../../Utils/make-mutex'
-import { type FullJid, isHostedLidUser, isLidUser, jidDecode, jidEncode, type JidWithDevice } from '../../WABinary'
+import {
+	type FullJid,
+	isHostedLidUser,
+	isJidMetaAI,
+	isLidUser,
+	jidDecode,
+	jidEncode,
+	type JidWithDevice
+} from '../../WABinary'
 import { USyncQuery, USyncUser } from '../../WAUSync'
 import type { USyncQueryResult } from '../../WAUSync/USyncQuery'
 
@@ -49,6 +57,11 @@ export const makeDeviceResolver = (dependencies: Dependencies) => {
 			if (isExplicitDevice && user) {
 				deviceResults.push({ user, device, jid })
 				continue
+			}
+			// A bot has no device list (its usync query is empty); it is addressed directly
+			if (isJidMetaAI(jid) && user) {
+				deviceResults.push({ user, device: 0, jid })
+				return []
 			}
 
 			const normalizedJid = decoded

@@ -1,5 +1,6 @@
 // Based on velowa (https://github.com/7ucg/velowa) by Baron - velowa License
 import { CallEngine, RelayChannel, type VoipConfig } from '@skidy89/signal-protocol'
+import { spawn } from 'node:child_process'
 import { Duplex, type DuplexOptions } from 'node:stream'
 import { createSocket, type Socket } from 'node:dgram'
 import { performance } from 'node:perf_hooks'
@@ -10,6 +11,8 @@ export type { VoipConfig, VoipOutput } from '@skidy89/signal-protocol'
 const SAMPLE_RATE = 16000
 const FRAME_SAMPLES = 960
 const FRAME_MS = 60
+// At 24 kbit/s constant bitrate, each 60 ms Opus packet occupies 180 bytes.
+const OPUS_PACKET_BYTES = 180
 const MAX_QUEUED_AUDIO_BYTES = (SAMPLE_RATE * 2) / 2
 
 export type CallMediaOptions = DuplexOptions & {
@@ -23,6 +26,8 @@ export type CallMediaOptions = DuplexOptions & {
  * Writable input and readable output are 16 kHz, mono, signed 16-bit little-endian PCM.
  */
 export class CallMediaStream extends Duplex {
+	readonly #useOpus: boolean
+	#encoder?: ReturnType<typeof spawn>
 	readonly #engine: CallEngine
 	readonly #channel: RelayChannel
 	readonly #socket: Socket
@@ -33,6 +38,8 @@ export class CallMediaStream extends Duplex {
 	readonly #onVideo?: (frame: Buffer) => void
 	private logger?: ILogger | undefined
 	#queuedBytes = 0
+	#udpSent = 0
+	#opusFile?: Buffer
 	#audioIn?: Int16Array
 	#audioPos = 0
 	#readQueueBytes = 0
@@ -58,6 +65,7 @@ export class CallMediaStream extends Duplex {
 		const { onVideo, ...streamOptions } = options
 		super({ ...streamOptions, allowHalfOpen: false })
 		this.logger = logger ?? options.logger
+		this.#useOpus = 'audio' in config && config.audio === 'opus'
 		this.#engine = 'engine' in config ? config.engine : CallEngine.create(config)
 		this.#relay = { address: config.relayIp, port: config.relayPort }
 		this.#channel = new RelayChannel(config.relayIp, config.relayPort)
@@ -155,6 +163,16 @@ export class CallMediaStream extends Duplex {
 
 	#sendAudioFrame() {
 		if (this.#closed) return
+		if (this.#opusFile && !this.#paused) {
+			this.#engine.handleEncodedAudio(this.#now(), this.#opusFile.subarray(0, OPUS_PACKET_BYTES))
+			this.#opusFile =
+				this.#opusFile.length > OPUS_PACKET_BYTES ? this.#opusFile.subarray(OPUS_PACKET_BYTES) : undefined
+			const remaining = (this.#opusFile?.length ?? 0) / OPUS_PACKET_BYTES
+			if (remaining % 100 === 0)
+				this.logger?.debug({ remaining, udpSent: this.#udpSent }, 'Prepared Opus playback progress')
+			this.#drain()
+			return
+		}
 		const frame = new Int16Array(FRAME_SAMPLES)
 		if (!this.#paused && this.#audioIn) {
 			const samples = this.#audioIn.subarray(this.#audioPos, this.#audioPos + FRAME_SAMPLES)
@@ -180,8 +198,20 @@ export class CallMediaStream extends Duplex {
 		const pcm = Array.from(frame, sample =>
 			Math.max(-32768, Math.min(32767, Math.round(sample * (this.#paused ? 0 : this.#gain))))
 		)
+		if (this.#encoder?.stdin) {
+			if (this.#encoder.stdin.writableNeedDrain) return
+			this.#encoder.stdin.write(Buffer.from(Int16Array.from(pcm).buffer))
+			return
+		}
 		this.#engine.handleMicFrame(this.#now(), pcm)
 		this.#drain()
+	}
+
+	playOpusFile(packets: Buffer) {
+		if (!this.#useOpus || !packets.length || packets.length % OPUS_PACKET_BYTES)
+			throw new Error('Invalid Opus playback')
+		this.clearAudio()
+		this.#opusFile = packets
 	}
 
 	/** Queue PCM frames directly for the 60 ms microphone tick, bypassing Writable buffering. */
@@ -197,8 +227,82 @@ export class CallMediaStream extends Duplex {
 
 	#startMic() {
 		if (!this.#micTimer) {
+			if (this.#useOpus) {
+				const encoder = spawn(
+					'ffmpeg',
+					[
+						'-loglevel',
+						'error',
+						'-f',
+						's16le',
+						'-ar',
+						'16000',
+						'-ac',
+						'1',
+						'-probesize',
+						'32',
+						'-analyzeduration',
+						'0',
+						'-i',
+						'pipe:0',
+						'-map',
+						'0:a:0',
+						'-c:a',
+						'libopus',
+						'-application',
+						'voip',
+						'-frame_duration',
+						'60',
+						'-b:a',
+						'24000',
+						'-vbr',
+						'off',
+						'-flush_packets',
+						'1',
+						'-f',
+						'data',
+						'pipe:1'
+					],
+					{ stdio: ['pipe', 'pipe', 'ignore'], windowsHide: true }
+				)
+				this.#encoder = encoder
+				let pending = Buffer.alloc(0)
+				let first = true
+				encoder.stdout.on('data', (chunk: Buffer) => {
+					if (this.#closed || (this.#opusFile && !this.#paused)) return
+					const data = Buffer.concat([pending, chunk])
+					let offset = 0
+					while (offset + OPUS_PACKET_BYTES <= data.length && !this.#closed) {
+						this.#engine.handleEncodedAudio(this.#now(), data.subarray(offset, offset + OPUS_PACKET_BYTES))
+						offset += OPUS_PACKET_BYTES
+						if (first) {
+							first = false
+							this.logger?.debug('First Opus packet submitted')
+						}
+						this.#drain()
+					}
+					pending = Buffer.from(data.subarray(offset))
+				})
+				encoder.on('error', err => this.destroy(err))
+				encoder.stdin.on('error', err => {
+					if (!this.#closed) this.destroy(err)
+				})
+				encoder.on('close', code => {
+					if (!this.#closed) this.destroy(new Error('Opus encoder stopped: ' + code))
+				})
+			}
 			this.logger?.debug({ frameMs: FRAME_MS }, 'Starting microphone frame timer')
-			this.#micTimer = setInterval(() => this.#sendAudioFrame(), FRAME_MS)
+			let deadline = this.#now() + FRAME_MS
+			const tick = () => {
+				if (this.#closed) return
+				this.#sendAudioFrame()
+				if (this.#closed) return
+				const now = this.#now()
+				// Keep the media clock steady, restarting after a stall instead of bursting overdue packets.
+				deadline = deadline + FRAME_MS > now ? deadline + FRAME_MS : now + FRAME_MS
+				this.#micTimer = setTimeout(tick, Math.ceil(deadline - now))
+			}
+			this.#micTimer = setTimeout(tick, FRAME_MS)
 		}
 	}
 
@@ -225,7 +329,7 @@ export class CallMediaStream extends Duplex {
 							'Failed to send datagram to relay'
 						)
 						this.destroy(error)
-					}
+					} else this.#udpSent++
 				})
 			}
 			if (!this.#started && this.#channel.isOpen()) {
@@ -391,6 +495,7 @@ export class CallMediaStream extends Duplex {
 		)
 		this.#audio.length = 0
 		this.#queuedBytes = 0
+		this.#opusFile = undefined
 		this.#audioIn = undefined
 		this.#audioPos = 0
 	}
@@ -444,8 +549,10 @@ export class CallMediaStream extends Duplex {
 		if (error) this.logger?.error({ err: error, elapsedMs: this.#now() }, 'Call media stream destroyed with error')
 		else this.logger?.info({ elapsedMs: this.#now() }, 'Call media stream destroyed')
 		this.#closed = true
+		this.#encoder?.stdin?.destroy()
+		this.#encoder?.kill()
 		if (this.#timer) clearTimeout(this.#timer)
-		if (this.#micTimer) clearInterval(this.#micTimer)
+		if (this.#micTimer) clearTimeout(this.#micTimer)
 		if (this.#videoTimer) clearInterval(this.#videoTimer)
 		if (this.#bound) {
 			try {

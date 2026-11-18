@@ -1,5 +1,8 @@
 import {
 	buildAccept,
+	buildGroupOffer,
+	acknowledgeOffer,
+	type CallState,
 	buildOffer,
 	buildPreaccept,
 	buildTerminate,
@@ -12,6 +15,53 @@ import { splitAnnexB } from '../../Socket/features/call/media-file'
 import type { BinaryNode } from '../../WABinary'
 
 describe('call signaling nodes', () => {
+	it('keeps offer acknowledgement separate from remote ringing', () => {
+		const call: CallState = {
+			callId: 'c',
+			peer: 'p',
+			creator: 's',
+			direction: 'outgoing',
+			video: false,
+			devices: [],
+			status: 'offer_sent',
+			startedAt: 0
+		}
+		const ack = { tag: 'ack', attrs: { class: 'call', id: 'i' } }
+		expect(() => acknowledgeOffer(call, { ...ack, attrs: { ...ack.attrs, error: '403' } }, 'i')).toThrow('403')
+		expect(call.status).toBe('offer_sent')
+		acknowledgeOffer(call, ack, 'i')
+		expect(call.status).toBe('server_ack')
+		call.status = 'ringing'
+		acknowledgeOffer(call, ack, 'i')
+		expect(call.status).toBe('ringing')
+		expect(
+			parseCall({ tag: 'call', attrs: { from: 'peer' }, content: [{ tag: 'heartbeat', attrs: { 'call-id': 'c' } }] })
+		).toBeUndefined()
+	})
+
+	it('addresses a group-bound offer to the call with a device roster', () => {
+		const node = buildGroupOffer(
+			'c',
+			'i',
+			'1:2@lid',
+			'g@g.us',
+			new Map([
+				['1@lid', ['1:2@lid']],
+				['2@lid', ['2@lid']]
+			]),
+			false
+		)
+		expect(node.attrs.to).toBe('c@call')
+		const action = (node.content as BinaryNode[])[0]!
+		expect(action.attrs['group-jid']).toBe('g@g.us')
+		const children = action.content as BinaryNode[]
+		expect(children.map(c => c.tag)).toEqual(['audio', 'net', 'group_info'])
+		expect(children[2]?.content).toMatchObject([
+			{ attrs: { jid: '1@lid' }, content: [{ attrs: { jid: '1:2@lid' } }] },
+			{ attrs: { jid: '2@lid' }, content: [{ attrs: { jid: '2@lid' } }] }
+		])
+	})
+
 	it('builds audio and video offers with recipient keys', () => {
 		const offer = buildOffer({
 			callId: 'call',
@@ -99,6 +149,18 @@ describe('call relay and video media helpers', () => {
 			{ tag: 'auth_token', attrs: { id: '0' }, content: Buffer.from([5]) }
 		]
 	}
+
+	it('prefers the web relay port with a usable token over the first address', () => {
+		const extra = (port: number, token: string) => ({
+			tag: 'te2',
+			attrs: { token_id: token },
+			content: Buffer.from([1, 2, 3, 4, port >> 8, port & 255])
+		})
+		const content = [extra(3478, '0'), extra(3480, '9'), extra(3480, '1'), ...(relay.content as BinaryNode[])]
+		expect(
+			mediaConfigFromRelay({ ...relay, content }, 'call', 'outgoing', 'self', 'peer', Buffer.alloc(32), false)
+		).toMatchObject({ relayPort: 3480, relayToken: Buffer.from([4]) })
+	})
 
 	it('selects the endpoint tokens and rejects incomplete relay data', () => {
 		expect(mediaConfigFromRelay(relay, 'call', 'incoming', 'self', 'peer', new Uint8Array(32), true)).toMatchObject({

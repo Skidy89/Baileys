@@ -1,4 +1,4 @@
-import type { WAMessage } from '../Types/index.js';
+import type { WAMessage, WAMessageKey } from '../Types/index.js';
 import type { SignalRepositoryWithLIDStore } from '../Types/Signal.js';
 import { type BinaryNode } from '../WABinary/index.js';
 import type { ILogger } from './logger.js';
@@ -6,6 +6,7 @@ export declare const getDecryptionJid: (sender: string, repository: SignalReposi
 export declare const NO_MESSAGE_FOUND_ERROR_TEXT = "Message absent from node";
 export declare const MISSING_KEYS_ERROR_TEXT = "Key used already or never filled";
 export declare const ACCOUNT_RESTRICTED_TEXT = "Your account has been restricted";
+export declare const MISSING_BOT_MESSAGE_SECRET_TEXT = "Message secret for the bot reply not found";
 export declare const DECRYPTION_RETRY_CONFIG: {
     maxRetries: number;
     baseDelayMs: number;
@@ -60,7 +61,7 @@ export declare function decodeMessageNode(stanza: BinaryNode, meId: string, meLi
     author: string;
     sender: string;
 };
-export declare const decryptMessageNode: (stanza: BinaryNode, meId: string, meLid: string, repository: SignalRepositoryWithLIDStore, logger: ILogger | undefined) => {
+export declare const decryptMessageNode: (stanza: BinaryNode, meId: string, meLid: string, repository: SignalRepositoryWithLIDStore, logger: ILogger | undefined, getBotMessageSecret?: (key: WAMessageKey) => Promise<Uint8Array | null | undefined>) => {
     fullMessage: WAMessage;
     category: string | undefined;
     author: string;

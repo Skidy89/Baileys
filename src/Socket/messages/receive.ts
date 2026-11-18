@@ -78,6 +78,7 @@ import {
 	getBinaryNodeChildString,
 	getBinaryNodeChildUInt,
 	isJidGroup,
+	isJidMetaAI,
 	isJidNewsletter,
 	isJidStatusBroadcast,
 	isLidUser,
@@ -94,6 +95,7 @@ import { binaryPack, GroupSession } from '@skidy89/signal-protocol'
 import { encodeBinaryNode } from '../../WABinary'
 import { callAck, parseCall, rejectCallNode } from '../features/call/call-events'
 import { createCallMediaStream } from '../features/call/call-media'
+import { enableEncodedAudio } from '../features/call/encode-audio'
 import {
 	queueAudioFile,
 	resolveCallFiles,
@@ -104,6 +106,8 @@ import {
 import {
 	buildAccept,
 	buildOffer,
+	buildGroupOffer,
+	acknowledgeOffer,
 	buildPreaccept,
 	buildTerminate,
 	buildVideoState,
@@ -656,24 +660,39 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		await sendNode(stanza)
 	}
 
+	const logCall = (callId: string, state: string, enc?: string[]) =>
+		logger?.info({ callId, state, timestamp: Date.now(), enc }, 'call signaling')
+
 	const finishCall = (call: CallState) => {
 		call.status = 'ended'
+		clearInterval(call.heartbeat)
+		calls.delete(call.callId)
+		pendingCallFiles.delete(call)
 		call.media?.destroy()
 		call.callKey?.fill(0)
 	}
 
 	const applyCallFiles = async (call: CallState, files: ResolvedCallFiles) => {
 		if (!call.media) return
-		if (files.audioIn) call.media.speak(files.audioIn, true)
+		if (files.opusFile) call.media.playOpusFile(files.opusFile)
+		else if (files.audioIn) call.media.speak(files.audioIn, true)
 		if (files.videoFrames) {
 			if (!call.media.startVideoFrames(files.videoFrames, files.videoFps))
 				throw new Boom('Could not start video file playback')
 			const to = call.peerDevice || call.offerFrom || call.peer
-			await sendNode(buildVideoState(call.callId, to, call.creator, generateMessageID(), 11, { dec: 'H264', orientation: 0 }))
+			await sendNode(
+				buildVideoState(call.callId, to, call.creator, generateMessageID(), 11, { dec: 'H264', orientation: 0 })
+			)
 		}
 	}
 
-	const startCall = async (to: string, options: CallFileOptions & { video?: boolean } = {}) => {
+	type StartCallOptions = CallFileOptions & { video?: boolean; encodedAudio?: boolean }
+	function startCall(
+		to: string,
+		options: StartCallOptions & { encodedAudio: true }
+	): Promise<ReturnType<typeof enableEncodedAudio>>
+	function startCall(to: string, options?: StartCallOptions): Promise<CallState>
+	async function startCall(to: string, options: StartCallOptions = {}) {
 		const ownLid = authState.creds.me?.lid
 		if (!ownLid) throw new Boom('Cannot place a call before the account LID is available')
 		let peer = to.replace(/:\d+@/, '@')
@@ -724,16 +743,23 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			direction: 'outgoing',
 			video: !!(options.video || options.videoFile),
 			devices: deviceJids,
-			status: 'calling',
+			status: 'offer_sent',
 			startedAt: Date.now(),
 			callKey
 		}
 		calls.set(callId, call)
 		try {
+			logCall(
+				callId,
+				'offer_sent',
+				encrypted.map(key => key.type)
+			)
 			const ack = await query(offer, 20_000)
+			if (!calls.has(callId)) throw new Boom('Call ended before offer acknowledgement')
+			acknowledgeOffer(call, ack, offer.attrs.id)
+			logCall(callId, 'server_ack')
 			const relay = getBinaryNodeChild(ack, 'relay')
-			if (!relay) throw new Boom('Call offer acknowledgement did not include a relay')
-			if (call.status === 'calling') call.status = 'ringing'
+			if (!relay) return options.encodedAudio ? enableEncodedAudio(call, pendingCallFiles) : call
 			call.relay = relay
 			const media = createCallMediaStream(
 				mediaConfigFromRelay(relay, callId, 'outgoing', ownLid, peer, callKey, call.video),
@@ -747,11 +773,74 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			media.on('error', error => logger?.error({ err: error, callId }, 'call media transport failed'))
 			if (call.status === 'connected') await applyCallFiles(call, files)
 			else if (options.audioFile || options.videoFile) pendingCallFiles.set(call, files)
-			return call
+			return options.encodedAudio ? enableEncodedAudio(call, pendingCallFiles) : call
 		} catch (error) {
 			finishCall(call)
 			calls.delete(callId)
 			throw error
+		}
+	}
+
+	const offerCall = async (jid: string, { video = false }: { video?: boolean } = {}) => {
+		if (!isJidGroup(jid)) {
+			const { callId } = await startCall(jid, { video })
+			return { callId }
+		}
+		const creator = authState.creds.me?.lid
+		if (!creator) throw new Boom('Missing own LID')
+		const own = jidNormalizedUser(creator)
+		const roster = new Map<string, string[]>([[own, [creator]]])
+		const metadata = await sock.groupMetadata(jid)
+		for (const participant of metadata.participants) {
+			const user = jidNormalizedUser(participant.id)
+			const lid = participant.lid || (isLidUser(user) ? user : await getLIDForPN(user))
+			if (!lid) throw new Boom('Missing group participant LID')
+			if (!roster.has(lid)) roster.set(lid, [])
+		}
+		const peers = [...roster.keys()].filter(user => user !== own)
+		if (!peers.length || roster.size > 32) throw new Boom('Invalid group call roster size')
+		for (const device of await getUSyncDevices(peers, false, false)) {
+			if (device.device !== 99) roster.get(jidNormalizedUser(device.jid))?.push(device.jid)
+		}
+		if ([...roster.values()].some(devices => !devices.length)) throw new Boom('Incomplete group device roster')
+		const callId = newCallId()
+		const session = new GroupSession(callId, creator, creator)
+		const call: CallState = {
+			callId,
+			creator,
+			group: jid,
+			peer: jid,
+			groupSession: session,
+			devices: peers.flatMap(user => roster.get(user)!),
+			direction: 'outgoing',
+			status: 'offer_sent',
+			video,
+			startedAt: Date.now()
+		}
+		const to = callId + '@call'
+		calls.set(callId, call)
+		try {
+			logCall(callId, 'offer_sent')
+			const offer = buildGroupOffer(callId, generateMessageID(), creator, jid, roster, video)
+			const ack = await query(offer, 20_000)
+			if (!calls.has(callId)) throw new Boom('Group call ended before acknowledgement')
+			acknowledgeOffer(call, ack, offer.attrs.id)
+			logCall(callId, 'server_ack')
+			session.applyAck(binaryPack(encodeBinaryNode(ack)))
+			const beat = () =>
+				void sendNode({
+					tag: 'call',
+					attrs: { to, id: generateMessageID() },
+					content: [{ tag: 'heartbeat', attrs: { 'call-id': callId, 'call-creator': creator } }]
+				}).catch(() => logger?.debug({ callId }, 'group heartbeat failed'))
+			beat()
+			call.heartbeat = setInterval(beat, 10_000).unref()
+			return { callId }
+		} catch (err) {
+			if (call.status !== 'offer_sent' && calls.has(callId))
+				await sendNode(buildTerminate(callId, to, creator, generateMessageID())).catch(() => {})
+			finishCall(call)
+			throw err
 		}
 	}
 
@@ -806,10 +895,19 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		const to = call?.offerFrom || callFrom
 		if (!to) throw new Boom(`Unknown incoming call ${callId}`)
 		await query(rejectCallNode(callId, to, call?.creator || callFrom, generateMessageID()))
-		if (call) finishCall(call)
+		if (call) {
+			logCall(callId, 'reject')
+			finishCall(call)
+		}
 	}
 
-	const terminateCall = async (callId: string, callTo: string, creator: string) => {
+	const terminateCall = async (callId: string, callTo: string, creator?: string) => {
+		if (!creator) {
+			const active = calls.get(callId)
+			if (!active || (active.peer !== callTo && !(await callUserMatches(active.peer, callTo))))
+				throw new Boom('Unknown call destination')
+			return endCall(callId)
+		}
 		await query(buildTerminate(callId, callTo, creator, generateMessageID()))
 		const call = calls.get(callId)
 		if (call) finishCall(call)
@@ -818,10 +916,28 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 	const endCall = async (callId: string) => {
 		const call = calls.get(callId)
 		if (!call) throw new Boom(`Unknown call ${callId}`)
-		await Promise.all(
-			call.devices.map(device => sendNode(buildTerminate(callId, device, call.creator, generateMessageID())))
-		)
-		finishCall(call)
+		try {
+			if (call.groupSession) {
+				const duration = String(Math.max(0, Date.now() - call.startedAt))
+				const attrs = { 'call-id': callId, 'call-creator': call.creator, audio_duration: duration }
+				await sendNode({
+					tag: 'call',
+					attrs: { to: callId + '@call', id: generateMessageID() },
+					content: [{ tag: 'terminate', attrs: { ...attrs, duration } }]
+				})
+				await sendNode({
+					tag: 'call',
+					attrs: { to: 'call', id: generateMessageID() },
+					content: [{ tag: 'group_call_duration', attrs: { ...attrs, type: 'group' } }]
+				})
+			} else {
+				for (const device of call.devices)
+					await sendNode(buildTerminate(callId, device, call.creator, generateMessageID()))
+			}
+			logCall(callId, 'terminate')
+		} finally {
+			finishCall(call)
+		}
 	}
 
 	const enableCamera = async (callId: string, frames: Uint8Array[], fps = 15) => {
@@ -846,7 +962,9 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		if (frames?.length) call.media.startVideoFrames(frames, fps)
 		else if (!call.media.enableVideo()) throw new Boom('This call cannot enable video')
 		const to = call.peerDevice || call.offerFrom || call.peer
-		await sendNode(buildVideoState(callId, to, call.creator, generateMessageID(), 4, { dec: 'H264,AV1', orientation: 0 }))
+		await sendNode(
+			buildVideoState(callId, to, call.creator, generateMessageID(), 4, { dec: 'H264,AV1', orientation: 0 })
+		)
 		call.videoRequest = false
 	}
 
@@ -1933,15 +2051,23 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			}
 		}
 	}
+	const getBotMessageSecret = async (key: WAMessageKey) => {
+		let message = messageRetryManager?.getRecentMessage(key.remoteJid!, key.id!)?.message
+		if (!message) {
+			try {
+				message = await getMessage(key)
+			} catch (err) {
+				logger?.warn({ err, key }, 'failed to get message for bot reply secret')
+			}
+		}
+
+		return message?.messageContextInfo?.messageSecret
+	}
 
 	const handleMessage = async (node: BinaryNode) => {
-		const encNode = getBinaryNodeChild(node, 'enc')
+		const isBotReply = getBinaryNodeChildren(node, 'enc').some(enc => enc.attrs.type === 'msmsg')
+
 		// TODO: temporary fix for crashes and issues resulting of failed msmsg decryption
-		if (encNode?.attrs.type === 'msmsg') {
-			logger && logger.debug({ key: node.attrs.key }, 'ignored msmsg')
-			await sendMessageAck(node, NACK_REASONS.MissingMessageSecret)
-			return
-		}
 
 		let acked = false
 
@@ -1951,7 +2077,14 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				category,
 				author,
 				decrypt
-			} = decryptMessageNode(node, authState.creds.me!.id, authState.creds.me!.lid || '', signalRepository, logger)
+			} = decryptMessageNode(
+				node,
+				authState.creds.me!.id,
+				authState.creds.me!.lid || '',
+				signalRepository,
+				logger,
+				getBotMessageSecret
+			)
 
 			const alt = msg.key.participantAlt || msg.key.remoteJidAlt
 			// store new mappings we didn't have before
@@ -1998,6 +2131,11 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 					if (msg?.messageStubParameters?.[0] === MISSING_KEYS_ERROR_TEXT) {
 						acked = true
 						return sendMessageAck(node, NACK_REASONS.ParsingError)
+					}
+					if (isBotReply) {
+						logger?.debug({ key: msg.key, reason: msg.messageStubParameters?.[0] }, 'failed to decrypt bot reply')
+						acked = true
+						return sendMessageAck(node, NACK_REASONS.MissingMessageSecret)
 					}
 
 					if (msg.messageStubParameters?.[0] === NO_MESSAGE_FOUND_ERROR_TEXT) {
@@ -2143,7 +2281,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 							// message was sent by us from a different device
 							type = 'sender'
 							// need to specially handle this case
-							if (isLidUser(msg.key.remoteJid!) || isLidUser(msg.key.remoteJidAlt)) {
+							if (isLidUser(msg.key.remoteJid!) || isLidUser(msg.key.remoteJidAlt) || isJidMetaAI(msg.key.remoteJid!)) {
 								participant = author // TODO: investigate sending receipts to LIDs and not PNs
 							}
 						} else if (!sendActiveReceipts) {
@@ -2348,6 +2486,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 
 	ws.on('CB:call', async (node: BinaryNode) => {
 		try {
+			await sendNode(callAck(node))
 			const call = parseCall(node)
 			if (
 				call &&
@@ -2355,6 +2494,13 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			) {
 				const action = Array.isArray(node.content) ? node.content[0] : undefined
 				const current = calls.get(call.id)
+				if (
+					current?.group &&
+					current.direction === 'outgoing' &&
+					call.from !== current.callId + '@call' &&
+					!current.devices.some(device => jidNormalizedUser(device) === jidNormalizedUser(call.from))
+				)
+					return
 				if (call.status === 'terminate') {
 					logger?.debug(
 						{ callId: call.id, from: call.from, reason: action?.attrs.reason, mediaStats: current?.media?.stats },
@@ -2402,22 +2548,25 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 								if (state.status === 'ended') calls.delete(id)
 								if (calls.size <= 200) break
 							}
-							while (calls.size > 200) calls.delete(calls.keys().next().value!)
+							while (calls.size > 200) finishCall(calls.values().next().value!)
 						}
 					}
 				} else if (current?.groupSession && (call.status === 'group_update' || call.status === 'enc_rekey')) {
 					if (call.status === 'group_update') {
-						if (action)
+						if (action && call.from === current.callId + '@call')
 							call.groupState = JSON.parse(current.groupSession.applyUpdate(binaryPack(encodeBinaryNode(action))))
 					}
 				} else if (current) {
 					const expectedPeer = current.direction === 'outgoing' ? current.peer : current.creator
 					const matchesPeer =
+						(!!current.group && current.direction === 'outgoing') ||
 						(await callUserMatches(call.from, expectedPeer)) ||
 						(!!call.callerPn && (await callUserMatches(call.callerPn, expectedPeer)))
 					if (matchesPeer) {
-						if (call.status === 'preaccept' || call.status === 'ringing') current.status = 'ringing'
-						else if (call.status === 'accept') {
+						logCall(call.id, call.status)
+						if (call.status === 'preaccept' || call.status === 'ringing') {
+							if (current.status !== 'connected') current.status = 'ringing'
+						} else if (call.status === 'accept') {
 							current.status = 'connected'
 							current.peerDevice = call.from
 							if (current.direction === 'outgoing') current.media?.rekeyRecv(call.from)
@@ -2427,7 +2576,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 								await applyCallFiles(current, files)
 							}
 						} else if (call.status === 'reject' || call.status === 'terminate' || call.status === 'timeout') {
-							finishCall(current)
+							if (!current.groupSession || call.from === current.callId + '@call') finishCall(current)
 						} else if (call.status === 'video' && call.videoState !== undefined) {
 							if (call.videoState === 11 || call.videoState === 3) current.videoRequest = true
 							else if (call.videoState === 4) {
@@ -2442,8 +2591,8 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				}
 				ev.emit('call', [call])
 			}
-		} finally {
-			await sendNode(callAck(node))
+		} catch (error) {
+			onUnexpectedError(error instanceof Error ? error : new Error(String(error)), 'processing call stanza')
 		}
 	})
 	ws.on('CB:status', (node: BinaryNode) => {
@@ -2577,6 +2726,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		sendRetryRequest,
 		rejectCall,
 		terminateCall,
+		offerCall,
 		startCall,
 		acceptCall,
 		endCall,

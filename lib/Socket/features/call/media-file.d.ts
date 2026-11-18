@@ -17,11 +17,14 @@ export interface VideoFileOptions extends MediaFileOptions {
 export interface CallFileOptions {
     /** An audio file (mp3, ogg, wav, m4a, ...) to say into the call. It plays once; silence follows. */
     audioFile?: string;
+    /** Prepare fixed-gain Opus packets before signaling instead of encoding the file during playback. */
+    preencodeAudio?: boolean;
     /** A video file (mp4, ...) to send as the picture, looped. Its sound plays too unless `audioFile` is given. */
     videoFile?: string;
     fileOptions?: VideoFileOptions;
 }
 export type ResolvedCallFiles = CallFileOptions & {
+    opusFile?: Buffer;
     audioIn?: Int16Array;
     videoFrames?: Uint8Array[];
     videoFps?: number;

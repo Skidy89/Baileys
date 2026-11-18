@@ -11,7 +11,8 @@ export type CallState = {
     video: boolean;
     lightweight?: boolean;
     devices: string[];
-    status: 'calling' | 'ringing' | 'connected' | 'ended';
+    heartbeat?: NodeJS.Timeout;
+    status: 'offer_sent' | 'server_ack' | 'ringing' | 'connected' | 'ended';
     startedAt: number;
     offer?: BinaryNode;
     offerFrom?: string;
@@ -23,6 +24,7 @@ export type CallState = {
     videoRequest?: boolean;
 };
 export declare const newCallId: () => string;
+export declare function acknowledgeOffer(call: CallState, ack: BinaryNode, stanzaId: string | undefined): void;
 export declare const buildOffer: (o: {
     callId: string;
     to: string;
@@ -36,6 +38,7 @@ export declare const buildOffer: (o: {
     }>;
     deviceIdentity?: Uint8Array;
 }) => BinaryNode;
+export declare const buildGroupOffer: (callId: string, id: string, creator: string, group: string, roster: Map<string, string[]>, video: boolean) => BinaryNode;
 export declare const buildPreaccept: (callId: string, to: string, creator: string, id: string, video: boolean) => BinaryNode;
 export declare const buildAccept: (callId: string, to: string, creator: string, id: string, video: boolean) => BinaryNode;
 export declare const buildTerminate: (callId: string, to: string, creator: string, id: string) => BinaryNode;

@@ -4,16 +4,31 @@ import Long from 'long';
 import { proto } from '../../../WAProto/index.js';
 import type { MessageReceiptType, MessageRelayOptions, NewChatMessageCapInfo, SocketConfig, WAMessage, WAMessageKey } from '../../Types/index.js';
 import { type BinaryNode, type JidWithDevice } from '../../WABinary/index.js';
+import { enableEncodedAudio } from '../features/call/encode-audio.js';
 import { type CallFileOptions, type QueueAudioFileOptions } from '../features/call/media-file.js';
 import { type CallState } from '../features/call/calls.js';
 export declare const makeMessagesRecvSocket: (config: SocketConfig) => {
     sendMessageAck: (node: BinaryNode, errorCode?: number) => Promise<void>;
     sendRetryRequest: (node: BinaryNode, forceIncludeKeys?: boolean) => Promise<void>;
     rejectCall: (callId: string, callFrom?: string) => Promise<void>;
-    terminateCall: (callId: string, callTo: string, creator: string) => Promise<void>;
-    startCall: (to: string, options?: CallFileOptions & {
+    terminateCall: (callId: string, callTo: string, creator?: string) => Promise<void>;
+    offerCall: (jid: string, { video }?: {
         video?: boolean;
-    }) => Promise<CallState>;
+    }) => Promise<{
+        callId: string;
+    }>;
+    startCall: {
+        (to: string, options: (CallFileOptions & {
+            video?: boolean;
+            encodedAudio?: boolean;
+        }) & {
+            encodedAudio: true;
+        }): Promise<ReturnType<typeof enableEncodedAudio>>;
+        (to: string, options?: CallFileOptions & {
+            video?: boolean;
+            encodedAudio?: boolean;
+        }): Promise<CallState>;
+    };
     acceptCall: (callId: string, options?: CallFileOptions) => Promise<CallState>;
     endCall: (callId: string) => Promise<void>;
     enableCamera: (callId: string, frames: Uint8Array[], fps?: number) => Promise<void>;

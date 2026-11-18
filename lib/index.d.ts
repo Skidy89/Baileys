@@ -6,6 +6,7 @@ export * from './Defaults/index.js';
 export * from './WABinary/index.js';
 export * from './WAM/index.js';
 export * from './WAUSync/index.js';
+export { encodeAudioForCall, type EncodeAudioOptions, type EncodedAudio } from './Socket/features/call/encode-audio.js';
 export type WASocket = ReturnType<typeof makeWASocket>;
 export { makeWASocket };
 export default makeWASocket;

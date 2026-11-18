@@ -24,6 +24,7 @@ export declare class CallMediaStream extends Duplex {
     _read(): void;
     _write(chunk: Buffer, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void;
     _final(callback: (error?: Error | null) => void): void;
+    playOpusFile(packets: Buffer): void;
     /** Queue PCM frames directly for the 60 ms microphone tick, bypassing Writable buffering. */
     speak(pcm: Int16Array, replace?: boolean): void;
     /** Send one H.264 Annex-B access unit; call `enableVideo()` first. */

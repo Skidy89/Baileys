@@ -3,6 +3,7 @@ import { proto } from '../../WAProto/index.js'
 import type { WAMessage, WAMessageKey } from '../Types'
 import type { SignalRepositoryWithLIDStore } from '../Types/Signal'
 import {
+	areJidsSameUser,
 	type BinaryNode,
 	isHostedLidUser,
 	isHostedPnUser,
@@ -18,6 +19,7 @@ import {
 } from '../WABinary'
 import { toError, unpadRandomMax16 } from './generics'
 import type { ILogger } from './logger'
+import { decryptBotReplyNode, getBotReplyInfo } from './msmsg.js'
 
 export const getDecryptionJid = async (sender: string, repository: SignalRepositoryWithLIDStore): Promise<string> => {
 	if (isLidUser(sender) || isHostedLidUser(sender)) {
@@ -52,7 +54,7 @@ const storeMappingFromEnvelope = async (
 export const NO_MESSAGE_FOUND_ERROR_TEXT = 'Message absent from node'
 export const MISSING_KEYS_ERROR_TEXT = 'Key used already or never filled'
 export const ACCOUNT_RESTRICTED_TEXT = 'Your account has been restricted'
-
+export const MISSING_BOT_MESSAGE_SECRET_TEXT = 'Message secret for the bot reply not found'
 // Retry configuration for failed decryption
 export const DECRYPTION_RETRY_CONFIG = {
 	maxRetries: 3,
@@ -100,13 +102,7 @@ export const SERVER_ERROR_CODES = {
 } as const
 
 type MessageType =
-	| 'chat'
-	| 'peer_broadcast'
-	| 'other_broadcast'
-	| 'group'
-	| 'direct_peer_status'
-	| 'other_status'
-	| 'newsletter'
+	'chat' | 'peer_broadcast' | 'other_broadcast' | 'group' | 'direct_peer_status' | 'other_status' | 'newsletter'
 
 export const extractAddressingContext = (stanza: BinaryNode) => {
 	let senderAlt: string | undefined
@@ -171,11 +167,12 @@ export function decodeMessageNode(
 	}
 
 	const addressingContext = extractAddressingContext(stanza)
-
+	const isMe = (jid: string) => areJidsSameUser(jid, meId)
+	const isMeLid = (jid: string) => areJidsSameUser(jid, meLid)
 	if (isPnUser(from) || isLidUser(from) || isHostedLidUser(from) || isHostedPnUser(from)) {
 		const fromUser = jidDecode(from)?.user
 		const senderIsMe = fromUser === ownJidUsers.meIdUser || fromUser === ownJidUsers.meLidUser
-		if (recipient && !isJidMetaAI(recipient)) {
+		if (recipient && (!isJidMetaAI(recipient) || isMe(from) || isMeLid(from))) {
 			if (!senderIsMe) {
 				throw new Boom('receipient present, but msg not from me', { data: stanza })
 			}
@@ -193,6 +190,10 @@ export function decodeMessageNode(
 		}
 
 		msgType = 'chat'
+		author = from
+	} else if (isJidMetaAI(from)) {
+		msgType = 'chat'
+		chatId = from
 		author = from
 	} else if (isJidGroup(from)) {
 		if (!participant) {
@@ -235,7 +236,7 @@ export function decodeMessageNode(
 
 	const key: WAMessageKey = {
 		remoteJid: chatId,
-		remoteJidAlt: !isJidGroup(chatId) ? addressingContext.senderAlt : undefined,
+		remoteJidAlt: !isJidGroup(chatId) && !isJidMetaAI(chatId) ? addressingContext.senderAlt : undefined,
 		remoteJidUsername: !isJidGroup(chatId)
 			? stanza.attrs.peer_recipient_username || stanza.attrs.recipient_username
 			: undefined,
@@ -272,7 +273,8 @@ export const decryptMessageNode = (
 	meId: string,
 	meLid: string,
 	repository: SignalRepositoryWithLIDStore,
-	logger: ILogger | undefined
+	logger: ILogger | undefined,
+	getBotMessageSecret?: (key: WAMessageKey) => Promise<Uint8Array | null | undefined>
 ) => {
 	let ownJidUsers = ownJidUsersCache.get(repository)
 	if (!ownJidUsers || ownJidUsers.meId !== meId || ownJidUsers.meLid !== meLid) {
@@ -281,6 +283,38 @@ export const decryptMessageNode = (
 	}
 
 	const { fullMessage, author, sender } = decodeMessageNode(stanza, meId, meLid, ownJidUsers)
+	const decryptBotReplyStanza = async (content: Uint8Array) => {
+		if (!isJidMetaAI(author)) {
+			throw new Error('msmsg from a sender that is not a bot')
+		}
+
+		const info = getBotReplyInfo(stanza)
+		const targetSenderJid = info.targetSenderJid || meLid
+		const isOwnTarget =
+			!!targetSenderJid &&
+			(isLidUser(targetSenderJid) ? areJidsSameUser(targetSenderJid, meLid) : areJidsSameUser(targetSenderJid, meId))
+		if (!info.targetId || !isOwnTarget) {
+			throw new Error('bot reply does not answer one of our messages')
+		}
+
+		const messageSecret = await getBotMessageSecret?.({
+			remoteJid: fullMessage.key.remoteJid,
+			id: info.targetId,
+			fromMe: true
+		})
+		if (!messageSecret?.length) {
+			throw new Error(MISSING_BOT_MESSAGE_SECRET_TEXT)
+		}
+
+		return await decryptBotReplyNode({
+			content,
+			stanzaId: fullMessage.key.id!,
+			info,
+			messageSecret,
+			targetSenderJid,
+			botJid: author
+		})
+	}
 	return {
 		fullMessage,
 		category: stanza.attrs.category,
@@ -324,10 +358,12 @@ export const decryptMessageNode = (
 					}
 
 					try {
-						const e2eType = tag === 'plaintext' ? 'plaintext' : attrs.type
+						const e2eType =
+							tag === 'plaintext' ? 'plaintext' : (attrs.type as 'skmsg' | 'frskmsg' | 'pkmsg' | 'msg' | 'msmsg')
 
 						switch (e2eType) {
 							case 'skmsg':
+							case 'frskmsg':
 								msgBuffer = await repository.decryptGroupMessage({
 									group: sender,
 									authorJid: author,
@@ -342,6 +378,9 @@ export const decryptMessageNode = (
 									ciphertext: content
 								})
 								break
+							case 'msmsg':
+								msgBuffer = await decryptBotReplyStanza(content)
+								break
 							case 'plaintext':
 								msgBuffer = content
 								break
@@ -350,7 +389,7 @@ export const decryptMessageNode = (
 						}
 
 						let msg: proto.IMessage = proto.Message.decode(
-							e2eType !== 'plaintext' ? unpadRandomMax16(msgBuffer) : msgBuffer
+							e2eType === 'plaintext' || e2eType === 'msmsg' ? msgBuffer : unpadRandomMax16(msgBuffer)
 						)
 						msg = msg.deviceSentMessage?.message || msg
 						if (msg.senderKeyDistributionMessage) {

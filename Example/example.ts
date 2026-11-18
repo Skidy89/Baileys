@@ -50,7 +50,7 @@ const startSock = async() => {
 		// use safari as the browser, so that companion registration works
 		browser: ['open-wa systems', "Safari", '1.0.0'],
 		companionPlatformDisplay: 'Chrome (Windows)',	
-        shouldIgnoreJid: (jid) => isJidBroadcast(jid) || isJidMetaAI(jid) || isJidNewsletter(jid),
+        shouldIgnoreJid: (jid) => isJidBroadcast(jid)  || isJidNewsletter(jid),
 		cachedGroupMetadata: async (jid) => {
 			if (groups.has(jid)) {
 				return groups.get(jid)

@@ -41,12 +41,15 @@ export interface VideoFileOptions extends MediaFileOptions {
 export interface CallFileOptions {
 	/** An audio file (mp3, ogg, wav, m4a, ...) to say into the call. It plays once; silence follows. */
 	audioFile?: string
+	/** Prepare fixed-gain Opus packets before signaling instead of encoding the file during playback. */
+	preencodeAudio?: boolean
 	/** A video file (mp4, ...) to send as the picture, looped. Its sound plays too unless `audioFile` is given. */
 	videoFile?: string
 	fileOptions?: VideoFileOptions
 }
 
 export type ResolvedCallFiles = CallFileOptions & {
+	opusFile?: Buffer
 	audioIn?: Int16Array
 	videoFrames?: Uint8Array[]
 	videoFps?: number
@@ -256,7 +259,38 @@ export async function resolveCallFiles<T extends CallFileOptions>(o: T): Promise
 	const sound = o.audioFile ?? o.videoFile
 	if (sound && !(o as T & ResolvedCallFiles).audioIn) {
 		try {
-			next.audioIn = await decodeAudioFile(sound, o.fileOptions)
+			if (o.preencodeAudio) {
+				const seconds = Math.max(1, Math.min(o.fileOptions?.maxSeconds ?? 600, 3600))
+				const packets = await ffmpeg(
+					[
+						...input(sound),
+						'-map',
+						'0:a:0',
+						'-t',
+						String(seconds),
+						'-ac',
+						'1',
+						'-ar',
+						'16000',
+						'-c:a',
+						'libopus',
+						'-application',
+						'voip',
+						'-frame_duration',
+						'60',
+						'-b:a',
+						'24000',
+						'-vbr',
+						'off',
+						'-f',
+						'data',
+						'-'
+					],
+					(Math.ceil((seconds * 1000) / 60) + 2) * 180
+				)
+				if (!packets.length || packets.length % 180) throw new Error('Incomplete Opus file packets')
+				next.opusFile = packets
+			} else next.audioIn = await decodeAudioFile(sound, o.fileOptions)
 		} catch (e) {
 			// A silent video is a video; an audio file with no audio is a mistake.
 			if (o.audioFile) throw e

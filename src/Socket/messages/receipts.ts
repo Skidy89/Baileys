@@ -1,7 +1,7 @@
 import { Boom } from '@hapi/boom'
 import type { SocketConfig, WAMessageKey, MessageReceiptType } from '../../Types'
 import { aggregateMessageKeysNotFromMe, unixTimestampSeconds } from '../../Utils'
-import { type BinaryNode, isLidUser, isPnUser } from '../../WABinary'
+import { type BinaryNode, isJidMetaAI, isLidUser, isPnUser } from '../../WABinary'
 
 type ReceiptDependencies = Pick<SocketConfig, 'logger'> & {
 	sendNode: (node: BinaryNode) => Promise<void>
@@ -20,7 +20,7 @@ export const makeMessageReceipts = ({ logger, sendNode, fetchPrivacySettings }: 
 		const node: BinaryNode = { tag: 'receipt', attrs: { id: messageIds[0]! } }
 		if (type === 'read' || type === 'read-self') node.attrs.t = unixTimestampSeconds().toString()
 
-		if (type === 'sender' && (isPnUser(jid) || isLidUser(jid))) {
+		if (type === 'sender' && (isPnUser(jid) || isLidUser(jid) || isJidMetaAI(jid))) {
 			node.attrs.recipient = jid
 			node.attrs.to = participant!
 		} else {
