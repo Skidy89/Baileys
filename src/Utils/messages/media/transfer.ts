@@ -2,7 +2,7 @@ import { Boom } from '@hapi/boom'
 import * as Crypto from 'crypto'
 import { createReadStream, promises as fs } from 'fs'
 import type { Agent } from 'https'
-import { Readable, Transform } from 'stream'
+import { pipeline, Readable, Transform } from 'stream'
 import { URL } from 'url'
 import { DEFAULT_ORIGIN, MEDIA_PATH_MAP, type MediaType } from '../../../Defaults'
 import type {
@@ -189,7 +189,8 @@ export const downloadEncryptedContent = async (
 	})
 	fetched.once('error', error => output.destroy(error))
 	output.once('close', () => fetched.destroy())
-	return fetched.pipe(output, { end: true })
+	pipeline(fetched, output, () => {})
+	return output
 }
 
 export function extensionForMediaMessage(message: WAMessageContent) {

@@ -35,6 +35,7 @@ import { makeKeyedMutex, makeMutex } from '../../Utils/make-mutex'
 import { getMessageReportingToken, shouldIncludeReportingToken } from '../../Utils/reporting-utils'
 import {
 	buildMergedTcTokenIndexWrite,
+	computeCsToken,
 	isTcTokenExpired,
 	resolveIssuanceJid,
 	resolveTcTokenJid,
@@ -658,6 +659,16 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					.finally(() => {
 						inFlightTcTokenIssuance.delete(tcTokenJid)
 					})
+			} else if (is1on1Send && authState.creds.nctSalt?.length && tcTokenJid && isLidUser(tcTokenJid)) {
+				// Fallback: no tctoken from recipient, compute cstoken from NCT salt
+				// WA Web skips cstoken when accountLid is null (no LID mapping)
+				const csToken = computeCsToken(authState.creds.nctSalt, tcTokenJid)
+				;(stanza.content as BinaryNode[]).push({
+					tag: 'cstoken',
+					attrs: {},
+					content: csToken
+				})
+				logger?.debug({ jid: destinationJid }, 'cstoken fallback — no tctoken available')
 			}
 
 			// Add message to retry cache if enabled

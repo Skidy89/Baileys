@@ -1,3 +1,4 @@
+import { createHmac } from 'crypto'
 import type { SignalKeyStoreWithTransaction } from '../Types'
 import type { BinaryNode } from '../WABinary'
 import {
@@ -215,4 +216,17 @@ export async function storeTcTokensFromIqResult({
 		})
 		onNewJidStored?.(storageJid)
 	}
+}
+
+// ─── cstoken (NCT — Client-Side Token) ─────────────────────────────────
+
+/**
+ * Compute cstoken = HMAC-SHA256(nctSalt, UTF8(recipientLid)).
+ * Deterministic fallback when no tctoken exists (first-contact, post-restriction).
+ * Ref: WAWebSendMsgCreateFanoutStanza.genCsTokenBody
+ */
+export function computeCsToken(nctSalt: Uint8Array, recipientLid: string): Uint8Array {
+	const hmac = createHmac('sha256', nctSalt)
+	hmac.update(recipientLid, 'utf8')
+	return new Uint8Array(hmac.digest())
 }

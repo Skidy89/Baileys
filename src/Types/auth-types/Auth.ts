@@ -68,6 +68,7 @@ export type AuthenticationCreds = SignalCreds & {
 	pairingCode: string | undefined
 	lastPropHash: string | undefined
 	routingInfo: Buffer | undefined
+	nctSalt?: Uint8Array | undefined
 	additionalData?: Record<string, unknown> | undefined
 }
 

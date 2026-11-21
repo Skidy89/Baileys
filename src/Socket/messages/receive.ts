@@ -6,7 +6,6 @@ import { proto } from '../../../WAProto/index.js'
 import {
 	DEFAULT_CACHE_TTLS,
 	KEY_BUNDLE_TYPE,
-	MIN_PREKEY_COUNT,
 	PLACEHOLDER_MAX_AGE_SECONDS,
 	STATUS_EXPIRY_SECONDS
 } from '../../Defaults'
@@ -116,6 +115,7 @@ import {
 	newCallId,
 	type CallState
 } from '../features/call/calls'
+import { handleServerEncryptNotification } from '../../Utils/server-enc-notifiaction.js'
 
 type MexGqlData = Record<string, unknown>
 
@@ -1200,29 +1200,9 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 	const handleEncryptNotification = async (node: BinaryNode) => {
 		const from = node.attrs.from
 		if (from === S_WHATSAPP_NET) {
-			const stanzaId = node.attrs.id
-			if (stanzaId && inFlightPreKeyLow.has(stanzaId)) {
-				return
-			}
+			await handleServerEncryptNotification(node, { query, uploadPreKeys, inFlightPreKeyLow, logger })
 
-			const countChild = getBinaryNodeChild(node, 'count')
-			let count = 0
-			if (!countChild) {
-				count = 0
-			} else {
-				count = +countChild!.attrs?.value! || 0
-			}
-			const shouldUploadMorePreKeys = count < MIN_PREKEY_COUNT
-
-			if (logger) logger.debug({ count, shouldUploadMorePreKeys }, 'recv pre-key count')
-			if (shouldUploadMorePreKeys) {
-				if (stanzaId) inFlightPreKeyLow.add(stanzaId)
-				try {
-					await uploadPreKeys()
-				} finally {
-					if (stanzaId) inFlightPreKeyLow.delete(stanzaId)
-				}
-			}
+			
 		} else {
 			const result = await handleIdentityChange(node, {
 				meId: authState.creds.me?.id,
