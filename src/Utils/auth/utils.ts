@@ -575,6 +575,6 @@ export const initAuthCreds = (): AuthenticationCreds => {
 		lastPropHash: undefined,
 		routingInfo: undefined,
 		additionalData: undefined,
-		nctSalt: undefined,
+		nctSalt: undefined
 	}
 }

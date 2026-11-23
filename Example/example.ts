@@ -1,15 +1,14 @@
 import { Boom } from '@hapi/boom'
 import { resolve } from 'node:path'
 import readline from 'readline'
-import makeWASocket, { AnyMessageContent, delay, DisconnectReason, fetchLatestBaileysVersion, getAggregateVotesInPollMessage, getHistoryMsg, GroupMetadata, isJidBot, isJidBroadcast, isJidMetaAI, isJidNewsletter, jidDecode, makeCacheableSignalKeyStore, normalizeMessageContent, PatchedMessageWithRecipientJID, proto, useMultiFileAuthState, WAMessageContent, migrateAuthState, useSqliteAuthState, WAVersion, downloadMediaMessage, generateWAMessageFromContent, prepareWAMessageMedia, BinaryNode } from '../src'
+import makeWASocket, { type AnyMessageContent, delay, DisconnectReason,  type GroupMetadata, isJidBroadcast, isJidNewsletter, makeCacheableSignalKeyStore, proto, useSqliteAuthState, type WAVersion } from '../src'
 import P from 'pino'
 
 import qrcode from 'qrcode-terminal'
-import { randomBytes } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+
 
 const logger = P({
-  level: "debug",
+  level: "silent",
   
 })
 
@@ -44,7 +43,7 @@ const startSock = async() => {
 	const sock = makeWASocket({
 		version: WA_VERSION,
 		logger: logger,
-		auth: {creds: d2.state.creds, keys: d2.state.keys},
+		auth: { creds: d2.state.creds, keys: makeCacheableSignalKeyStore(d2.state.keys, logger) },
         waWebSocketUrl: "wss://web.whatsapp.com/ws/chat?ED=CAgIAg==",
 		shouldSyncHistoryMessage: () => false,
 		// use safari as the browser, so that companion registration works
@@ -214,27 +213,6 @@ const startSock = async() => {
         }
       }
 
-			// messages updated like status delivered, message deleted etc.
-			if(events['messages.update']) {
-				console.log(
-					JSON.stringify(events['messages.update'], undefined, 2)
-				)
-
-				for(const { key, update } of events['messages.update']) {
-					if(update.pollUpdates) {
-						const pollCreation: proto.IMessage = {} // get the poll creation message somehow
-						if(pollCreation) {
-							console.log(
-								'got poll update, aggregation: ',
-								getAggregateVotesInPollMessage({
-									message: pollCreation,
-									pollUpdates: update.pollUpdates,
-								})
-							)
-						}
-					}
-				}
-			}
 
 		}
 	)

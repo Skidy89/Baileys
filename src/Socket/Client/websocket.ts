@@ -32,7 +32,7 @@ export class WebSocketClient extends AbstractSocketClient {
 		})
 
 		this.socket.setMaxListeners(0)
-		
+
 		this.socket.on('close', (...args) => this.emit('close', ...args))
 		this.socket.on('error', (...args) => this.emit('error', ...args))
 		this.socket.on('upgrade', (...args) => this.emit('upgrade', ...args))

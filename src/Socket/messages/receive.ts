@@ -3,12 +3,7 @@ import { Boom } from '@hapi/boom'
 import { randomBytes } from 'crypto'
 import Long from 'long'
 import { proto } from '../../../WAProto/index.js'
-import {
-	DEFAULT_CACHE_TTLS,
-	KEY_BUNDLE_TYPE,
-	PLACEHOLDER_MAX_AGE_SECONDS,
-	STATUS_EXPIRY_SECONDS
-} from '../../Defaults'
+import { DEFAULT_CACHE_TTLS, KEY_BUNDLE_TYPE, PLACEHOLDER_MAX_AGE_SECONDS, STATUS_EXPIRY_SECONDS } from '../../Defaults'
 import type {
 	GroupParticipant,
 	MessageReceiptType,
@@ -1201,8 +1196,6 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		const from = node.attrs.from
 		if (from === S_WHATSAPP_NET) {
 			await handleServerEncryptNotification(node, { query, uploadPreKeys, inFlightPreKeyLow, logger })
-
-			
 		} else {
 			const result = await handleIdentityChange(node, {
 				meId: authState.creds.me?.id,

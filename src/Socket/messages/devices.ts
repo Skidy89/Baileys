@@ -61,7 +61,7 @@ export const makeDeviceResolver = (dependencies: Dependencies) => {
 			// A bot has no device list (its usync query is empty); it is addressed directly
 			if (isJidMetaAI(jid) && user) {
 				deviceResults.push({ user, device: 0, jid })
-				return []
+				continue
 			}
 
 			const normalizedJid = decoded

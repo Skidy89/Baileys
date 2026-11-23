@@ -5,6 +5,23 @@ import { makeMutex } from '../../Utils/make-mutex'
 import { makeDeviceResolver } from '../../Socket/messages/devices'
 
 describe('device resolver cache reads', () => {
+	it('returns a direct device for Meta AI without a USync lookup', async () => {
+		const executeUSyncQuery = jest.fn()
+		const { getUSyncDevices } = makeDeviceResolver({
+			authState: { creds: { me: { id: '999@s.whatsapp.net', lid: '999@lid' } } } as AuthenticationState,
+			userDevicesCache: { mget: async () => ({}) } as unknown as PossiblyExtendedCacheStore,
+			devicesMutex: makeMutex(),
+			signalRepository: {} as SignalRepositoryWithLIDStore,
+			assertSessions: async () => true,
+			executeUSyncQuery
+		})
+
+		const devices = await getUSyncDevices(['123@bot'], true, false)
+
+		expect(devices).toEqual([{ user: '123', device: 0, jid: '123@bot' }])
+		expect(executeUSyncQuery).not.toHaveBeenCalled()
+	})
+
 	it('normalizes USync inputs from the existing JID parse', async () => {
 		let queriedUsers: string[] = []
 		const { getUSyncDevices } = makeDeviceResolver({
