@@ -48,7 +48,12 @@ export const downloadMediaMessage = async <Type extends 'buffer' | 'stream'>(
 		}
 
 		const contentType = getContentType(mContent)
-		let mediaType = contentType?.replace('Message', '') as MediaType
+		let mediaType =
+			contentType === 'instantImageMessage'
+				? 'image'
+				: contentType === 'instantVideoMessage'
+					? 'video'
+					: (contentType?.replace('Message', '') as MediaType)
 		const media = mContent[contentType!]
 
 		if (!media || typeof media !== 'object' || (!('url' in media) && !('thumbnailDirectPath' in media))) {
@@ -80,6 +85,8 @@ export const assertMediaContent = (content: proto.IMessage | null | undefined) =
 	content = extractMessageContent(content)
 	const mediaContent =
 		content?.documentMessage ||
+		content?.instantImageMessage ||
+		content?.instantVideoMessage ||
 		content?.imageMessage ||
 		content?.videoMessage ||
 		content?.audioMessage ||

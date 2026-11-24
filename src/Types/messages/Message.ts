@@ -1,7 +1,7 @@
 import type { Readable } from 'stream'
 import type { URL } from 'url'
 import { proto } from '../../../WAProto/index.js'
-import type { MediaType } from '../../Defaults'
+import type { MediaType, MediaUploadType } from '../../Defaults'
 import type { BinaryNode } from '../../WABinary'
 import type { GroupMetadata } from '../GroupMetadata'
 import type { CacheStore } from '../Socket'
@@ -51,6 +51,8 @@ export enum WAMessageAddressingMode {
 
 export type MessageWithContextInfo =
 	| 'imageMessage'
+	| 'instantImageMessage'
+	| 'instantVideoMessage'
 	| 'contactMessage'
 	| 'locationMessage'
 	| 'extendedTextMessage'
@@ -341,7 +343,7 @@ export type MessageGenerationOptionsFromContent = MiscMessageGenerationOptions &
 
 export type WAMediaUploadFunction = (
 	encFilePath: string,
-	opts: { fileEncSha256B64: string; mediaType: MediaType; timeoutMs?: number }
+	opts: { fileEncSha256B64: string; mediaType: MediaUploadType; timeoutMs?: number }
 ) => Promise<{ mediaUrl: string; directPath: string; meta_hmac?: string; ts?: number; fbid?: number }>
 
 export type MediaGenerationOptions = {

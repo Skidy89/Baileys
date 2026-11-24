@@ -1,8 +1,9 @@
 import { Boom } from '@hapi/boom'
 import { resolve } from 'node:path'
 import readline from 'readline'
-import makeWASocket, { type AnyMessageContent, delay, DisconnectReason,  type GroupMetadata, isJidBroadcast, isJidNewsletter, makeCacheableSignalKeyStore, proto, useSqliteAuthState, type WAVersion } from '../src'
+import makeWASocket, { type AnyMessageContent, delay, DisconnectReason,  type GroupMetadata, isJidBroadcast, isJidNewsletter, makeCacheableSignalKeyStore, prepareWAMessageMedia, proto, useSqliteAuthState, type WAVersion } from '../src'
 import P from 'pino'
+import got from 'got'
 
 import qrcode from 'qrcode-terminal'
 
@@ -199,6 +200,13 @@ const startSock = async() => {
 					rss: ${toMB(process.memoryUsage().rss)} MB
 					heapTotal: ${toMB(process.memoryUsage().heapTotal)} MB
 					heapUsed: ${toMB(process.memoryUsage().heapUsed)} MB`, edit: result?.key })
+			  }
+			  if (text === 'test3') {
+				const prepared = await prepareWAMessageMedia(
+					{ image: { stream: got.stream('https://i.pinimg.com/736x/53/7d/9b/537d9b9f1a51f18d33897fedb7bf5f6c.jpg') } },
+					{ upload: sock.waUploadToServer, logger }
+				)
+				await sock.relayMessage(msg.key.remoteJid!, { imageMessage: prepared.imageMessage }, {})
 			  }
 			  
 

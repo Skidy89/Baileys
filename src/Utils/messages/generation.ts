@@ -8,6 +8,7 @@ import {
 	CALL_VIDEO_PREFIX,
 	MEDIA_KEYS,
 	type MediaType,
+	type MediaUploadType,
 	URL_REGEX,
 	WA_DEFAULT_EPHEMERAL
 } from '../../Defaults'
@@ -60,6 +61,20 @@ const MIMETYPE_MAP: { [T in MediaType]?: string } = {
 	audio: 'audio/ogg; codecs=opus',
 	sticker: 'image/webp',
 	'product-catalog-image': 'image/jpeg'
+}
+
+const NEWSLETTER_MEDIA_TYPE_MAP: Partial<Record<MediaType, MediaUploadType>> = {
+	audio: 'newsletter-audio',
+	document: 'newsletter-document',
+	gif: 'newsletter-gif',
+	image: 'newsletter-image',
+	'music-artwork': 'newsletter-music-artwork',
+	ptt: 'newsletter-ptt',
+	ptv: 'newsletter-ptv',
+	sticker: 'newsletter-sticker',
+	'sticker-pack': 'newsletter-sticker-pack',
+	'thumbnail-link': 'newsletter-thumbnail-link',
+	video: 'newsletter-video'
 }
 
 const MessageTypeProto = {
@@ -172,11 +187,15 @@ export const prepareWAMessageMedia = async (
 			options.mediaTypeOverride || mediaType,
 			logger
 		)
+		const uploadMediaType =
+			mediaType === 'video' && uploadData.gifPlayback
+				? 'newsletter-gif'
+				: (NEWSLETTER_MEDIA_TYPE_MAP[mediaType] ?? mediaType)
 		const fileSha256B64 = fileSha256.toString('base64')
 		const { mediaUrl, directPath } = await options
 			.upload(filePath, {
 				fileEncSha256B64: fileSha256B64,
-				mediaType: mediaType,
+				mediaType: uploadMediaType,
 				timeoutMs: options.mediaUploadTimeoutMs
 			})
 			.finally(() => fs.unlink(filePath).catch(() => logger?.warn('failed to remove tmp file')))

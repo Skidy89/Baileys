@@ -94,7 +94,7 @@ export const DEFAULT_CONNECTION_CONFIG: SocketConfig = {
 	makeSignalRepository: makeLibSignalRepository
 }
 
-export const MEDIA_PATH_MAP = {
+const BASE_MEDIA_PATH_MAP = {
 	image: '/mms/image',
 	video: '/mms/video',
 	audio: '/mms/audio',
@@ -119,6 +119,23 @@ export const MEDIA_PATH_MAP = {
 	'thumbnail-sticker-pack': '/mms/thumbnail-sticker-pack',
 	'thumbnail-video': '/mms/thumbnail-video',
 	'maiba-file': '/wa-ai/maiba-file'
+} as const
+
+export const MEDIA_PATH_MAP = {
+	...BASE_MEDIA_PATH_MAP,
+	'newsletter-audio': '/newsletter/newsletter-audio',
+	'newsletter-document': '/newsletter/newsletter-document',
+	'newsletter-gif': '/newsletter/newsletter-gif',
+	'newsletter-image': '/newsletter/newsletter-image',
+	'newsletter-music-artwork': '/newsletter/newsletter-music-artwork',
+	'newsletter-ptt': '/newsletter/newsletter-ptt',
+	'newsletter-ptv': '/newsletter/newsletter-ptv',
+	'newsletter-sticker': '/newsletter/newsletter-sticker',
+	'newsletter-sticker-pack': '/newsletter/newsletter-sticker-pack',
+	'newsletter-thumbnail-link': '/newsletter/newsletter-thumbnail-link',
+	'newsletter-video': '/newsletter/newsletter-video',
+	'waffle-image': '/mms/waffle-image',
+	'waffle-video': '/mms/waffle-video'
 }
 export const MEDIA_HKDF_KEY_MAPPING = {
 	audio: 'Audio',
@@ -154,8 +171,9 @@ export const MEDIA_HKDF_KEY_MAPPING = {
 }
 
 export type MediaType = keyof typeof MEDIA_HKDF_KEY_MAPPING
+export type MediaUploadType = MediaType | keyof typeof MEDIA_PATH_MAP
 
-export const MEDIA_KEYS = Object.keys(MEDIA_PATH_MAP) as MediaType[]
+export const MEDIA_KEYS = Object.keys(BASE_MEDIA_PATH_MAP) as MediaType[]
 
 /** 120s timeout for history sync stall detection, same as WA Web's handleChunkProgress / restartPausedTimer (g = 120) */
 export const HISTORY_SYNC_PAUSED_TIMEOUT_MS = 120_000

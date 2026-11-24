@@ -22,6 +22,8 @@ export const getMessageType = (message: proto.IMessage) => {
 }
 
 export const getMediaType = (message: proto.IMessage): string => {
+	if (message.instantImageMessage) return 'image'
+	if (message.instantVideoMessage) return 'video'
 	if (message.imageMessage) return 'image'
 	if (message.videoMessage) return message.videoMessage.gifPlayback ? 'gif' : 'video'
 	if (message.ptvMessage) return 'ptv'

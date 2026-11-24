@@ -1,7 +1,7 @@
 import type { Readable } from 'stream';
 import type { URL } from 'url';
 import { proto } from '../../../WAProto/index.js';
-import type { MediaType } from '../../Defaults/index.js';
+import type { MediaType, MediaUploadType } from '../../Defaults/index.js';
 import type { BinaryNode } from '../../WABinary/index.js';
 import type { GroupMetadata } from '../GroupMetadata.js';
 import type { CacheStore } from '../Socket.js';
@@ -44,7 +44,7 @@ export declare enum WAMessageAddressingMode {
     PN = "pn",
     LID = "lid"
 }
-export type MessageWithContextInfo = 'imageMessage' | 'contactMessage' | 'locationMessage' | 'extendedTextMessage' | 'documentMessage' | 'audioMessage' | 'videoMessage' | 'call' | 'contactsArrayMessage' | 'liveLocationMessage' | 'templateMessage' | 'stickerMessage' | 'groupInviteMessage' | 'templateButtonReplyMessage' | 'productMessage' | 'listMessage' | 'orderMessage' | 'listResponseMessage' | 'buttonsMessage' | 'buttonsResponseMessage' | 'interactiveMessage' | 'interactiveResponseMessage' | 'pollCreationMessage' | 'requestPhoneNumberMessage' | 'messageHistoryBundle' | 'eventMessage' | 'newsletterAdminInviteMessage' | 'albumMessage' | 'stickerPackMessage' | 'pollResultSnapshotMessage' | 'messageHistoryNotice';
+export type MessageWithContextInfo = 'imageMessage' | 'instantImageMessage' | 'instantVideoMessage' | 'contactMessage' | 'locationMessage' | 'extendedTextMessage' | 'documentMessage' | 'audioMessage' | 'videoMessage' | 'call' | 'contactsArrayMessage' | 'liveLocationMessage' | 'templateMessage' | 'stickerMessage' | 'groupInviteMessage' | 'templateButtonReplyMessage' | 'productMessage' | 'listMessage' | 'orderMessage' | 'listResponseMessage' | 'buttonsMessage' | 'buttonsResponseMessage' | 'interactiveMessage' | 'interactiveResponseMessage' | 'pollCreationMessage' | 'requestPhoneNumberMessage' | 'messageHistoryBundle' | 'eventMessage' | 'newsletterAdminInviteMessage' | 'albumMessage' | 'stickerPackMessage' | 'pollResultSnapshotMessage' | 'messageHistoryNotice';
 export type DownloadableMessage = {
     mediaKey?: Uint8Array | null;
     directPath?: string | null;
@@ -262,7 +262,7 @@ export type MessageGenerationOptionsFromContent = MiscMessageGenerationOptions &
 };
 export type WAMediaUploadFunction = (encFilePath: string, opts: {
     fileEncSha256B64: string;
-    mediaType: MediaType;
+    mediaType: MediaUploadType;
     timeoutMs?: number;
 }) => Promise<{
     mediaUrl: string;
