@@ -35,8 +35,10 @@ interface TransactionContext {
 	mutations: SignalDataSet
 	dbQueries: number
 	heldLocks: Set<string>
-	/** Sealed by `transactWith` after the work() promise resolves; further writes from detached async become no-ops (M5 hardening). */
+	/** Sealed after the work() promise resolves; detached writes wait for commit or rollback. */
 	sealed: boolean
+	completion: Promise<boolean>
+	resolveCompletion: (committed: boolean) => void
 }
 
 // One instance per process: a per-socket AsyncLocalStorage leaks the heap under Node's legacy
@@ -289,6 +291,27 @@ export const addTransactionCapability = (
 		}
 	}
 
+	function createContext(heldLocks: Set<string>): TransactionContext {
+		let resolveCompletion!: (committed: boolean) => void
+		const completion = new Promise<boolean>(resolve => (resolveCompletion = resolve))
+		return { cache: {}, mutations: {}, dbQueries: 0, heldLocks, sealed: false, completion, resolveCompletion }
+	}
+
+	async function setOutsideTransaction(data: SignalDataSet): Promise<void> {
+		const types = Object.keys(data) as Array<keyof SignalDataTypeMap>
+		const lockRefs: { namespace: string; id: string }[] = []
+		for (const type of types) {
+			const bucket = data[type]
+			if (!bucket) continue
+			for (const id of Object.keys(bucket)) lockRefs.push({ namespace: type, id })
+		}
+
+		await locks.withLocks(lockRefs, async () => {
+			if ('pre-key' in data) await preKeyManager.validateDeletions(data, 'pre-key' as keyof SignalDataTypeMap)
+			if (types.some(type => Object.keys(data[type] || {}).length > 0)) await state.set(data)
+		})
+	}
+
 	return {
 		get: async <T extends keyof SignalDataTypeMap>(type: T, ids: string[]) => {
 			const ctx = getContext()
@@ -348,40 +371,7 @@ export const addTransactionCapability = (
 				// earlier `__type__:type` namespace was per-type-coarse and
 				// shared no locks with transactWith — a known race window
 				// flagged by Stage 6's CodeRabbit review.
-				const types = Object.keys(data) as Array<keyof SignalDataTypeMap>
-				const lockRefs: { namespace: string; id: string }[] = []
-				for (const type of types) {
-					const bucket = data[type]
-					if (!bucket) continue
-					for (const id of Object.keys(bucket)) {
-						lockRefs.push({ namespace: type, id })
-					}
-				}
-
-				await locks.withLocks(lockRefs, async () => {
-					if ('pre-key' in data) {
-						await preKeyManager.validateDeletions(data, 'pre-key' as keyof SignalDataTypeMap)
-					}
-
-					// `validateDeletions` may have emptied the pre-key bucket
-					// (every targeted id was already gone). Skip `state.set` if
-					// every bucket is empty — no work to do, and writing
-					// `{ 'pre-key': {} }` is a wasteful no-op against the
-					// storage adapter. Preserved from Stage 1's review fix.
-					let hasAny = false
-					for (const t of types) {
-						const bucket = data[t]
-						if (bucket && Object.keys(bucket).length > 0) {
-							hasAny = true
-							break
-						}
-					}
-
-					if (hasAny) {
-						await state.set(data)
-					}
-				})
-				return
+				return setOutsideTransaction(data)
 			}
 
 			// M5 hardening: detached async (setImmediate, process.nextTick,
@@ -390,8 +380,8 @@ export const addTransactionCapability = (
 			// orphaned callbacks become no-ops rather than silently mutating
 			// already-committed state.
 			if (ctx.sealed) {
-				logger &&
-					logger.warn({ types: Object.keys(data) }, 'transaction context is sealed; ignoring detached write (M5 guard)')
+				if (await ctx.completion) return setOutsideTransaction(data)
+				logger && logger.warn({ types: Object.keys(data) }, 'transaction context is sealed; ignoring detached write (M5 guard)')
 				return
 			}
 
@@ -444,13 +434,7 @@ export const addTransactionCapability = (
 					}
 				}
 
-				const ctx: TransactionContext = {
-					cache: {},
-					mutations: {},
-					dbQueries: 0,
-					heldLocks: new Set([lockKey]),
-					sealed: false
-				}
+				const ctx = createContext(new Set([lockKey]))
 
 				// Inherit contexts from outer stores so they stay isolated by token
 				const next = new Map(stores)
@@ -462,10 +446,12 @@ export const addTransactionCapability = (
 					const result = await txStorage.run(next, work)
 					ctx.sealed = true
 					await commitWithRetry(ctx.mutations)
+					ctx.resolveCompletion(true)
 					logger && logger.trace({ dbQueries: ctx.dbQueries }, 'transaction completed')
 					return result
 				} catch (err) {
 					ctx.sealed = true
+					ctx.resolveCompletion(false)
 					logger && logger.error({ err }, 'transaction failed, rolling back')
 					throw err
 				}
@@ -494,13 +480,7 @@ export const addTransactionCapability = (
 					}
 				}
 
-				const ctx: TransactionContext = {
-					cache: {},
-					mutations: {},
-					dbQueries: 0,
-					heldLocks: new Set(newLockKeys),
-					sealed: false
-				}
+				const ctx = createContext(new Set(newLockKeys))
 
 				// Inherit contexts from outer stores so they stay isolated by token
 				const next = new Map(stores)
@@ -512,10 +492,12 @@ export const addTransactionCapability = (
 					const result = await txStorage.run(next, work)
 					ctx.sealed = true
 					await commitWithRetry(ctx.mutations)
+					ctx.resolveCompletion(true)
 					logger && logger.trace({ dbQueries: ctx.dbQueries }, 'transactWith completed')
 					return result
 				} catch (err) {
 					ctx.sealed = true
+					ctx.resolveCompletion(false)
 					logger && logger.error({ err }, 'transactWith failed, rolling back')
 					throw err
 				}
