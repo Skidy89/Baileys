@@ -36,3 +36,4 @@ call-test.ts
 # Generated synthetic payloads for the Rust migration audit
 /bench/rust-audit/generated/
 /.d/
+./d/*
