@@ -441,9 +441,9 @@ export const makeChatsSocket = (config: SocketConfig) => {
 		})
 	}
 
-	const cleanDirtyBits = async (type: 'account_sync' | 'groups', fromTimestamp?: number | string) => {
+	const cleanDirtyBits = async (type: string, fromTimestamp?: number | string) => {
 		if (logger) logger.info({ fromTimestamp }, 'clean dirty bits ' + type)
-		await sendNode({
+		await query({
 			tag: 'iq',
 			attrs: {
 				to: S_WHATSAPP_NET,
@@ -1136,8 +1136,12 @@ export const makeChatsSocket = (config: SocketConfig) => {
 			case 'groups':
 				// handled in groups.ts
 				break
+			case 'syncd_app_state':
+				await resyncAppState(ALL_WA_PATCH_NAMES, false)
+				await cleanDirtyBits(type, attrs.timestamp)
+				break
 			case 'newsletter_metadata':
-				// todo!
+				if (logger) logger.warn({ node }, 'newsletter metadata dirty bit cannot be synced by this socket')
 				break
 			default:
 				if (logger) logger.info({ node }, 'received unknown sync')

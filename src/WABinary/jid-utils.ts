@@ -44,7 +44,6 @@ export const jidEncode = (user: string | number | null, server: JidServer, devic
 }
 
 export const jidDecode = (jid: string | undefined): FullJid | undefined => {
-	// todo: investigate how to implement hosted ids in this case
 	if (typeof jid !== 'string') return undefined
 
 	const sepIdx = jid.indexOf('@')

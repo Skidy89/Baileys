@@ -26,6 +26,7 @@ import {
 	isJidBroadcast,
 	isJidStatusBroadcast,
 	isLidUser,
+	isPnUser,
 	jidDecode,
 	jidEncode,
 	jidNormalizedUser
@@ -410,6 +411,43 @@ const processMessage = async (
 		}
 
 		switch (protocolMsg.type) {
+			case proto.Message.ProtocolMessage.Type.SHARE_PHONE_NUMBER: {
+				const primaryJid = message.key.participant || message.key.remoteJid
+				const alternateJid = message.key.participant ? message.key.participantAlt : message.key.remoteJidAlt
+				const primaryIsLid = isLidUser(primaryJid || undefined) || isHostedLidUser(primaryJid || undefined)
+				const primaryIsPn = isPnUser(primaryJid || undefined) || isHostedPnUser(primaryJid || undefined)
+				const alternateIsLid = isLidUser(alternateJid) || isHostedLidUser(alternateJid)
+				const alternateIsPn = isPnUser(alternateJid) || isHostedPnUser(alternateJid)
+				const mapping =
+					!message.key.fromMe && primaryIsLid && alternateIsPn
+						? { lid: primaryJid!, pn: alternateJid! }
+						: !message.key.fromMe && primaryIsPn && alternateIsLid
+							? { lid: alternateJid!, pn: primaryJid! }
+							: undefined
+
+				if (!mapping) {
+					logger?.warn(
+						{ msgId: message.key.id, hasRemoteJidAlt: !!message.key.remoteJidAlt, hasParticipantAlt: !!message.key.participantAlt },
+						'received phone number share without a PN/LID alternate; cannot map the sender'
+					)
+					break
+				}
+
+				try {
+					const previousPn = await signalRepository.lidMapping.getPNForLID(mapping.lid)
+					if (previousPn !== mapping.pn) {
+						await signalRepository.lidMapping.storeLIDPNMappings([mapping])
+						await signalRepository.migrateSession(mapping.pn, mapping.lid)
+					}
+
+					ev.emit('lid-mapping.update', mapping)
+					logger?.info({ msgId: message.key.id }, 'received shared phone number and mapped sender LID')
+				} catch (error) {
+					logger?.warn({ msgId: message.key.id, error }, 'failed to store shared phone number LID mapping')
+				}
+
+				break
+			}
 			case proto.Message.ProtocolMessage.Type.HISTORY_SYNC_NOTIFICATION:
 				const histNotification = protocolMsg.historySyncNotification!
 				const process = shouldProcessHistoryMsg

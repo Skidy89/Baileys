@@ -87,7 +87,7 @@ export declare const makeGroupsSocket: (config: SocketConfig) => {
     updateDefaultDisappearingMode: (duration: number) => Promise<void>;
     resyncAppState: (collections: readonly ("critical_unblock_low" | "regular_high" | "regular_low" | "critical_block" | "regular")[], isInitialSync: boolean) => Promise<void>;
     chatModify: (mod: import("../Types/index.js").ChatModification, jid: string) => Promise<void>;
-    cleanDirtyBits: (type: "account_sync" | "groups", fromTimestamp?: number | string) => Promise<void>;
+    cleanDirtyBits: (type: string, fromTimestamp?: number | string) => Promise<void>;
     placeholderResendCache: import("../Types/index.js").CacheStore;
     executeUSyncQuery: (usyncQuery: import("../index.js").USyncQuery) => Promise<import("../index.js").USyncQueryResult | undefined>;
     type: "md";

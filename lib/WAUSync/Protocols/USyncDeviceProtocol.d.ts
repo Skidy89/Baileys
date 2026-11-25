@@ -1,5 +1,6 @@
 import type { USyncQueryProtocol } from '../../Types/USync.js';
 import { type BinaryNode } from '../../WABinary/index.js';
+import type { USyncUser } from '../USyncUser.js';
 export type KeyIndexData = {
     timestamp: number;
     signedKeyIndex?: Uint8Array;
@@ -17,7 +18,7 @@ export type ParsedDeviceInfo = {
 export declare class USyncDeviceProtocol implements USyncQueryProtocol {
     name: string;
     getQueryElement(): BinaryNode;
-    getUserElement(): BinaryNode | null;
+    getUserElement(user: USyncUser): BinaryNode | null;
     parser(node: BinaryNode): ParsedDeviceInfo;
 }
 //# sourceMappingURL=USyncDeviceProtocol.d.ts.map

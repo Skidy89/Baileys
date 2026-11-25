@@ -1,5 +1,6 @@
 import type { USyncQueryProtocol } from '../Types/USync.js';
 import { type BinaryNode } from '../WABinary/index.js';
+import type { ILogger } from '../Utils/logger.js';
 import { USyncUser } from './USyncUser.js';
 export type USyncQueryResultList = {
     [protocol: string]: unknown;
@@ -13,6 +14,12 @@ export type USyncQueryResultList = {
 export type USyncQueryResult = {
     list: USyncQueryResultList[];
     sideList: USyncQueryResultList[];
+    error?: Record<string, {
+        errorCode?: number;
+        errorText?: string;
+        errorBackoff?: number;
+    }>;
+    refresh?: Record<string, number>;
 };
 export declare class USyncQuery {
     protocols: USyncQueryProtocol[];
@@ -23,7 +30,7 @@ export declare class USyncQuery {
     withMode(mode: string): this;
     withContext(context: string): this;
     withUser(user: USyncUser): this;
-    parseUSyncQueryResult(result: BinaryNode | undefined): USyncQueryResult | undefined;
+    parseUSyncQueryResult(result: BinaryNode | undefined, logger?: ILogger): USyncQueryResult | undefined;
     withDeviceProtocol(): this;
     withContactProtocol(): this;
     withStatusProtocol(): this;

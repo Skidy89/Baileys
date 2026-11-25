@@ -4,6 +4,8 @@ import { type BinaryNode } from '../WABinary/index.js';
 import { BinaryInfo } from '../WAM/BinaryInfo.js';
 import { USyncQuery } from '../WAUSync/index.js';
 import { WebSocketClient } from './Client/index.js';
+import type { ILogger } from '../Utils/logger.js';
+export declare const buildPingIqResult: (from: string, logger?: ILogger) => BinaryNode;
 /**
  * Connects to WA servers and performs:
  * - simple queries (no retry mechanism, wait for connection establishment)

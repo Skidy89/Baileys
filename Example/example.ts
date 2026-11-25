@@ -9,7 +9,7 @@ import qrcode from 'qrcode-terminal'
 
 
 const logger = P({
-  level: "silent",
+  level: "debug",
   
 })
 
@@ -46,7 +46,7 @@ const startSock = async() => {
 		logger: logger,
 		auth: { creds: d2.state.creds, keys: makeCacheableSignalKeyStore(d2.state.keys, logger) },
         waWebSocketUrl: "wss://web.whatsapp.com/ws/chat?ED=CAgIAg==",
-		shouldSyncHistoryMessage: () => false,
+		shouldSyncHistoryMessage: () => true,
 		// use safari as the browser, so that companion registration works
 		browser: ['open-wa systems', "Safari", '1.0.0'],
 		companionPlatformDisplay: 'Chrome (Windows)',	
@@ -185,8 +185,13 @@ const startSock = async() => {
 				console.log('exiting...')
 				process.exit(0)
 			  }
-
-			  
+			  if (text == "changelabel") {
+				await sock.updateMemberLabel(msg.key.remoteJid!, "mi puta madre!!!")
+			  }
+			  if (text == "pn") {
+				await sock.sendMessage(msg.key.remoteJid!, { requestPhoneNumber: true })
+				return
+			  }
 			  if (text == "test") {
 				console.time("test")
 				const p = Date.now()

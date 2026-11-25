@@ -13,7 +13,7 @@ export const makeMessageOperations = (getMeId: () => string | undefined, relayMe
 			{
 				protocolMessage: {
 					type: proto.Message.ProtocolMessage.Type.GROUP_MEMBER_LABEL_CHANGE,
-					memberLabel: { label: memberLabel?.slice(0, 30), labelTimestamp: unixTimestampSeconds() }
+					memberLabel: { label: memberLabel?.slice(0, 30), labelTimestamp: unixTimestampSeconds(), showAdminBadge: true }
 				}
 			},
 			{

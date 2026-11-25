@@ -21,17 +21,10 @@ export const makeSessionManager = ({ query, signalRepository, logger }: Dependen
 	const assertSessions = async (jids: string[], force?: boolean) => {
 		let didFetchNewSession = false
 		const uniqueJids = [...new Set(jids)]
-		const jidsRequiringFetch: string[] = []
 		logger?.debug({ jids }, 'assertSessions call with jids')
 
-		for (const jid of uniqueJids) {
-			if (!force) {
-				const sessionValidation = await signalRepository.validateSession(jid)
-				if (sessionValidation.exists) continue
-			}
-
-			jidsRequiringFetch.push(jid)
-		}
+		const validations = force ? [] : await Promise.all(uniqueJids.map(jid => signalRepository.validateSession(jid)))
+		const jidsRequiringFetch = force ? uniqueJids : uniqueJids.filter((_, index) => !validations[index]?.exists)
 
 		if (jidsRequiringFetch.length) {
 			const wireJids = [

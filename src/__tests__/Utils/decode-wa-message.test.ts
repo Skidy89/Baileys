@@ -17,6 +17,74 @@ describe('decodeMessageNode', () => {
 		expect(message.key).toMatchObject({ fromMe: true, remoteJid: '333@s.whatsapp.net' })
 	})
 
+	it('learns a recipient PN/LID pair and its latest LID from self messages', () => {
+		const { lidPnMappings } = decodeMessageNode(
+			{
+				tag: 'message',
+				attrs: {
+					id: 'outgoing',
+					from: '111@s.whatsapp.net',
+					recipient: '333@s.whatsapp.net',
+					peer_recipient_lid: '444@lid',
+					recipient_latest_lid: '555@lid',
+					t: '1700000000'
+				},
+				content: []
+			},
+			'111@s.whatsapp.net',
+			'222@lid'
+		)
+
+		expect(lidPnMappings).toEqual([
+			{ lid: '444@lid', pn: '333@s.whatsapp.net' },
+			{ lid: '555@lid', pn: '333@s.whatsapp.net' }
+		])
+	})
+
+	it('learns a recipient LID when a self message is addressed to a LID', () => {
+		const { lidPnMappings } = decodeMessageNode(
+			{
+				tag: 'message',
+				attrs: {
+					id: 'outgoing-lid',
+					from: '111@s.whatsapp.net',
+					recipient: '444@lid',
+					peer_recipient_pn: '333@s.whatsapp.net',
+					recipient_latest_lid: '555@lid',
+					t: '1700000000'
+				},
+				content: []
+			},
+			'111@s.whatsapp.net',
+			'222@lid'
+		)
+
+		expect(lidPnMappings).toEqual([
+			{ lid: '444@lid', pn: '333@s.whatsapp.net' },
+			{ lid: '555@lid', pn: '333@s.whatsapp.net' }
+		])
+	})
+
+	it('does not apply recipient-latest-LID mappings to incoming messages', () => {
+		const { lidPnMappings } = decodeMessageNode(
+			{
+				tag: 'message',
+				attrs: {
+					id: 'incoming',
+					from: '333@s.whatsapp.net',
+					peer_recipient_lid: '444@lid',
+					recipient_latest_lid: '555@lid',
+					t: '1700000000'
+				},
+				content: []
+			},
+			'111@s.whatsapp.net',
+			'222@lid'
+		)
+
+		expect(lidPnMappings).toEqual([])
+	})
+
 	it('keeps incoming direct messages marked as received', () => {
 		const message = decode({ id: 'incoming', from: '333@s.whatsapp.net', t: '1700000000' })
 

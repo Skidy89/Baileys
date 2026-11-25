@@ -1,7 +1,15 @@
 import { LRUCache } from 'lru-cache'
 import type { LIDMapping, SignalKeyStoreWithTransaction } from '../Types'
 import type { ILogger } from '../Utils/logger'
-import { isHostedPnUser, isLidUser, isPnUser, jidDecode, jidNormalizedUser, WAJIDDomains } from '../WABinary'
+import {
+	isHostedLidUser,
+	isHostedPnUser,
+	isLidUser,
+	isPnUser,
+	jidDecode,
+	jidNormalizedUser,
+	WAJIDDomains
+} from '../WABinary'
 
 export class LIDMappingStore {
 	private readonly mappingCache = new LRUCache<string, string>({
@@ -33,7 +41,9 @@ export class LIDMappingStore {
 
 		const validatedPairs: Array<{ pnUser: string; lidUser: string }> = []
 		for (const { lid, pn } of pairs) {
-			if (!((isLidUser(lid) && isPnUser(pn)) || (isPnUser(lid) && isLidUser(pn)))) {
+			if (
+				!((isLidUser(lid) || isHostedLidUser(lid)) && (isPnUser(pn) || isHostedPnUser(pn)))
+			) {
 				if (this.logger) this.logger.warn(`Invalid LID-PN mapping: ${lid}, ${pn}`)
 				continue
 			}
@@ -289,7 +299,7 @@ export class LIDMappingStore {
 		}
 
 		for (const lid of lids) {
-			if (!isLidUser(lid)) continue
+			if (!isLidUser(lid) && !isHostedLidUser(lid)) continue
 
 			const decoded = jidDecode(lid)
 			if (!decoded) continue

@@ -1214,11 +1214,25 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 	}
 
 	const handleGroupNotification = async (fullNode: BinaryNode, child: BinaryNode, msg: Partial<WAMessage>) => {
-		// TODO: Support PN/LID (Here is only LID now)
-
 		const actingParticipantLid = fullNode.attrs.participant
 		const actingParticipantPn = fullNode.attrs.participant_pn
 		const actingParticipantUsername = fullNode.attrs.participant_username
+		const lidMappings = new Map<string, string>()
+		const addLidMapping = (id?: string, alternate?: string) => {
+			if (id && alternate && isLidUser(id) && isPnUser(alternate)) {
+				lidMappings.set(id, alternate)
+				logger?.trace({ lid: id, pn: alternate }, 'found LID-PN pair in group notification')
+			} else if (id && alternate && isPnUser(id) && isLidUser(alternate)) {
+				lidMappings.set(alternate, id)
+				logger?.trace({ lid: alternate, pn: id }, 'found LID-PN pair in group notification')
+			}
+		}
+
+		addLidMapping(actingParticipantLid, actingParticipantPn)
+		for (const { attrs } of getBinaryNodeChildren(child, 'participant')) {
+			addLidMapping(attrs.jid, attrs.phone_number)
+			addLidMapping(attrs.jid, attrs.lid)
+		}
 
 		const affectedParticipantLid = getBinaryNodeChild(child, 'participant')?.attrs?.jid || actingParticipantLid!
 		const affectedParticipantPn = getBinaryNodeChild(child, 'participant')?.attrs?.phone_number || actingParticipantPn!
@@ -1226,6 +1240,12 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		switch (child?.tag) {
 			case 'create':
 				const metadata = extractGroupMetadata(child)
+				addLidMapping(metadata.owner, metadata.ownerPn)
+				addLidMapping(metadata.subjectOwner, metadata.subjectOwnerPn)
+				for (const participant of metadata.participants) {
+					addLidMapping(participant.id, participant.phoneNumber)
+					addLidMapping(participant.id, participant.lid)
+				}
 
 				msg.messageStubType = WAMessageStubType.GROUP_CREATE
 				msg.messageStubParameters = [metadata.subject]
@@ -1278,24 +1298,6 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 					}
 				})
 
-				const lidMappings: { lid: string; pn: string }[] = []
-				for (const p of participants) {
-					if (p.phoneNumber) lidMappings.push({ lid: p.id, pn: p.phoneNumber })
-					else if (p.lid) lidMappings.push({ lid: p.lid, pn: p.id })
-				}
-				if (
-					actingParticipantLid &&
-					actingParticipantPn &&
-					isLidUser(actingParticipantLid) &&
-					isPnUser(actingParticipantPn)
-				) {
-					lidMappings.push({ lid: actingParticipantLid, pn: actingParticipantPn })
-				}
-				if (lidMappings.length) {
-					await sock.signalRepository.lidMapping
-						.storeLIDPNMappings(lidMappings)
-						.catch(err => logger?.warn({ err }, 'failed to store LID mappings from group notification'))
-				}
 				if (
 					participants.length === 1 &&
 					// if recv. "remove" message and sender removed themselves
@@ -1310,6 +1312,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				msg.messageStubParameters = participants.map(a => JSON.stringify(a))
 				break
 			case 'subject':
+				addLidMapping(child.attrs.s_o, child.attrs.s_o_pn)
 				msg.messageStubType = WAMessageStubType.GROUP_CHANGE_SUBJECT
 				msg.messageStubParameters = [child.attrs.subject!]
 				break
@@ -1358,15 +1361,18 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				break
 			case 'revoked_membership_requests':
 				const isDenied = areJidsSameUser(affectedParticipantLid, actingParticipantLid)
-				await sock.signalRepository.lidMapping.storeLIDPNMappings([
-					{ lid: affectedParticipantLid, pn: affectedParticipantPn }
-				])
 				msg.messageStubType = WAMessageStubType.GROUP_MEMBERSHIP_JOIN_APPROVAL_REQUEST_NON_ADMIN_ADD
 				msg.messageStubParameters = [
 					JSON.stringify({ lid: affectedParticipantLid, pn: affectedParticipantPn }),
 					isDenied ? 'revoked' : 'rejected'
 				]
 				break
+		}
+
+		if (lidMappings.size) {
+			await sock.signalRepository.lidMapping
+				.storeLIDPNMappings([...lidMappings].map(([lid, pn]) => ({ lid, pn })))
+				.catch(err => logger?.warn({ err }, 'failed to store LID mappings from group notification'))
 		}
 	}
 
@@ -2043,12 +2049,14 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		// TODO: temporary fix for crashes and issues resulting of failed msmsg decryption
 
 		let acked = false
+		let processingStage = 'decode-message'
 
 		try {
 			const {
 				fullMessage: msg,
 				category,
 				author,
+				lidPnMappings,
 				decrypt
 			} = decryptMessageNode(
 				node,
@@ -2059,6 +2067,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				getBotMessageSecret
 			)
 
+			processingStage = 'store-addressing-mappings'
 			const alt = msg.key.participantAlt || msg.key.remoteJidAlt
 			// store new mappings we didn't have before
 			if (!!alt) {
@@ -2092,7 +2101,21 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				})
 			}
 
+			for (const { lid, pn } of lidPnMappings) {
+				await lidMigrationLocks.withLock({ namespace: 'lid-migration', id: lid }, async () => {
+					logger?.trace({ lid, pn }, 'checking recipient LID-PN mapping')
+					const existingPn = await signalRepository.lidMapping.getPNForLID(lid)
+					if (existingPn !== pn) {
+						logger?.debug({ previousPn: existingPn, lid, pn }, 'storing recipient LID-PN mapping')
+						await signalRepository.lidMapping.storeLIDPNMappings([{ lid, pn }])
+						await signalRepository.migrateSession(pn, lid)
+					}
+				})
+			}
+
+			processingStage = 'decrypt-and-dispatch'
 			await messageMutex.mutex(async () => {
+				processingStage = 'decrypt'
 				await decrypt()
 
 				if (msg.key?.remoteJid && msg.key?.id && msg.message && messageRetryManager) {
@@ -2184,6 +2207,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 						await sendMessageAck(node)
 						// Don't return — fall through to upsertMessage so the stub is emitted
 					} else {
+						processingStage = 'request-retry'
 						// A retry receipt only makes sense for a message from SOMEONE ELSE.
 						// An undecryptable `fromMe` message is the echo of our own account
 						// synced from another of our devices (sender fanout / deviceSentMessage),
@@ -2261,6 +2285,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 							type = 'inactive'
 						}
 
+						processingStage = 'send-receipt'
 						acked = true
 						await sendReceipt(msg.key.remoteJid!, participant!, [msg.key.id!], type)
 
@@ -2277,12 +2302,33 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 					}
 				}
 
+				processingStage = 'upsert-message'
 				cleanMessage(msg, authState.creds.me!.id, authState.creds.me!.lid!)
 
 				await upsertMessage(msg, node.attrs.offline ? 'append' : 'notify')
 			})
 		} catch (error) {
-			logger && logger.error({ error, node: binaryNodeToString(node) }, 'error in handling message')
+			logger?.error(
+				{
+					err: error,
+					processingStage,
+					stanza: {
+						tag: node.tag,
+						id: node.attrs.id,
+						from: node.attrs.from,
+						to: node.attrs.to,
+						participant: node.attrs.participant,
+						category: node.attrs.category,
+						type: node.attrs.type,
+						enc: getBinaryNodeChildren(node, 'enc').map(({ attrs, content }) => ({
+							type: attrs.type,
+							version: attrs.v,
+							byteLength: content instanceof Uint8Array ? content.byteLength : undefined
+						}))
+					}
+				},
+				'error in handling message'
+			)
 			if (!acked) {
 				await sendMessageAck(node, NACK_REASONS.UnhandledError).catch(
 					ackErr => logger && logger.error({ ackErr }, 'failed to ack message after error')

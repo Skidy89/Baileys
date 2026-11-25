@@ -1,6 +1,6 @@
 import { Boom } from '@hapi/boom'
 import { proto } from '../../WAProto/index.js'
-import type { WAMessage, WAMessageKey } from '../Types'
+import type { LIDMapping, WAMessage, WAMessageKey } from '../Types'
 import type { SignalRepositoryWithLIDStore } from '../Types/Signal'
 import {
 	areJidsSameUser,
@@ -37,10 +37,14 @@ const storeMappingFromEnvelope = async (
 	decryptionJid: string,
 	logger: ILogger | undefined
 ): Promise<void> => {
-	// TODO: Handle hosted IDs
 	const { senderAlt } = extractAddressingContext(stanza)
 
-	if (senderAlt && isLidUser(senderAlt) && isPnUser(sender) && decryptionJid === sender) {
+	if (
+		senderAlt &&
+		(isLidUser(senderAlt) || isHostedLidUser(senderAlt)) &&
+		(isPnUser(sender) || isHostedPnUser(sender)) &&
+		decryptionJid === sender
+	) {
 		try {
 			await repository.lidMapping.storeLIDPNMappings([{ lid: senderAlt, pn: sender }])
 			await repository.migrateSession(sender, senderAlt)
@@ -261,10 +265,43 @@ export function decodeMessageNode(
 		fullMessage.status = proto.WebMessageInfo.Status.SERVER_ACK
 	}
 
+	const lidPnMappings: LIDMapping[] = []
+	if (fromMe) {
+		const chatIsLid = isLidUser(chatId) || isHostedLidUser(chatId)
+		const chatIsPn = isPnUser(chatId) || isHostedPnUser(chatId)
+		const peerLid = chatIsPn ? stanza.attrs.recipient_lid || stanza.attrs.peer_recipient_lid : undefined
+		const peerPn = chatIsLid ? stanza.attrs.recipient_pn || stanza.attrs.peer_recipient_pn : undefined
+		const lid = chatIsLid ? chatId : peerLid
+		const pn = chatIsPn ? chatId : peerPn
+
+		if (
+			lid &&
+			pn &&
+			(isLidUser(lid) || isHostedLidUser(lid)) &&
+			(isPnUser(pn) || isHostedPnUser(pn))
+		) {
+			lidPnMappings.push({ lid, pn })
+
+			const latestLid = stanza.attrs.recipient_latest_lid
+			const hasPeerRecipient =
+				(chatIsPn && !stanza.attrs.recipient_lid && stanza.attrs.peer_recipient_lid) ||
+				(chatIsLid && !stanza.attrs.recipient_pn && stanza.attrs.peer_recipient_pn)
+			if (
+				hasPeerRecipient &&
+				latestLid &&
+				(isLidUser(latestLid) || isHostedLidUser(latestLid)) &&
+				latestLid !== lid
+			) {
+				lidPnMappings.push({ lid: latestLid, pn })
+			}
+		}
+	}
+
 	return {
 		fullMessage,
 		author,
-		sender: msgType === 'chat' ? author : chatId
+		sender: msgType === 'chat' ? author : chatId,
+		lidPnMappings
 	}
 }
 
@@ -282,7 +319,8 @@ export const decryptMessageNode = (
 		ownJidUsersCache.set(repository, ownJidUsers)
 	}
 
-	const { fullMessage, author, sender } = decodeMessageNode(stanza, meId, meLid, ownJidUsers)
+	const { fullMessage, author, sender, lidPnMappings } = decodeMessageNode(stanza, meId, meLid, ownJidUsers)
+	if (lidPnMappings.length) logger?.trace({ lidPnMappings }, 'extracted recipient LID-PN mappings')
 	const decryptBotReplyStanza = async (content: Uint8Array) => {
 		if (!isJidMetaAI(author)) {
 			throw new Error('msmsg from a sender that is not a bot')
@@ -319,6 +357,7 @@ export const decryptMessageNode = (
 		fullMessage,
 		category: stanza.attrs.category,
 		author,
+		lidPnMappings,
 		async decrypt() {
 			let decryptables = 0
 			if (Array.isArray(stanza.content)) {
@@ -353,7 +392,6 @@ export const decryptMessageNode = (
 					const decryptionJid = await getDecryptionJid(author, repository)
 
 					if (tag !== 'plaintext') {
-						// TODO: Handle hosted devices
 						await storeMappingFromEnvelope(stanza, author, repository, decryptionJid, logger)
 					}
 

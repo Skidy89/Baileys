@@ -1,6 +1,6 @@
 import type { USyncQueryProtocol } from '../../Types/USync'
 import { assertNodeErrorFree, type BinaryNode, getBinaryNodeChild } from '../../WABinary'
-//import { USyncUser } from '../USyncUser'
+import type { USyncUser } from '../USyncUser'
 
 export type KeyIndexData = {
 	timestamp: number
@@ -31,11 +31,15 @@ export class USyncDeviceProtocol implements USyncQueryProtocol {
 		}
 	}
 
-	getUserElement(/* user: USyncUser */): BinaryNode | null {
-		//TODO: Implement device phashing, ts and expectedTs
-		//TODO: if all are not present, return null <- current behavior
-		//TODO: otherwise return a node w tag 'devices' w those as attrs
-		return null
+	getUserElement(user: USyncUser): BinaryNode | null {
+		const deviceHash = user.deviceHash || undefined
+		if (deviceHash === undefined && user.ts == null && user.expectedTs == null) return null
+
+		const attrs: Record<string, string> = {}
+		if (deviceHash !== undefined) attrs.device_hash = deviceHash
+		if (user.ts != null) attrs.ts = String(user.ts)
+		if (user.expectedTs != null) attrs.expected_ts = String(user.expectedTs)
+		return { tag: 'devices', attrs }
 	}
 
 	parser(node: BinaryNode): ParsedDeviceInfo {

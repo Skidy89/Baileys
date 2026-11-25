@@ -54,7 +54,17 @@ import {
 import { BinaryInfo } from '../WAM/BinaryInfo.js'
 import type { ParsedDeviceInfo } from '../WAUSync/Protocols/USyncDeviceProtocol'
 import { USyncQuery, USyncUser } from '../WAUSync/'
+import { USyncBackoff } from '../WAUSync/USyncBackoff'
 import { WebSocketClient } from './Client'
+import type { ILogger } from '../Utils/logger'
+
+export const buildPingIqResult = (from: string, logger?: ILogger): BinaryNode => {
+	logger?.trace({ from }, 'building XMPP ping result')
+	return {
+		tag: 'iq',
+		attrs: { type: 'result', to: from }
+	}
+}
 
 /**
  * Connects to WA servers and performs:
@@ -79,6 +89,7 @@ export const makeSocket = (config: SocketConfig) => {
 	} = config
 
 	const publicWAMBuffer = new BinaryInfo()
+	const usyncBackoff = new USyncBackoff(logger)
 
 	let serverTimeOffsetMs = 0
 
@@ -364,9 +375,11 @@ export const makeSocket = (config: SocketConfig) => {
 			]
 		}
 
+		await usyncBackoff.waitFor(usyncQuery)
 		const result = await query(iq)
+		usyncBackoff.record(usyncQuery, result)
 
-		return usyncQuery.parseUSyncQueryResult(result)
+		return usyncQuery.parseUSyncQueryResult(result, logger)
 	}
 
 	const onWhatsApp = async (...phoneNumber: string[]) => {
@@ -912,6 +925,10 @@ export const makeSocket = (config: SocketConfig) => {
 		'CB:xmlstreamend',
 		() => void end(new Boom('Connection Terminated by Server', { statusCode: DisconnectReason.connectionClosed }))
 	)
+	ws.on('CB:iq,xmlns:urn:xmpp:ping', async (node: BinaryNode) => {
+		logger?.trace({ from: node.attrs.from }, 'received XMPP ping')
+		await sendNode(buildPingIqResult(node.attrs.from!, logger))
+	})
 	// QR gen
 	ws.on('CB:iq,type:set,pair-device', async (stanza: BinaryNode) => {
 		const iq: BinaryNode = {
@@ -1064,6 +1081,7 @@ export const makeSocket = (config: SocketConfig) => {
 		const edgeRoutingNode = getBinaryNodeChild(node, 'edge_routing')
 		const routingInfo = getBinaryNodeChild(edgeRoutingNode, 'routing_info')
 		if (routingInfo?.content) {
+			logger?.info('received edge routing info, updating creds, received routing info: ' + routingInfo.content)
 			authState.creds.routingInfo = Buffer.from(routingInfo?.content as Uint8Array)
 			ev.emit('creds.update', authState.creds)
 		}

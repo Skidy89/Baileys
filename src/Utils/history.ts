@@ -126,10 +126,34 @@ export const downloadAndProcessHistorySyncNotification = async (
 	logger?: ILogger
 ) => {
 	let historyMsg: proto.HistorySync
-	if (msg.initialHistBootstrapInlinePayload) {
-		historyMsg = proto.HistorySync.decode(await inflatePromise(msg.initialHistBootstrapInlinePayload))
+	const inlinePayload = msg.initialHistBootstrapInlinePayload
+	const inlinePayloadSyncTypes = new Set<number>([
+		proto.HistorySync.HistorySyncType.INITIAL_BOOTSTRAP,
+		proto.HistorySync.HistorySyncType.INITIAL_STATUS_V3,
+		proto.HistorySync.HistorySyncType.PUSH_NAME,
+		proto.HistorySync.HistorySyncType.ON_DEMAND,
+		proto.HistorySync.HistorySyncType.RECENT
+	])
+	if (inlinePayload?.byteLength && inlinePayloadSyncTypes.has(msg.syncType!)) {
+		try {
+			historyMsg = proto.HistorySync.decode(await inflatePromise(inlinePayload))
+		} catch (err) {
+			logger?.error(
+				{ err, syncType: msg.syncType, payloadByteLength: inlinePayload.byteLength },
+				'failed to inflate inline history sync payload'
+			)
+			throw err
+		}
 	} else {
-		historyMsg = await downloadHistory(msg, options)
+		try {
+			historyMsg = await downloadHistory(msg, options)
+		} catch (err) {
+			logger?.error(
+				{ err, syncType: msg.syncType, fileLength: msg.fileLength, hasDirectPath: !!msg.directPath },
+				'failed to download or inflate history sync payload'
+			)
+			throw err
+		}
 	}
 
 	return processHistoryMessage(historyMsg, logger)

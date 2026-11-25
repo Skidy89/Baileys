@@ -1,3 +1,4 @@
+import type { ILogger } from '../Utils/logger.js';
 export declare class USyncUser {
     id?: string;
     lid?: string;
@@ -6,6 +7,14 @@ export declare class USyncUser {
     usernameKey?: string;
     type?: string;
     personaId?: string;
+    deviceHash?: string;
+    ts?: number;
+    expectedTs?: number;
+    private readonly logger?;
+    constructor(logger?: ILogger);
+    withDeviceHash(deviceHash: string): this;
+    withTs(ts: number): this;
+    withExpectedTs(expectedTs: number): this;
     withId(id: string): this;
     withLid(lid: string): this;
     withPhone(phone: string): this;

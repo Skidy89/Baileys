@@ -1,5 +1,6 @@
 import type { USyncQueryProtocol } from '../Types/USync'
 import { type BinaryNode, getBinaryNodeChild } from '../WABinary'
+import type { ILogger } from '../Utils/logger'
 import { USyncBotProfileProtocol } from './Protocols/UsyncBotProfileProtocol'
 import { USyncLIDProtocol } from './Protocols/UsyncLIDProtocol'
 import {
@@ -21,6 +22,8 @@ export type USyncQueryResultList = {
 export type USyncQueryResult = {
 	list: USyncQueryResultList[]
 	sideList: USyncQueryResultList[]
+	error?: Record<string, { errorCode?: number; errorText?: string; errorBackoff?: number }>
+	refresh?: Record<string, number>
 }
 
 export class USyncQuery {
@@ -51,7 +54,8 @@ export class USyncQuery {
 		return this
 	}
 
-	parseUSyncQueryResult(result: BinaryNode | undefined): USyncQueryResult | undefined {
+	parseUSyncQueryResult(result: BinaryNode | undefined, logger?: ILogger): USyncQueryResult | undefined {
+		logger?.trace({ type: result?.attrs.type }, 'parsing USync query result')
 		if (result?.attrs.type !== 'result') {
 			return
 		}
@@ -62,48 +66,65 @@ export class USyncQuery {
 			})
 		)
 
-		const queryResult: USyncQueryResult = {
-			// TODO: implement errors etc.
-			list: [],
-			sideList: []
-		}
+		const queryResult: USyncQueryResult = { list: [], sideList: [], error: {}, refresh: {} }
+		const protocolErrors: NonNullable<USyncQueryResult['error']> = {}
+		const protocolRefresh: NonNullable<USyncQueryResult['refresh']> = {}
 
 		const usyncNode = getBinaryNodeChild(result, 'usync')
+		const resultNode = getBinaryNodeChild(usyncNode, 'result')
+		for (const protocol of this.protocols) {
+			const protocolResult = getBinaryNodeChild(resultNode, protocol.name)
+			if (!protocolResult) continue
 
-		//TODO: implement error backoff, refresh etc.
-		//TODO: see if there are any errors in the result node
-		//const resultNode = getBinaryNodeChild(usyncNode, 'result')
-
-		const listNode = usyncNode ? getBinaryNodeChild(usyncNode, 'list') : undefined
-
-		if (listNode?.content && Array.isArray(listNode.content)) {
-			queryResult.list = listNode.content.reduce((acc: USyncQueryResultList[], node) => {
-				const id = node?.attrs.jid
-				if (id) {
-					const data = Array.isArray(node?.content)
-						? Object.fromEntries(
-								node.content
-									.map(content => {
-										const protocol = content.tag
-										const parser = protocolMap[protocol]
-										if (parser) {
-											return [protocol, parser(content)]
-										} else {
-											return [protocol, null]
-										}
-									})
-									.filter(([, b]) => b !== null) as [string, unknown][]
-							)
-						: {}
-					acc.push({ ...data, id })
+			const error = getBinaryNodeChild(protocolResult, 'error')
+			if (error) {
+				protocolErrors[protocol.name] = {
+					errorCode: error.attrs.code ? +error.attrs.code : undefined,
+					errorText: error.attrs.text,
+					errorBackoff: error.attrs.backoff ? +error.attrs.backoff : undefined
 				}
+				continue
+			}
 
-				return acc
-			}, [])
+			if (protocolResult.attrs.refresh) protocolRefresh[protocol.name] = +protocolResult.attrs.refresh
 		}
 
-		//TODO: implement side list
-		//const sideListNode = getBinaryNodeChild(usyncNode, 'side_list')
+		const listNode = usyncNode ? getBinaryNodeChild(usyncNode, 'list') : undefined
+		const parseList = (node: BinaryNode | undefined) => {
+			logger?.trace({ tag: node?.tag }, 'parsing USync result list')
+			if (node?.content && Array.isArray(node.content)) {
+				return node.content.reduce((acc: USyncQueryResultList[], node) => {
+					const id = node?.attrs.jid
+					if (id) {
+						const data = Array.isArray(node?.content)
+							? Object.fromEntries(
+									node.content
+										.map(content => {
+											const protocol = content.tag
+											const parser = protocolMap[protocol]
+											if (parser) {
+												return [protocol, parser(content)]
+											} else {
+												return [protocol, null]
+											}
+										})
+										.filter(([, b]) => b !== null) as [string, unknown][]
+								)
+							: {}
+						acc.push({ ...data, id })
+					}
+
+					return acc
+				}, [])
+			}
+			return []
+		}
+
+		queryResult.list = parseList(listNode)
+		queryResult.sideList = parseList(getBinaryNodeChild(usyncNode, 'side_list'))
+		queryResult.error = protocolErrors
+		queryResult.refresh = protocolRefresh
+
 		return queryResult
 	}
 

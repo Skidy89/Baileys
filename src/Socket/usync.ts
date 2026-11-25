@@ -3,12 +3,14 @@ import type { SocketConfig } from '../Types'
 import type { BinaryNode } from '../WABinary'
 import { S_WHATSAPP_NET } from '../WABinary'
 import { USyncQuery } from '../WAUSync'
+import { USyncBackoff } from '../WAUSync/USyncBackoff'
 import { makeSocket } from './socket'
 
 export const makeUSyncSocket = (config: SocketConfig) => {
 	const sock = makeSocket(config)
 
 	const { generateMessageTag, query } = sock
+	const usyncBackoff = new USyncBackoff(config.logger)
 
 	const executeUSyncQuery = async (usyncQuery: USyncQuery) => {
 		if (usyncQuery.protocols.length === 0) {
@@ -62,9 +64,11 @@ export const makeUSyncSocket = (config: SocketConfig) => {
 			]
 		}
 
+		await usyncBackoff.waitFor(usyncQuery)
 		const result = await query(iq)
+		usyncBackoff.record(usyncQuery, result)
 
-		return usyncQuery.parseUSyncQueryResult(result)
+		return usyncQuery.parseUSyncQueryResult(result, config.logger)
 	}
 
 	return {
