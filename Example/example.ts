@@ -1,22 +1,19 @@
 import { Boom } from '@hapi/boom'
 import { resolve } from 'node:path'
-import { randomBytes } from 'node:crypto'
-import { unlink } from 'node:fs/promises'
-import { deflateSync } from 'node:zlib'
-import $protobuf from 'protobufjs/minimal.js'
+import { readFile } from 'node:fs/promises'
 import readline from 'readline'
-import makeWASocket, { type AnyMessageContent, delay, DisconnectReason, getBinaryNodeChild, type GroupMetadata, isJidBroadcast, isJidNewsletter, makeCacheableSignalKeyStore, prepareWAMessageMedia, proto, useSqliteAuthState, type WAVersion } from '../src'
-import { encryptedStream } from '../src/Utils/messages/media/upload'
+import { LRUCache } from 'lru-cache'
+import makeWASocket, { type AnyMessageContent, delay, DisconnectReason, type GroupMetadata, isJidBroadcast, isJidNewsletter, makeCacheableSignalKeyStore, prepareWAMessageMedia, proto, useSqliteAuthState, type WAVersion } from '../src'
 import P from 'pino'
-import got from 'got'
 
 import qrcode from 'qrcode-terminal'
 
 
 const logger = P({
-  level: "debug",
-  
+  level: 'info'
 })
+
+const getTestImage = () => readFile(resolve('vendor/s.jpg'))
 
 
 
@@ -28,48 +25,43 @@ let commandSocket: ReturnType<typeof makeWASocket> | undefined
 let commandReady = false
 
 
-// external map to store retry counts of messages when decryption/encryption fails
-// keep this out of the socket itself, so as to prevent a message decryption/encryption loop across socket restarts
-
-const groups = new Map<string, GroupMetadata>()
+// Bound group metadata memory and refresh it periodically.
+const groups = new LRUCache<string, GroupMetadata>({ max: 500, ttl: 5 * 60_000 })
 
 // Read line interface
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 const question = (text: string) => new Promise<string>((resolve) => rl.question(text, resolve))
 
 
+const auth = await useSqliteAuthState({ dbPath: 'baileys_session/test.db' })
+const keys = makeCacheableSignalKeyStore(auth.state.keys, logger)
+let reconnectAttempts = 0
+let reconnectTimer: NodeJS.Timeout | undefined
+let shuttingDown = false
+
 // start a connection
 const startSock = async() => {
-	
-	const d2 = await useSqliteAuthState({ dbPath: 'baileys_session/test.db' })
-
-	
-	// fetch latest version of WA Web
-	
-	const WA_VERSION: WAVersion = [2, 3000, 1050189019];
+	const WA_VERSION: WAVersion = [2, 3000, 1050189019]
 
 	const sock = makeWASocket({
 		version: WA_VERSION,
 		logger: logger,
-		auth: { creds: d2.state.creds, keys: makeCacheableSignalKeyStore(d2.state.keys, logger) },
-        waWebSocketUrl: "wss://web.whatsapp.com/ws/chat?ED=CAgIAg==",
-		shouldSyncHistoryMessage: () => true,
+		auth: { creds: auth.state.creds, keys },
+		waWebSocketUrl: 'wss://web.whatsapp.com/ws/chat',
 		// use safari as the browser, so that companion registration works
-		browser: ['open-wa systems', "Safari", '1.0.0'],
+		browser: ['baileys', "Safari", '1.0.0'],
 		companionPlatformDisplay: 'Chrome (Windows)',	
-		supportGroupHistory: process.argv.includes('--support-group-history'),
+		supportGroupHistory: true,
         shouldIgnoreJid: (jid) => isJidBroadcast(jid)  || isJidNewsletter(jid),
 		cachedGroupMetadata: async (jid) => {
-			if (groups.has(jid)) {
-				return groups.get(jid)
-			} else {
-				const metadata = await sock.groupMetadata(jid).catch(() => null)
-				if (metadata) {
-					groups.set(jid, metadata)
-				}
-				return metadata!
-			}
-		}
+			const cached = groups.get(jid)
+			if (cached) return cached
+			const metadata = await sock.groupMetadata(jid)
+			groups.set(jid, metadata)
+			return metadata
+		},
+		countryCode: "MX",
+		preferLidForLogin: true
 	})
 	commandSocket = sock
 
@@ -126,23 +118,28 @@ const startSock = async() => {
 				}
 				if (connection === 'open') {
 					commandReady = true
+					reconnectAttempts = 0
 					
 				}
 				if(connection === 'close') {
 					commandReady = false
 					// reconnect if not logged out
-					if((lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut) {
-						startSock()
-					} else {
+					if ((lastDisconnect?.error as Boom)?.output?.statusCode === DisconnectReason.loggedOut) {
 						console.log('Connection closed. You are logged out.')
+					} else if (!shuttingDown && !reconnectTimer) {
+						const reconnectDelay = Math.min(30_000, 1_000 * 2 ** reconnectAttempts++)
+						reconnectTimer = setTimeout(() => {
+							reconnectTimer = undefined
+							void startSock().catch(err => logger.error({ err }, 'failed to reconnect'))
+						}, reconnectDelay)
 					}
 				}
-				console.log('connection update', update)
+				logger.info({ connection }, 'connection update')
 			}
 
 			// credentials updated -- save them
 			if(events['creds.update']) {
-				await d2.saveCreds()
+				await auth.saveCreds()
 			}
 
 			if(events['labels.association']) {
@@ -158,7 +155,7 @@ const startSock = async() => {
 			if(events['messaging-history.set']) {
 				const { chats, contacts, messages, isLatest, progress, syncType } = events['messaging-history.set']
 				if (syncType === proto.HistorySync.HistorySyncType.ON_DEMAND) {
-					console.log('received on-demand history sync, messages=', messages)
+					logger.info({ count: messages.length }, 'received on-demand history')
 				}
 				console.log(`recv ${chats.length} chats, ${contacts.length} contacts, ${messages.length} msgs (is latest: ${isLatest}, progress: ${progress}%), type: ${syncType}`)
 			}
@@ -166,7 +163,7 @@ const startSock = async() => {
 			// received a new message
       if (events['messages.upsert']) {
         const upsert = events['messages.upsert']
-        console.log('recv messages ', JSON.stringify(upsert, undefined, 2))
+        logger.info({ type: upsert.type, count: upsert.messages.length }, 'received messages')
 
         if (!!upsert.requestId) {
           console.log("placeholder message received for request of id=" + upsert.requestId, upsert)
@@ -183,7 +180,6 @@ const startSock = async() => {
                 const messageId = await sock.requestPlaceholderResend(msg.key)
                 console.log('requested placeholder resync, id=', messageId)
               }
-			  console.log(msg)
               // go to an old chat and send this
               if (text == "onDemandHistSync") {
                 const messageId = await sock.fetchMessageHistory(50, msg.key, msg.messageTimestamp!)
@@ -219,8 +215,10 @@ const startSock = async() => {
 					heapUsed: ${toMB(process.memoryUsage().heapUsed)} MB`, edit: result?.key })
 			  }
 			  if (text === 'test3') {
+				const image = await getTestImage()
+				if (!image) continue
 				const prepared = await prepareWAMessageMedia(
-					{ image: { stream: got.stream('https://i.pinimg.com/736x/53/7d/9b/537d9b9f1a51f18d33897fedb7bf5f6c.jpg') } },
+					{ image },
 					{ upload: sock.waUploadToServer, logger }
 				)
 				await sock.relayMessage(msg.key.remoteJid!, { imageMessage: prepared.imageMessage }, {})
@@ -264,6 +262,12 @@ rl.on('line', line => {
 	})().catch(error => logger.error({ err: error, to: target }, 'failed to start example audio call'))
 })
 
-startSock()
+void startSock().catch(err => logger.error({ err }, 'failed to start socket'))
 
-process.on('SIGINT', () => process.exit(0))
+process.once('SIGINT', () => {
+	shuttingDown = true
+	if (reconnectTimer) clearTimeout(reconnectTimer)
+	commandSocket?.end(new Error('Interrupted'))
+	rl.close()
+	void auth.close()
+})

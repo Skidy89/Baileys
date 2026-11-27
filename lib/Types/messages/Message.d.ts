@@ -241,6 +241,10 @@ export type MessageRelayOptions = MinimalRelayOptions & {
     additionalAttributes?: {
         [_: string]: string;
     };
+    /** attributes for the newsletter plaintext payload node */
+    newsletterPlaintextAttributes?: {
+        [_: string]: string;
+    };
     additionalNodes?: BinaryNode[];
     /** should we use the devices cache, or fetch afresh from the server; default assumed to be "true" */
     useUserDevicesCache?: boolean;

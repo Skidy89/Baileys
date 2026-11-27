@@ -55,7 +55,7 @@ export declare const makeMessagesRecvSocket: (config: SocketConfig) => {
     };
     issuePrivacyTokens: (jids: string[], timestamp?: number) => Promise<BinaryNode>;
     assertSessions: (jids: string[], force?: boolean) => Promise<boolean>;
-    relayMessage: (jid: string, message: proto.IMessage, { messageId: msgId, participant, additionalAttributes, additionalNodes, useUserDevicesCache, useCachedGroupMetadata, statusJidList, newsletterAdminProfile }: MessageRelayOptions) => Promise<string>;
+    relayMessage: (jid: string, message: proto.IMessage, { messageId: msgId, participant, additionalAttributes, additionalNodes, newsletterPlaintextAttributes, useUserDevicesCache, useCachedGroupMetadata, statusJidList, newsletterAdminProfile }: MessageRelayOptions) => Promise<string>;
     sendReceipt: (jid: string, participant: string | undefined, messageIds: string[], type: MessageReceiptType) => Promise<void>;
     sendReceipts: (keys: WAMessageKey[], type: MessageReceiptType) => Promise<void>;
     readMessages: (keys: WAMessageKey[]) => Promise<void>;
@@ -108,6 +108,7 @@ export declare const makeMessagesRecvSocket: (config: SocketConfig) => {
         privacyTokenOn1to1: boolean;
         profilePicPrivacyToken: boolean;
         lidTrustedTokenIssueToLid: boolean;
+        nctTokenSend: boolean;
     };
     createCallLink: (type: "audio" | "video", event?: {
         startTime: number;

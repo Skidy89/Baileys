@@ -34,14 +34,15 @@ import {
 import { makeKeyedMutex, makeMutex } from '../../Utils/make-mutex'
 import { getMessageReportingToken, shouldIncludeReportingToken } from '../../Utils/reporting-utils'
 import {
+	buildCsTokenNode,
 	buildMergedTcTokenIndexWrite,
-	computeCsToken,
 	isTcTokenExpired,
 	resolveIssuanceJid,
 	resolveTcTokenJid,
 	shouldSendNewTcToken,
 	storeTcTokensFromIqResult
 } from '../../Utils/tc-token-utils'
+import { getDecryptFailAttribute } from '../../Utils/decrypt-fail'
 import {
 	areJidsSameUser,
 	type BinaryNode,
@@ -141,6 +142,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			participant,
 			additionalAttributes,
 			additionalNodes,
+			newsletterPlaintextAttributes,
 			useUserDevicesCache,
 			useCachedGroupMetadata,
 			statusJidList,
@@ -224,9 +226,10 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						content: [{ tag: 'admin_profile', attrs: id ? { id } : {}, content: profileContent }]
 					})
 				}
+				if (additionalNodes?.length) binaryNodeContent.push(...additionalNodes)
 				binaryNodeContent.push({
 					tag: 'plaintext',
-					attrs: {},
+					attrs: newsletterPlaintextAttributes || {},
 					content: bytes
 				})
 				const stanza: BinaryNode = {
@@ -244,9 +247,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				return
 			}
 
-			if (normalizeMessageContent(message)?.pinInChatMessage || normalizeMessageContent(message)?.reactionMessage) {
-				extraAttrs['decrypt-fail'] = 'hide' // todo: expand for reactions and other types
-			}
+			const decryptFail = getDecryptFailAttribute(message)
+			if (decryptFail) extraAttrs['decrypt-fail'] = decryptFail
 
 			if (isGroupOrStatus && !isRetryResend) {
 				const [groupData, senderKeyMap] = await Promise.all([
@@ -516,7 +518,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					attrs: {
 						v: '2',
 						type,
-						count: participant!.count.toString()
+						count: participant!.count.toString(),
+						...(extraAttrs['decrypt-fail'] ? { 'decrypt-fail': extraAttrs['decrypt-fail'] } : {})
 					},
 					content: encryptedContent
 				})
@@ -638,6 +641,16 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				;(stanza.content as BinaryNode[]).push(...additionalNodes)
 			}
 
+			const csTokenNode = is1on1Send
+				? buildCsTokenNode(
+					authState.creds.nctSalt,
+					tcTokenJid,
+					sock.serverProps.nctTokenSend,
+					!!tcTokenBuffer?.length && sock.serverProps.privacyTokenOn1to1
+				)
+				: undefined
+			if (csTokenNode) (stanza.content as BinaryNode[]).push(csTokenNode)
+
 			logger?.debug({ msgId }, `sending message to ${participants.length} devices`)
 
 			await sendNode(stanza)
@@ -686,16 +699,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					.finally(() => {
 						inFlightTcTokenIssuance.delete(tcTokenJid)
 					})
-			} else if (is1on1Send && authState.creds.nctSalt?.length && tcTokenJid && isLidUser(tcTokenJid)) {
-				// Fallback: no tctoken from recipient, compute cstoken from NCT salt
-				// WA Web skips cstoken when accountLid is null (no LID mapping)
-				const csToken = computeCsToken(authState.creds.nctSalt, tcTokenJid)
-				;(stanza.content as BinaryNode[]).push({
-					tag: 'cstoken',
-					attrs: {},
-					content: csToken
-				})
-				logger?.debug({ jid: destinationJid }, 'cstoken fallback — no tctoken available')
 			}
 
 			// Add message to retry cache if enabled

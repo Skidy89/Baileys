@@ -120,14 +120,14 @@ export const makeSocket = (config: SocketConfig) => {
 			)
 	}
 
-	const url = typeof waWebSocketUrl === 'string' ? new URL(waWebSocketUrl) : waWebSocketUrl
+	const url = new URL(waWebSocketUrl)
 
 	if (config.mobile || url.protocol === 'tcp:') {
 		throw new Boom('Mobile API is not supported anymore', { statusCode: DisconnectReason.loggedOut })
 	}
 
 	if (url.protocol === 'wss' && authState?.creds?.routingInfo) {
-		url.searchParams.append('ED', authState.creds.routingInfo.toString('base64url'))
+		url.searchParams.set('ED', authState.creds.routingInfo.toString('base64url'))
 	}
 
 	/** ephemeral key pair used to encrypt/decrypt communication. Unique for each connection */
@@ -146,7 +146,9 @@ export const makeSocket = (config: SocketConfig) => {
 		fallbackUrl.port = '5222'
 		fallbackUrls.push(fallbackUrl)
 	}
+
 	const ws = new WebSocketClient(url, config, fallbackUrls)
+	const pendingMessageWaiters = new Set<(error: Error) => void>()
 
 	ws.connect()
 
@@ -253,6 +255,7 @@ export const makeSocket = (config: SocketConfig) => {
 	const waitForMessage = async <T>(msgId: string, timeoutMs = defaultQueryTimeoutMs) => {
 		let onRecv: ((data: T) => void) | undefined
 		let onErr: ((err: Error) => void) | undefined
+		let onClose: (() => void) | undefined
 		try {
 			const result = await promiseTimeout<T>(timeoutMs, (resolve, reject) => {
 				onRecv = data => resolve(data)
@@ -266,8 +269,15 @@ export const makeSocket = (config: SocketConfig) => {
 					)
 				}
 
+				pendingMessageWaiters.add(onErr)
+				onClose = () =>
+					onErr?.(
+						new Boom('Connection Closed', {
+							statusCode: DisconnectReason.connectionClosed
+						})
+					)
 				ws.on(`TAG:${msgId}`, onRecv)
-				ws.on('close', onErr)
+				ws.on('close', onClose)
 				ws.on('error', onErr)
 
 				return () => reject(new Boom('Query Cancelled'))
@@ -275,8 +285,9 @@ export const makeSocket = (config: SocketConfig) => {
 			return result
 		} finally {
 			if (onRecv) ws.off(`TAG:${msgId}`, onRecv)
+			if (onErr) pendingMessageWaiters.delete(onErr)
 			if (onErr) {
-				ws.off('close', onErr)
+				if (onClose) ws.off('close', onClose)
 				ws.off('error', onErr)
 			}
 		}
@@ -478,7 +489,7 @@ export const makeSocket = (config: SocketConfig) => {
 	const keys = addTransactionCapability(authState.keys, logger, transactionOpts)
 	const signalRepository = makeSignalRepository({ creds, keys }, logger, pnFromLIDUSync, getUSyncDevicesForMigration)
 
-	let lastDateRecv: Date
+	let lastDateRecv: number
 	let epoch = 1
 	let keepAliveReq: NodeJS.Timeout
 	let qrTimer: NodeJS.Timeout
@@ -693,7 +704,7 @@ export const makeSocket = (config: SocketConfig) => {
 	const onMessageReceived = async (data: Buffer) => {
 		await noise.decodeFrame(data, frame => {
 			// reset ping timeout
-			lastDateRecv = new Date()
+			lastDateRecv = Date.now()
 
 			let anyTriggered = false
 
@@ -736,6 +747,10 @@ export const makeSocket = (config: SocketConfig) => {
 		}
 
 		closed = true
+		const connectionClosedError =
+			error || new Boom('Connection Closed', { statusCode: DisconnectReason.connectionClosed })
+		for (const rejectWaiter of pendingMessageWaiters) rejectWaiter(connectionClosedError)
+
 		incomingMessages.length = 0
 		incomingMessageIndex = 0
 		if (logger) logger.info({ trace: error?.stack }, error ? 'connection errored' : 'connection closed')
@@ -801,10 +816,10 @@ export const makeSocket = (config: SocketConfig) => {
 	const startKeepAliveRequest = () =>
 		(keepAliveReq = setInterval(() => {
 			if (!lastDateRecv) {
-				lastDateRecv = new Date()
+				lastDateRecv = Date.now()
 			}
 
-			const diff = Date.now() - lastDateRecv.getTime()
+			const diff = Date.now() - lastDateRecv
 			/*
 				check if it's been a suspicious amount of time since the server responded with our last seen
 				it could be that the network is down

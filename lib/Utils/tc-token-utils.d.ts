@@ -1,5 +1,12 @@
 import type { SignalKeyStoreWithTransaction } from '../Types/index.js';
 import type { BinaryNode } from '../WABinary/index.js';
+/**
+ * Mirrors WA Web's `Wid.isRegularUser()` (user ∧ ¬PSA ∧ ¬Bot). Used to gate tctoken
+ * storage against malformed notifications — WA Web filters server-side but we
+ * defend here for parity with `WAWebSetTcTokenChatAction.handleIncomingTcToken`.
+ * Works for both pre- and post-normalized JIDs (`@c.us` vs `@s.whatsapp.net`).
+ */
+export declare function isRegularUser(jid: string | undefined): boolean;
 /** Sentinel key under `tctoken` store holding a JSON array of tracked storage JIDs for cross-session pruning. */
 export declare const TC_TOKEN_INDEX_KEY = "__index";
 /** Read the persisted tctoken JID index and return its entries (never contains the sentinel key itself). */
@@ -39,5 +46,6 @@ export declare function storeTcTokensFromIqResult({ result, fallbackJid, keys, g
  * Ref: WAWebSendMsgCreateFanoutStanza.genCsTokenBody
  */
 export declare function computeCsToken(nctSalt: Uint8Array, recipientLid: string): Uint8Array;
+export declare function buildCsTokenNode(nctSalt: Uint8Array | undefined, recipientLid: string, enabled: boolean, hasTcToken: boolean): BinaryNode | undefined;
 export {};
 //# sourceMappingURL=tc-token-utils.d.ts.map

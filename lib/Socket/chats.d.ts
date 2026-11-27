@@ -10,6 +10,8 @@ export declare const makeChatsSocket: (config: SocketConfig) => {
         profilePicPrivacyToken: boolean;
         /** AB prop 14303: issue tctokens to LID instead of PN. WA Web default: false. */
         lidTrustedTokenIssueToLid: boolean;
+        /** AB prop 24941: enable NCT cstoken fallback. WA Web default: false. */
+        nctTokenSend: boolean;
     };
     createCallLink: (type: "audio" | "video", event?: {
         startTime: number;

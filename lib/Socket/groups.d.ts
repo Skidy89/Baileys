@@ -48,6 +48,7 @@ export declare const makeGroupsSocket: (config: SocketConfig) => {
         privacyTokenOn1to1: boolean;
         profilePicPrivacyToken: boolean;
         lidTrustedTokenIssueToLid: boolean;
+        nctTokenSend: boolean;
     };
     createCallLink: (type: "audio" | "video", event?: {
         startTime: number;

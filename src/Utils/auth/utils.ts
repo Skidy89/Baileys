@@ -6,6 +6,7 @@ import { DEFAULT_CACHE_TTLS } from '../../Defaults'
 import type {
 	AuthenticationCreds,
 	CacheStore,
+	PossiblyExtendedCacheStore,
 	RecordRef,
 	SignalDataSet,
 	SignalDataTypeMap,
@@ -98,6 +99,7 @@ export function makeCacheableSignalKeyStore(
 			useClones: false,
 			deleteOnExpire: true
 		})
+	const batchCache = cache as PossiblyExtendedCacheStore
 
 	const cacheLocks = makeLockManager()
 
@@ -186,6 +188,8 @@ export function makeCacheableSignalKeyStore(
 				await store.set(data)
 
 				let updated = 0
+				const cacheWrites: { key: string; value: SignalDataTypeMap[keyof SignalDataTypeMap] }[] | undefined =
+					batchCache.mset && refs.length >= 32 ? [] : undefined
 				for (const type in data) {
 					for (const id in data[type as keyof SignalDataTypeMap]) {
 						const value = data[type as keyof SignalDataTypeMap]![id]
@@ -196,6 +200,8 @@ export function makeCacheableSignalKeyStore(
 						// any later writes from sibling adapters until TTL.
 						if (value === null || value === undefined) {
 							await cache.del(getUniqueId(type, id))
+						} else if (cacheWrites) {
+							cacheWrites.push({ key: getUniqueId(type, id), value })
 						} else {
 							await cache.set(getUniqueId(type, id), value)
 						}
@@ -203,6 +209,8 @@ export function makeCacheableSignalKeyStore(
 						updated += 1
 					}
 				}
+
+				if (cacheWrites?.length) await batchCache.mset!(cacheWrites)
 
 				logger?.trace({ keys: updated }, 'updated cache after durable write')
 			})

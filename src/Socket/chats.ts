@@ -89,7 +89,9 @@ export const makeChatsSocket = (config: SocketConfig) => {
 		/** AB prop 9666: gate tctoken on profile picture IQs. WA Web default: true. */
 		profilePicPrivacyToken: true,
 		/** AB prop 14303: issue tctokens to LID instead of PN. WA Web default: false. */
-		lidTrustedTokenIssueToLid: false
+		lidTrustedTokenIssueToLid: false,
+		/** AB prop 24941: enable NCT cstoken fallback. WA Web default: false. */
+		nctTokenSend: false
 	}
 
 	let syncState: SyncState = SyncState.Connecting
@@ -955,6 +957,11 @@ export const makeChatsSocket = (config: SocketConfig) => {
 		const lidIssueProp = props['14303'] ?? props['lid_trusted_token_issue_to_lid']
 		if (lidIssueProp !== undefined) {
 			serverProps.lidTrustedTokenIssueToLid = lidIssueProp === 'true' || lidIssueProp === '1'
+		}
+
+		const nctTokenProp = props['24941'] ?? props['wa_nct_token_send_enabled']
+		if (nctTokenProp !== undefined) {
+			serverProps.nctTokenSend = nctTokenProp === 'true' || nctTokenProp === '1'
 		}
 
 		if (logger) logger.debug({ serverProps }, 'fetched props')

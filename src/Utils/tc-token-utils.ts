@@ -23,7 +23,7 @@ const BOT_PHONE_REGEX = /^1313555\d{4}$|^131655500\d{2}$/
  * defend here for parity with `WAWebSetTcTokenChatAction.handleIncomingTcToken`.
  * Works for both pre- and post-normalized JIDs (`@c.us` vs `@s.whatsapp.net`).
  */
-function isRegularUser(jid: string | undefined): boolean {
+export function isRegularUser(jid: string | undefined): boolean {
 	if (!jid) return false
 	const user = jid.split('@')[0] ?? ''
 	if (user === '0') return false // PSA
@@ -229,4 +229,17 @@ export function computeCsToken(nctSalt: Uint8Array, recipientLid: string): Uint8
 	const hmac = createHmac('sha256', nctSalt)
 	hmac.update(recipientLid, 'utf8')
 	return new Uint8Array(hmac.digest())
+}
+
+export function buildCsTokenNode(
+	nctSalt: Uint8Array | undefined,
+	recipientLid: string,
+	enabled: boolean,
+	hasTcToken: boolean
+): BinaryNode | undefined {
+	if (!enabled || hasTcToken || !nctSalt?.length || !isLidUser(recipientLid) || !isRegularUser(recipientLid)) {
+		return undefined
+	}
+
+	return { tag: 'cstoken', attrs: {}, content: computeCsToken(nctSalt, recipientLid) }
 }
