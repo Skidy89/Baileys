@@ -14,7 +14,6 @@ import {
 export class LIDMappingStore {
 	private readonly mappingCache = new LRUCache<string, string>({
 		ttl: 1 * 24 * 60 * 60 * 1000, // 1 day
-		ttlAutopurge: true,
 		updateAgeOnGet: true,
 		max: 500
 	})
@@ -41,9 +40,7 @@ export class LIDMappingStore {
 
 		const validatedPairs: Array<{ pnUser: string; lidUser: string }> = []
 		for (const { lid, pn } of pairs) {
-			if (
-				!((isLidUser(lid) || isHostedLidUser(lid)) && (isPnUser(pn) || isHostedPnUser(pn)))
-			) {
+			if (!((isLidUser(lid) || isHostedLidUser(lid)) && (isPnUser(pn) || isHostedPnUser(pn)))) {
 				if (this.logger) this.logger.warn(`Invalid LID-PN mapping: ${lid}, ${pn}`)
 				continue
 			}

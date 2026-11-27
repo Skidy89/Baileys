@@ -45,6 +45,7 @@ import {
 	encodeBinaryNode,
 	getAllBinaryNodeChildren,
 	getBinaryNodeChild,
+	getBinaryNodeChildBuffer,
 	getBinaryNodeChildren,
 	isLidUser,
 	jidDecode,
@@ -58,11 +59,15 @@ import { USyncBackoff } from '../WAUSync/USyncBackoff'
 import { WebSocketClient } from './Client'
 import type { ILogger } from '../Utils/logger'
 
-export const buildPingIqResult = (from: string, logger?: ILogger): BinaryNode => {
+const connectAttemptCounts = new WeakMap<object, number>()
+const loginCounters = new WeakMap<object, number>()
+const pnLoginFallbacks = new WeakSet<object>()
+
+export const buildPingIqResult = (from: string, id: string, logger?: ILogger): BinaryNode => {
 	logger?.trace({ from }, 'building XMPP ping result')
 	return {
 		tag: 'iq',
-		attrs: { type: 'result', to: from }
+		attrs: { id, type: 'result', to: from }
 	}
 }
 
@@ -90,6 +95,7 @@ export const makeSocket = (config: SocketConfig) => {
 
 	const publicWAMBuffer = new BinaryInfo()
 	const usyncBackoff = new USyncBackoff(logger)
+	const pairingState: { ref?: Buffer; startedAt: number; attempts: number } = { startedAt: 0, attempts: 0 }
 
 	let serverTimeOffsetMs = 0
 
@@ -134,7 +140,13 @@ export const makeSocket = (config: SocketConfig) => {
 		routingInfo: authState?.creds?.routingInfo
 	})
 
-	const ws = new WebSocketClient(url, config)
+	const fallbackUrls: URL[] = []
+	if (url.protocol === 'wss:' && url.hostname === 'web.whatsapp.com' && url.pathname === '/ws/chat' && !url.port) {
+		const fallbackUrl = new URL(url)
+		fallbackUrl.port = '5222'
+		fallbackUrls.push(fallbackUrl)
+	}
+	const ws = new WebSocketClient(url, config, fallbackUrls)
 
 	ws.connect()
 
@@ -459,6 +471,9 @@ export const makeSocket = (config: SocketConfig) => {
 	const ev = makeEventBuffer(logger)
 
 	const { creds } = authState
+	let loginSuccessRecorded = false
+	let loginCounterForConnection = 0
+	let connectAttemptCountForConnection = 0
 	// add transaction capability
 	const keys = addTransactionCapability(authState.keys, logger, transactionOpts)
 	const signalRepository = makeSignalRepository({ creds, keys }, logger, pnFromLIDUSync, getUSyncDevicesForMigration)
@@ -468,6 +483,9 @@ export const makeSocket = (config: SocketConfig) => {
 	let keepAliveReq: NodeJS.Timeout
 	let qrTimer: NodeJS.Timeout
 	let closed = false
+	const incomingMessages: Array<Buffer | undefined> = []
+	let incomingMessageIndex = 0
+	let processingIncomingMessages = false
 
 	const socketEndHandlers: Array<(error: Error | undefined) => void | Promise<void>> = []
 
@@ -527,7 +545,17 @@ export const makeSocket = (config: SocketConfig) => {
 			node = generateRegistrationNode(creds, config)
 			if (logger) logger.info({ node }, 'not logged in, attempting registration...')
 		} else {
-			node = generateLoginNode(creds.me.id, config)
+			const me = creds.me
+			const useLid = !!(config.preferLidForLogin && me.lid && !pnLoginFallbacks.has(creds))
+			node = generateLoginNode(
+				useLid ? me.lid! : me.id,
+				config,
+				loginCounterForConnection,
+				connectAttemptCountForConnection,
+				useLid ? proto.ClientPayload.Product.WHATSAPP_LID : undefined,
+				false,
+				me.name
+			)
 			if (logger) logger.info({ node }, 'logging in...')
 		}
 
@@ -708,6 +736,8 @@ export const makeSocket = (config: SocketConfig) => {
 		}
 
 		closed = true
+		incomingMessages.length = 0
+		incomingMessageIndex = 0
 		if (logger) logger.info({ trace: error?.stack }, error ? 'connection errored' : 'connection closed')
 
 		clearInterval(keepAliveReq)
@@ -802,18 +832,6 @@ export const makeSocket = (config: SocketConfig) => {
 				if (logger) logger.warn('keep alive called when WS not open')
 			}
 		}, keepAliveIntervalMs))
-	/** i have no idea why this exists. pls enlighten me */
-	const sendPassiveIq = (tag: 'passive' | 'active') =>
-		query({
-			tag: 'iq',
-			attrs: {
-				to: S_WHATSAPP_NET,
-				xmlns: 'passive',
-				type: 'set'
-			},
-			content: [{ tag, attrs: {} }]
-		})
-
 	/** logout & invalidate connection */
 	const logout = async (msg?: string) => {
 		const jid = authState.creds.me?.id
@@ -851,7 +869,10 @@ export const makeSocket = (config: SocketConfig) => {
 		const me = { id: jidEncode(phoneNumber, 's.whatsapp.net'), name: '~' }
 		authState.creds.pairingCode = pairingCode
 		authState.creds.me = me
-		await query({
+		pairingState.ref = undefined
+		pairingState.startedAt = Date.now()
+		pairingState.attempts = 0
+		const response = await query({
 			tag: 'iq',
 			attrs: {
 				to: S_WHATSAPP_NET,
@@ -869,6 +890,10 @@ export const makeSocket = (config: SocketConfig) => {
 				})
 			]
 		})
+		const pairingNode = getBinaryNodeChild(response, 'link_code_companion_reg')
+		const ref = getBinaryNodeChildBuffer(pairingNode, 'link_code_pairing_ref')
+		if (!ref?.length) throw new Boom('Pairing response missing reference', { statusCode: 400 })
+		pairingState.ref = Buffer.from(ref)
 		ev.emit('creds.update', authState.creds)
 		return pairingCode
 	}
@@ -899,10 +924,43 @@ export const makeSocket = (config: SocketConfig) => {
 		})
 	}
 
-	ws.on('message', onMessageReceived)
+	const processIncomingMessages = () => {
+		if (processingIncomingMessages) return
+		processingIncomingMessages = true
+		void drainIncomingMessages()
+	}
+	const drainIncomingMessages = async () => {
+		try {
+			while (!closed && incomingMessageIndex < incomingMessages.length) {
+				const data = incomingMessages[incomingMessageIndex]
+				incomingMessages[incomingMessageIndex++] = undefined
+				if (!data) continue
+				await onMessageReceived(data)
+			}
+		} catch (err) {
+			const error = toError(err)
+			onUnexpectedError(error, 'processing websocket message')
+			void end(error)
+		} finally {
+			processingIncomingMessages = false
+			if (closed || incomingMessageIndex === incomingMessages.length) {
+				incomingMessages.length = 0
+				incomingMessageIndex = 0
+				if (!closed) ws.resume()
+			} else processIncomingMessages()
+		}
+	}
+	ws.on('message', data => {
+		if (closed) return
+		incomingMessages.push(data)
+		ws.pause()
+		processIncomingMessages()
+	})
 
 	ws.on('open', async () => {
 		try {
+			loginCounterForConnection = loginCounters.get(creds) ?? creds.loginCounter ?? 0
+			connectAttemptCountForConnection = connectAttemptCounts.get(creds) ?? 0
 			await validateConnection()
 		} catch (err) {
 			if (logger) logger.error({ err }, 'error in validating connection')
@@ -927,7 +985,7 @@ export const makeSocket = (config: SocketConfig) => {
 	)
 	ws.on('CB:iq,xmlns:urn:xmpp:ping', async (node: BinaryNode) => {
 		logger?.trace({ from: node.attrs.from }, 'received XMPP ping')
-		await sendNode(buildPingIqResult(node.attrs.from!, logger))
+		await sendNode(buildPingIqResult(node.attrs.from!, generateMessageTag(), logger))
 	})
 	// QR gen
 	ws.on('CB:iq,type:set,pair-device', async (stanza: BinaryNode) => {
@@ -1003,10 +1061,22 @@ export const makeSocket = (config: SocketConfig) => {
 	})
 	// login complete
 	ws.on('CB:success', async (node: BinaryNode) => {
+		if (!loginSuccessRecorded) {
+			loginSuccessRecorded = true
+			const loginCounter = loginCounters.get(creds) ?? creds.loginCounter ?? loginCounterForConnection
+			const nextLoginCounter = loginCounter >= 2 ** 31 - 1 ? 0 : loginCounter + 1
+			const nextConnectAttemptCount = (connectAttemptCounts.get(creds) ?? connectAttemptCountForConnection) + 1
+			loginCounters.set(creds, nextLoginCounter)
+			connectAttemptCounts.set(creds, nextConnectAttemptCount)
+			ev.emit('creds.update', {
+				loginCounter: nextLoginCounter,
+				me: { ...authState.creds.me!, lid: node.attrs.lid }
+			})
+		}
+
 		try {
 			updateServerTimeOffset(node)
 			await uploadPreKeysToServerIfRequired()
-			await sendPassiveIq('active')
 
 			// After successful login, validate our key-bundle against server
 			try {
@@ -1020,8 +1090,6 @@ export const makeSocket = (config: SocketConfig) => {
 
 		if (logger) logger.info('opened connection to WA')
 		clearTimeout(qrTimer) // will never happen in all likelyhood -- but just in case WA sends success on first try
-
-		ev.emit('creds.update', { me: { ...authState.creds.me!, lid: node.attrs.lid } })
 
 		ev.emit('connection.update', { connection: 'open' })
 		void sendUnifiedSession()
@@ -1065,7 +1133,18 @@ export const makeSocket = (config: SocketConfig) => {
 	// stream fail, possible logout
 	ws.on('CB:failure', (node: BinaryNode) => {
 		const reason = +(node.attrs.reason || 500)
-		void end(new Boom('Connection Failure', { statusCode: reason, data: node.attrs }))
+		const lidFallbackRejection =
+			config.preferLidForLogin && creds.me?.lid && !pnLoginFallbacks.has(creds) && [400, 401, 403].includes(reason)
+		if (lidFallbackRejection) {
+			pnLoginFallbacks.add(creds)
+			logger?.warn({ reason }, 'LID login rejected, next connection will use PN')
+		}
+		void end(
+			new Boom(lidFallbackRejection ? 'LID login rejected, retrying with PN' : 'Connection Failure', {
+				statusCode: lidFallbackRejection ? DisconnectReason.connectionClosed : reason,
+				data: lidFallbackRejection ? { ...node.attrs, originalReason: reason } : node.attrs
+			})
+		)
 	})
 
 	ws.on('CB:ib,,offline_preview', async (node: BinaryNode) => {
@@ -1115,8 +1194,7 @@ export const makeSocket = (config: SocketConfig) => {
 	// update credentials when required
 	ev.on('creds.update', update => {
 		const name = update.me?.name
-		// if name has just been received
-		if (creds.me?.name !== name) {
+		if (update.me && creds.me?.name !== name) {
 			if (logger) logger.debug({ name }, 'updated pushName')
 			sendNode({
 				tag: 'presence',
@@ -1219,6 +1297,7 @@ export const makeSocket = (config: SocketConfig) => {
 		digestKeyBundle,
 		rotateSignedPreKey,
 		requestPairingCode,
+		pairingState,
 		updateServerTimeOffset,
 		sendUnifiedSession,
 		wamBuffer: publicWAMBuffer,

@@ -35,6 +35,11 @@ export declare const makeUSyncSocket: (config: SocketConfig) => {
     digestKeyBundle: () => Promise<void>;
     rotateSignedPreKey: () => Promise<void>;
     requestPairingCode: (phoneNumber: string, customPairingCode?: string) => Promise<string>;
+    pairingState: {
+        ref?: Buffer;
+        startedAt: number;
+        attempts: number;
+    };
     updateServerTimeOffset: ({ attrs }: BinaryNode) => void;
     sendUnifiedSession: () => Promise<void>;
     wamBuffer: import("../index.js").BinaryInfo;

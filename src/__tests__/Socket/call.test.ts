@@ -7,14 +7,42 @@ import {
 	buildPreaccept,
 	buildTerminate,
 	buildVideoState,
+	getCallOfferEnc,
+	isCallActive,
 	mediaConfigFromRelay,
+	groupRelayEndpointFromNode,
+	buildGroupEncRekey,
 	newCallId
 } from '../../Socket/features/call/calls'
-import { callAck, parseCall, rejectCallNode, terminateCallNode } from '../../Socket/features/call/call-events'
+import {
+	callAckOrReceipt,
+	callReceipt,
+	parseCall,
+	rejectCallNode,
+	terminateCallNode
+} from '../../Socket/features/call/call-events'
 import { splitAnnexB } from '../../Socket/features/call/media-file'
 import type { BinaryNode } from '../../WABinary'
 
 describe('call signaling nodes', () => {
+	it('treats a call removed or ended during async signaling as inactive', () => {
+		const call: CallState = {
+			callId: 'c',
+			peer: 'p',
+			creator: 's',
+			direction: 'outgoing',
+			video: false,
+			devices: [],
+			status: 'server_ack',
+			startedAt: 0
+		}
+		const calls = new Map([[call.callId, call]])
+		expect(isCallActive(calls, call)).toBe(true)
+		call.status = 'ended'
+		calls.delete(call.callId)
+		expect(isCallActive(calls, call)).toBe(false)
+	})
+
 	it('keeps offer acknowledgement separate from remote ringing', () => {
 		const call: CallState = {
 			callId: 'c',
@@ -131,9 +159,58 @@ describe('call signaling nodes', () => {
 			date: new Date(10_000)
 		})
 		expect(parseCall({ ...node, content: [{ tag: 'offer', attrs: {} }] })).toBeUndefined()
-		expect(callAck(node)).toEqual({ tag: 'ack', attrs: { id: 'ack-id', to: 'peer', class: 'call', type: 'offer' } })
+		for (const tag of ['accept', 'reject']) {
+			expect(
+				callAckOrReceipt({ ...node, content: [{ tag, attrs: { 'call-id': 'call', 'call-creator': 'self' } }] })
+			).toEqual({
+				tag: 'receipt',
+				attrs: { id: 'ack-id', to: 'peer' },
+				content: [{ tag, attrs: { 'call-id': 'call', 'call-creator': 'self' } }]
+			})
+		}
+		expect(
+			callAckOrReceipt({
+				...node,
+				content: [{ tag: 'enc_rekey', attrs: { 'call-id': 'call', 'call-creator': 'self' } }]
+			})
+		).toBeUndefined()
+		expect(
+			callAckOrReceipt({ ...node, content: [{ tag: 'offer', attrs: { 'call-id': 'call', 'call-creator': 'self' } }] })
+		).toBeUndefined()
+		expect(callReceipt(node)).toEqual({
+			tag: 'receipt',
+			attrs: { id: 'ack-id', to: 'peer' },
+			content: [{ tag: 'offer', attrs: { 'call-id': 'call', 'call-creator': 'self' } }]
+		})
+		expect(callAckOrReceipt({ ...node, content: [{ tag: 'terminate', attrs: { 'call-id': 'call' } }] })).toMatchObject({
+			tag: 'ack',
+			attrs: { class: 'call', type: 'terminate' }
+		})
 		expect(rejectCallNode('c', 'p', 's', 'i').content).toMatchObject([{ tag: 'reject', attrs: { count: '0' } }])
 		expect(terminateCallNode('c', 'p', 's', 'i').content).toMatchObject([{ tag: 'terminate' }])
+	})
+
+	it('selects the encrypted offer key addressed to this device', () => {
+		const direct = { tag: 'enc', attrs: { type: 'pkmsg' }, content: Buffer.from([1]) }
+		const forSelf = { tag: 'enc', attrs: { type: 'msg' }, content: Buffer.from([2]) }
+		const forOther = { tag: 'enc', attrs: { type: 'msg' }, content: Buffer.from([3]) }
+		const action: BinaryNode = {
+			tag: 'offer',
+			attrs: {},
+			content: [
+				{
+					tag: 'destination',
+					attrs: {},
+					content: [
+						{ tag: 'to', attrs: { jid: 'other' }, content: [forOther] },
+						{ tag: 'to', attrs: { jid: 'self-lid' }, content: [forSelf] }
+					]
+				}
+			]
+		}
+		expect(getCallOfferEnc(action, ['self-pn', 'self-lid'])).toEqual(forSelf)
+		expect(getCallOfferEnc({ ...action, content: [direct] }, ['self-lid'])).toEqual(direct)
+		expect(getCallOfferEnc(action, ['unknown'])).toBeUndefined()
 	})
 })
 
@@ -183,6 +260,81 @@ describe('call relay and video media helpers', () => {
 				false
 			)
 		).toThrow('call relay has no usable key or endpoint')
+	})
+
+	it('keeps authenticated IPv6 relay candidates usable', () => {
+		const ipv6 = Buffer.alloc(18)
+		ipv6.writeUInt16BE(0x2001, 0)
+		ipv6.writeUInt16BE(0xdb8, 2)
+		ipv6.writeUInt16BE(3480, 16)
+		const config = mediaConfigFromRelay(
+			{
+				tag: 'relay',
+				attrs: {},
+				content: [
+					{ tag: 'key', attrs: {}, content: Buffer.from([9]) },
+					{ tag: 'te2', attrs: { token_id: '0' }, content: ipv6 },
+					{ tag: 'token', attrs: { id: '0' }, content: Buffer.from([3]) }
+				]
+			},
+			'call',
+			'outgoing',
+			'self',
+			'peer',
+			Buffer.alloc(32),
+			false
+		)
+		expect(config).toMatchObject({ relayIp: '2001:db8:0:0:0:0:0:0', relayPort: 3480 })
+	})
+
+	it('selects the native group media relay endpoint and its indexed token', () => {
+		const endpoint = (port: number, token: string, isFna = false) => ({
+			tag: 'te2',
+			attrs: { relay_id: '1', token_id: token, auth_token_id: '0', relay_name: 'relay', ...(isFna && { is_fna: '1' }) },
+			content: Buffer.from([203, 0, 113, 1, port >> 8, port & 255])
+		})
+		const relay: BinaryNode = {
+			tag: 'relay',
+			attrs: {},
+			content: [
+				endpoint(3478, '0'),
+				endpoint(3480, '2'),
+				endpoint(3480, '1', true),
+				{ tag: 'token', attrs: { id: '0' }, content: Buffer.from([1]) },
+				{ tag: 'token', attrs: { id: '1' }, content: Buffer.from([2]) },
+				{ tag: 'token', attrs: { id: '2' }, content: Buffer.from([3]) }
+			]
+		}
+		expect(groupRelayEndpointFromNode(relay)).toEqual({ relayIp: '203.0.113.1', relayPort: 3480 })
+		expect(() => groupRelayEndpointFromNode({ tag: 'relay', attrs: {}, content: [endpoint(3478, '9')] })).toThrow(
+			'group relay has no usable media endpoint'
+		)
+	})
+
+	it('builds an encrypted group epoch stanza for one target device', () => {
+		expect(
+			buildGroupEncRekey({
+				callId: 'call',
+				creator: '1:2@lid',
+				to: '3:4@lid',
+				id: 'msg-id',
+				transactionId: 7,
+				encrypted: { type: 'msg', ciphertext: Buffer.from([1, 2]) }
+			})
+		).toEqual({
+			tag: 'call',
+			attrs: { to: '3:4@lid', id: 'msg-id' },
+			content: [
+				{
+					tag: 'enc_rekey',
+					attrs: { 'call-id': 'call', 'call-creator': '1:2@lid', 'transaction-id': '7' },
+					content: [
+						{ tag: 'encopt', attrs: { keygen: '2' } },
+						{ tag: 'enc', attrs: { v: '2', type: 'msg', count: '0' }, content: Buffer.from([1, 2]) }
+					]
+				}
+			]
+		})
 	})
 
 	it('splits Annex-B access units and rejects streams without delimiters', () => {

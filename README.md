@@ -224,6 +224,18 @@ const sock = makeWASocket({
 
 if (!sock.authState.creds.registered) {
     const number = 'XXXXXXXXXXX'
+
+    sock.ev.on('pairing.code.refresh', ({ forceManualRefresh }) => {
+        if (forceManualRefresh) {
+            console.log('WhatsApp asks the user to refresh the pairing code')
+            return // call requestPairingCode(number) from your UI after user action
+        }
+
+        void sock.requestPairingCode(number)
+            .then(code => console.log(`New pairing code: ${code}`))
+            .catch(console.error)
+    })
+
     const code = await sock.requestPairingCode(number)
     console.log(code)
 }
@@ -755,6 +767,8 @@ sock.ev.on('messages.upsert', async ({ [m] }) => {
     }
 }
 ```
+
+Media downloads accept HTTPS URLs on `whatsapp.net` or one of its subdomains. `host` can override the direct-path CDN host within that domain.
 
 ### Re-upload Media Message to Whatsapp
 

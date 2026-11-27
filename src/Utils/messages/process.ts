@@ -427,7 +427,11 @@ const processMessage = async (
 
 				if (!mapping) {
 					logger?.warn(
-						{ msgId: message.key.id, hasRemoteJidAlt: !!message.key.remoteJidAlt, hasParticipantAlt: !!message.key.participantAlt },
+						{
+							msgId: message.key.id,
+							hasRemoteJidAlt: !!message.key.remoteJidAlt,
+							hasParticipantAlt: !!message.key.participantAlt
+						},
 						'received phone number share without a PN/LID alternate; cannot map the sender'
 					)
 					break
@@ -464,14 +468,15 @@ const processMessage = async (
 				)
 
 				if (process) {
-					// TODO: investigate
 					if (histNotification.syncType !== proto.HistorySync.HistorySyncType.ON_DEMAND) {
-						ev.emit('creds.update', {
-							processedHistoryMessages: [
-								...(creds.processedHistoryMessages || []),
-								{ key: message.key, messageTimestamp: message.messageTimestamp }
-							]
-						})
+						const processed = creds.processedHistoryMessages || []
+						if (processed.length !== 1) {
+							ev.emit('creds.update', {
+								processedHistoryMessages: processed.length
+									? [processed[0]!]
+									: [{ key: message.key, messageTimestamp: message.messageTimestamp }]
+							})
+						}
 					}
 
 					const data = await downloadAndProcessHistorySyncNotification(histNotification, options, logger)

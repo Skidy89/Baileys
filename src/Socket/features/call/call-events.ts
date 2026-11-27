@@ -53,8 +53,10 @@ export const parseCall = (node: BinaryNode): WACallEvent | undefined => {
 	}
 }
 
-export const callAck = (node: BinaryNode): BinaryNode => {
+export const callAckOrReceipt = (node: BinaryNode): BinaryNode | undefined => {
 	const action = Array.isArray(node.content) ? node.content[0] : undefined
+	if (action && ['offer', 'enc_rekey'].includes(action.tag)) return undefined
+	if (action && ['accept', 'reject'].includes(action.tag)) return callReceipt(node)
 	return {
 		tag: 'ack',
 		attrs: {
@@ -63,6 +65,18 @@ export const callAck = (node: BinaryNode): BinaryNode => {
 			class: 'call',
 			...(action && { type: action.tag })
 		}
+	}
+}
+
+export const callReceipt = (node: BinaryNode): BinaryNode | undefined => {
+	const action = Array.isArray(node.content) ? node.content[0] : undefined
+	const callId = action?.attrs['call-id']
+	const creator = action?.attrs['call-creator']
+	if (!action || !['offer', 'accept', 'reject'].includes(action.tag) || !callId || !creator) return undefined
+	return {
+		tag: 'receipt',
+		attrs: { id: node.attrs.id || '', to: node.attrs.from || '' },
+		content: [{ tag: action.tag, attrs: { 'call-id': callId, 'call-creator': creator } }]
 	}
 }
 

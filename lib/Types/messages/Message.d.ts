@@ -5,6 +5,7 @@ import type { MediaType, MediaUploadType } from '../../Defaults/index.js';
 import type { BinaryNode } from '../../WABinary/index.js';
 import type { GroupMetadata } from '../GroupMetadata.js';
 import type { CacheStore } from '../Socket.js';
+import type { RichResponseMessageContent } from '../../Utils/messages/rich-response.js';
 export { proto as WAProto };
 export type WAMessage = proto.IWebMessageInfo & {
     key: WAMessageKey;
@@ -167,7 +168,7 @@ export type GroupInviteInfo = {
 export type WASendableProduct = Omit<proto.Message.ProductMessage.IProductSnapshot, 'productImage'> & {
     productImage: WAMediaUpload;
 };
-export type AnyRegularMessageContent = (({
+export type AnyRegularMessageContent = (RichResponseMessageContent | ({
     text: string;
     linkPreview?: WAUrlInfo | null;
 } & Mentionable & Contextable & Editable) | AnyMediaMessageContent | {
@@ -222,6 +223,13 @@ type MinimalRelayOptions = {
     messageId?: string;
     /** should we use group metadata cache, or fetch afresh from the server; default assumed to be "true" */
     useCachedGroupMetadata?: boolean;
+    /** Newsletter admin profile shown with posts when the newsletter has this feature enabled. */
+    newsletterAdminProfile?: {
+        id?: string | null;
+        name?: string;
+        pictureId?: string;
+        pictureDirectPath?: string;
+    };
 };
 export type MessageRelayOptions = MinimalRelayOptions & {
     /** only send to a specific participant; used when a message decryption fails for a single user */

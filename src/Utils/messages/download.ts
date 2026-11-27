@@ -42,9 +42,18 @@ export const downloadMediaMessage = async <Type extends 'buffer' | 'stream'>(
 	return result as Type extends 'buffer' ? Buffer : Transform
 
 	async function downloadMsg() {
-		const mContent = extractMessageContent(message.message)
+		let mContent = extractMessageContent(message.message)
 		if (!mContent) {
 			throw new Boom('No message present', { statusCode: 400, data: message })
+		}
+
+		const stickerWrapper = mContent.audioStickerMessage || mContent.lottieStickerMessage
+		if (stickerWrapper?.message) {
+			mContent = extractMessageContent(stickerWrapper.message) || stickerWrapper.message
+		}
+
+		if (mContent.stickerMessage?.audioMessage) {
+			mContent = { audioMessage: mContent.stickerMessage.audioMessage }
 		}
 
 		const contentType = getContentType(mContent)

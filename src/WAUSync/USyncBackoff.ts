@@ -22,7 +22,9 @@ export class USyncBackoff {
 	record(query: USyncQueryShape, response: BinaryNode | undefined) {
 		this.logger?.trace({ context: query.context }, 'recording USync protocol backoff')
 		const usyncNode = Array.isArray(response?.content) ? response.content.find(node => node.tag === 'usync') : undefined
-		const resultNode = Array.isArray(usyncNode?.content) ? usyncNode.content.find(node => node.tag === 'result') : undefined
+		const resultNode = Array.isArray(usyncNode?.content)
+			? usyncNode.content.find(node => node.tag === 'result')
+			: undefined
 		for (const { name } of query.protocols) {
 			const protocolNode = Array.isArray(resultNode?.content)
 				? resultNode.content.find(node => node.tag === name)

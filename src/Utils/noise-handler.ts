@@ -5,7 +5,7 @@ import { NOISE_MODE, WA_CERT_DETAILS } from '../Defaults'
 import type { KeyPair } from '../Types'
 import type { BinaryNode } from '../WABinary'
 import { decodeBinaryNode } from '../WABinary'
-import { aesDecryptGCM, aesEncryptGCM, Curve, hkdf, sha256 } from './crypto'
+import { aesDecryptGCM, aesEncryptGCM, Curve, generateSignalPubKey, hkdf, sha256 } from './crypto'
 import type { ILogger } from './logger'
 
 const generateIV = (counter: number) => {
@@ -110,12 +110,31 @@ export const makeNoiseHandler = ({
 
 			const certDecoded = decrypt(serverHello!.payload!)
 
-			const { intermediate: certIntermediate /*leaf*/ } = proto.CertChain.decode(certDecoded)
-			// TODO: handle this leaf stuff
-			const { issuerSerial } = proto.CertChain.NoiseCertificate.Details.decode(certIntermediate!.details!)
+			const { intermediate, leaf } = proto.CertChain.decode(certDecoded)
+			if (!intermediate?.details || !intermediate.signature || !leaf?.details || !leaf.signature) {
+				throw new Boom('incomplete server certificate chain', { statusCode: 400 })
+			}
 
-			if (issuerSerial !== WA_CERT_DETAILS.SERIAL) {
+			const intermediateDetails = proto.CertChain.NoiseCertificate.Details.decode(intermediate.details)
+			if (
+				intermediateDetails.issuerSerial !== WA_CERT_DETAILS.SERIAL ||
+				intermediateDetails.serial == null ||
+				!intermediateDetails.key ||
+				!Curve.verify(generateSignalPubKey(WA_CERT_DETAILS.PUBLIC_KEY), intermediate.details, intermediate.signature)
+			) {
 				throw new Boom('certification match failed', { statusCode: 400 })
+			}
+
+			const leafDetails = proto.CertChain.NoiseCertificate.Details.decode(leaf.details)
+			if (
+				leafDetails.issuerSerial == null ||
+				leafDetails.serial == null ||
+				!leafDetails.key ||
+				leafDetails.issuerSerial !== intermediateDetails.serial ||
+				!Curve.verify(generateSignalPubKey(intermediateDetails.key), leaf.details, leaf.signature) ||
+				!Buffer.from(leafDetails.key).equals(Buffer.from(decStaticContent))
+			) {
+				throw new Boom('server certificate verification failed', { statusCode: 400 })
 			}
 
 			const keyEnc = encrypt(noiseKey.public)

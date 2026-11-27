@@ -7,7 +7,8 @@ export type MediaDownloadOptions = {
     startByte?: number;
     endByte?: number;
     options?: RequestInit;
-    /** Optional media host override; falls back to DEF_MEDIA_HOST when not provided. */
+    expectedFileEncSha256?: Uint8Array;
+    /** Optional WhatsApp media CDN host override; must be on whatsapp.net. */
     host?: string;
 };
 export declare const getUrlFromDirectPath: (directPath: string, host?: string) => string;
@@ -16,7 +17,7 @@ export declare const downloadContentFromMessage: ({ mediaKey, directPath, url }:
  * Decrypts and downloads an AES256-CBC encrypted file given the keys.
  * Assumes the SHA256 of the plaintext is appended to the end of the ciphertext
  * */
-export declare const downloadEncryptedContent: (downloadUrl: string, { cipherKey, iv }: MediaDecryptionKeyInfo, { startByte, endByte, options }?: MediaDownloadOptions) => Promise<Transform>;
+export declare const downloadEncryptedContent: (downloadUrl: string, { cipherKey, iv }: MediaDecryptionKeyInfo, { startByte, endByte, options, expectedFileEncSha256 }?: MediaDownloadOptions) => Promise<Transform>;
 export declare function extensionForMediaMessage(message: WAMessageContent): string;
 type MediaUploadResult = {
     url?: string;

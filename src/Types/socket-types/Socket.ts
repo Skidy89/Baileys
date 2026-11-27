@@ -49,9 +49,15 @@ export type SocketConfig = {
 	logger: ILogger | undefined
 	/** version to connect with */
 	version: WAVersion
+	/** release channel for the client payload; defaults to RELEASE */
+	releaseChannel?: proto.ClientPayload.UserAgent.ReleaseChannel
+	/** prefer the stored LID for login; retries with PN after a LID rejection */
+	preferLidForLogin?: boolean
+	/** advertise group-history support during registration; Web gates this with gkx(15338) */
+	supportGroupHistory?: boolean
 	/** override browser config */
 	browser: WABrowserDescription
-	/** Initial pushName carried in the registration ClientPayload (used by mock servers for deterministic phone assignment). */
+	/** pushName override carried in registration/login ClientPayloads (used by mock servers for deterministic phone assignment). */
 	pushName?: string
 	/** agent used for fetch requests -- uploading/downloading media */
 	fetchAgent?: Agent
@@ -71,7 +77,7 @@ export type SocketConfig = {
 	qrTimeout?: number
 	/** provide an auth state object to maintain the auth state */
 	auth: AuthenticationState
-	/** manage history processing with this control; by default will sync up everything */
+	/** Filter history sync notifications; full sync is controlled by syncFullHistory. */
 	shouldSyncHistoryMessage: (msg: proto.Message.IHistorySyncNotification) => boolean
 	/** transaction capability options for SignalKeyStore */
 	transactionOpts: TransactionCapabilityOptions
@@ -79,6 +85,14 @@ export type SocketConfig = {
 	markOnlineOnConnect: boolean
 	/** alphanumeric country code (USA -> US) for the number used */
 	countryCode: string
+	/** ISO 639-1 language code to use in the client payload; defaults to the process locale */
+	languageCode?: string
+	/** ISO 3166-1 alpha-2 locale region; defaults to the process locale, then an empty string */
+	localeCountryCode?: string
+	/** Mobile country code for the client payload; defaults to `000` when unavailable */
+	mcc?: string
+	/** Mobile network code for the client payload; defaults to `000` when unavailable */
+	mnc?: string
 	/** provide a cache to store media, so does not have to be re-uploaded */
 	mediaCache?: CacheStore
 	/**

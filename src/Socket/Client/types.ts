@@ -18,5 +18,7 @@ export abstract class AbstractSocketClient extends EventEmitter {
 
 	abstract connect(): void
 	abstract close(): void
+	abstract pause(): void
+	abstract resume(): void
 	abstract send(str: Uint8Array | string, cb?: (err?: Error) => void): boolean
 }

@@ -88,6 +88,7 @@ export const makeEventBuffer = (logger: ILogger | undefined): BaileysBufferableE
 	let historyCacheOverflowed = false
 
 	let data = makeBufferData()
+	let bufferedMessageUpsertType: BufferedEventData['messageUpserts'][string]['type'] | undefined
 	let isBuffering = false
 	let bufferTimeout: NodeJS.Timeout | null = null
 	let flushPendingTimeout: NodeJS.Timeout | null = null // Add a specific timer for the debounced flush to prevent leak
@@ -166,6 +167,7 @@ export const makeEventBuffer = (logger: ILogger | undefined): BaileysBufferableE
 		}
 
 		data = newData
+		bufferedMessageUpsertType = undefined
 		pastParticipantsByGroup.clear()
 		bufferedReactionIndexes = new WeakMap()
 		bufferedReceiptIndexes = new WeakMap()
@@ -191,29 +193,27 @@ export const makeEventBuffer = (logger: ILogger | undefined): BaileysBufferableE
 		emit<T extends BaileysEvent>(event: BaileysEvent, evData: BaileysEventMap[T]) {
 			// Check if this is a messages.upsert with a different type than what's buffered
 			// If so, flush the buffered messages first to avoid type overshadowing
-			if (event === 'messages.upsert') {
-				const { type } = evData as BaileysEventMap['messages.upsert']
-				let firstUpsert: BufferedEventData['messageUpserts'][string] | undefined
-				for (const key in data.messageUpserts) {
-					firstUpsert = data.messageUpserts[key]
-					break
-				}
-
-				if (firstUpsert && firstUpsert.type !== type) {
+			if (isBuffering && event === 'messages.upsert') {
+				const { type, messages } = evData as BaileysEventMap['messages.upsert']
+				if (bufferedMessageUpsertType && bufferedMessageUpsertType !== type) {
 					const existingUpserts = Object.values(data.messageUpserts)
-					const bufferedType = firstUpsert.type
-					if (logger)
-						logger.debug({ bufferedType, newType: type }, 'messages.upsert type mismatch, emitting buffered messages')
-					// Emit the buffered messages with their correct type
-					ev.emit('event', {
-						'messages.upsert': {
-							messages: existingUpserts.map(m => m.message),
-							type: bufferedType
-						}
-					})
-					// Clear the message upserts from the buffer
-					data.messageUpserts = {}
+					if (existingUpserts.length) {
+						const bufferedType = bufferedMessageUpsertType
+						if (logger)
+							logger.debug({ bufferedType, newType: type }, 'messages.upsert type mismatch, emitting buffered messages')
+						// Emit the buffered messages with their correct type
+						ev.emit('event', {
+							'messages.upsert': {
+								messages: existingUpserts.map(m => m.message),
+								type: bufferedType
+							}
+						})
+						// Clear the message upserts from the buffer
+						data.messageUpserts = {}
+						bufferedMessageUpsertType = undefined
+					}
 				}
+				if (messages.length) bufferedMessageUpsertType = type
 			}
 
 			if (isBuffering && BUFFERABLE_EVENT_SET.has(event)) {

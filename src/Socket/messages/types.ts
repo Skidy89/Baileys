@@ -22,6 +22,23 @@ export const getMessageType = (message: proto.IMessage) => {
 }
 
 export const getMediaType = (message: proto.IMessage): string => {
+	const wrappedMessage =
+		message.deviceSentMessage?.message ||
+		message.ephemeralMessage?.message ||
+		message.groupMentionedMessage?.message ||
+		message.viewOnceMessageV2Extension?.message ||
+		message.viewOnceMessage?.message ||
+		message.documentWithCaptionMessage?.message ||
+		message.spoilerMessage?.message ||
+		message.botInvokeMessage?.message ||
+		message.associatedChildMessage?.message ||
+		message.pollCreationOptionImageMessage?.message ||
+		message.questionMessage?.message ||
+		message.questionReplyMessage?.message ||
+		message.newsletterAdminProfileMessage?.message ||
+		message.audioStickerMessage?.message
+	if (wrappedMessage) return getMediaType(wrappedMessage)
+
 	if (message.instantImageMessage) return 'image'
 	if (message.instantVideoMessage) return 'video'
 	if (message.imageMessage) return 'image'
@@ -38,6 +55,7 @@ export const getMediaType = (message: proto.IMessage): string => {
 	if (message.stickerPackMessage) return 'sticker_pack'
 	if (message.listMessage) return 'list'
 	if (message.listResponseMessage) return 'list_response'
+	if (message.buttonsMessage) return 'button'
 	if (message.buttonsResponseMessage) return 'buttons_response'
 	if (message.orderMessage) return 'order'
 	if (message.productMessage) return 'product'

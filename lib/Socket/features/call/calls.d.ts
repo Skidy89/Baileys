@@ -1,4 +1,4 @@
-import type { GroupSession } from '@skidy89/signal-protocol';
+import { type CallEngine, type GroupSession } from '@skidy89/signal-protocol';
 import { type BinaryNode } from '../../../WABinary/index.js';
 import type { VoipConfig } from '@skidy89/signal-protocol';
 import type { CallMediaStream } from './call-media.js';
@@ -20,10 +20,29 @@ export type CallState = {
     callKey?: Buffer;
     media?: CallMediaStream;
     groupSession?: GroupSession;
+    groupEngine?: CallEngine;
+    groupState?: GroupCallSnapshot;
+    groupRelay?: BinaryNode;
+    groupEpoch?: {
+        transactionId: number;
+        key: Buffer;
+    };
+    groupEpochTransaction?: number;
     peerDevice?: string;
     videoRequest?: boolean;
 };
+export declare const isCallActive: (calls: Map<string, CallState>, call: CallState) => boolean;
+export type GroupCallSnapshot = {
+    applied: string;
+    transactionId: number;
+    media: string;
+    rekeyRequested: boolean;
+    hasRelay: boolean;
+    epochRecipients: string[];
+    members: string[];
+};
 export declare const newCallId: () => string;
+export declare const packGroupCallNode: (node: BinaryNode) => Buffer<ArrayBufferLike>;
 export declare function acknowledgeOffer(call: CallState, ack: BinaryNode, stanzaId: string | undefined): void;
 export declare const buildOffer: (o: {
     callId: string;
@@ -51,5 +70,22 @@ export declare const getCallKey: (decryptMessage: (opts: {
     type: "msg" | "pkmsg";
     ciphertext: Uint8Array;
 }) => Promise<Uint8Array>, from: string, enc: BinaryNode) => Promise<Buffer<ArrayBuffer>>;
+export declare const getCallOfferEnc: (action: BinaryNode, ownJids: string[]) => BinaryNode | undefined;
 export declare const mediaConfigFromRelay: (relay: BinaryNode, callId: string, direction: "incoming" | "outgoing", selfLid: string, peerLid: string, callKey: Uint8Array, video: boolean) => VoipConfig;
+export declare const groupRelayEndpointFromNode: (relay: BinaryNode) => {
+    relayIp: string;
+    relayPort: number;
+};
+export declare const buildGroupEncRekey: (o: {
+    callId: string;
+    creator: string;
+    to: string;
+    id: string;
+    transactionId: number;
+    encrypted: {
+        type: "msg" | "pkmsg";
+        ciphertext: Uint8Array;
+    };
+    deviceIdentity?: Uint8Array;
+}) => BinaryNode;
 //# sourceMappingURL=calls.d.ts.map

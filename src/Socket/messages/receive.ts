@@ -34,6 +34,8 @@ import {
 	extractAddressingContext,
 	extractE2ESessionFromRetryReceipt,
 	getHistoryMsg,
+	addProcessedGroupHistoryBundle,
+	downloadAndProcessGroupHistoryBundle,
 	getNextPreKeys,
 	generateMessageID,
 	getStatusFromReceiptType,
@@ -85,10 +87,9 @@ import {
 import { extractGroupMetadata } from '../groups'
 import { makeMessagesSocket } from './send'
 import { makeLockManager } from '../../Utils/lock-manager.js'
-import { binaryPack, GroupSession } from '@skidy89/signal-protocol'
-import { encodeBinaryNode } from '../../WABinary'
-import { callAck, parseCall, rejectCallNode } from '../features/call/call-events'
-import { createCallMediaStream } from '../features/call/call-media'
+import { GroupSession } from '@skidy89/signal-protocol'
+import { callAckOrReceipt, callReceipt, parseCall, rejectCallNode } from '../features/call/call-events'
+import { createCallMediaStream, createCallMediaStreamFromEngine } from '../features/call/call-media'
 import { enableEncodedAudio } from '../features/call/encode-audio'
 import {
 	queueAudioFile,
@@ -104,11 +105,17 @@ import {
 	acknowledgeOffer,
 	buildPreaccept,
 	buildTerminate,
+	buildGroupEncRekey,
 	buildVideoState,
+	getCallOfferEnc,
 	getCallKey,
+	groupRelayEndpointFromNode,
+	packGroupCallNode,
 	mediaConfigFromRelay,
 	newCallId,
-	type CallState
+	isCallActive,
+	type CallState,
+	type GroupCallSnapshot
 } from '../features/call/calls'
 import { handleServerEncryptNotification } from '../../Utils/server-enc-notifiaction.js'
 
@@ -160,10 +167,12 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		uploadPreKeys,
 		sendPeerDataOperationMessage,
 		messageRetryManager,
+		pairingState,
 		registerSocketEndHandler,
 		issuePrivacyTokens,
 		placeholderResendCache
 	} = sock
+	const processedGroupHistoryBundles = new Set((authState.creds.processedGroupHistoryBundles || []).slice(-500))
 
 	const getLIDForPN = signalRepository.lidMapping.getLIDForPN.bind(signalRepository.lidMapping)
 	const getPNForLID = signalRepository.lidMapping.getPNForLID.bind(signalRepository.lidMapping)
@@ -659,12 +668,124 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		logger?.info({ callId, state, timestamp: Date.now(), enc }, 'call signaling')
 
 	const finishCall = (call: CallState) => {
+		if (call.media)
+			logger?.debug(
+				{ callId: call.callId, mediaStats: call.media.stats, audioStats: call.media.audioStats },
+				'call media summary'
+			)
 		call.status = 'ended'
 		clearInterval(call.heartbeat)
 		calls.delete(call.callId)
 		pendingCallFiles.delete(call)
 		call.media?.destroy()
+		call.media = undefined
 		call.callKey?.fill(0)
+		call.groupEpoch?.key.fill(0)
+		call.groupEpoch = undefined
+		call.groupEngine = undefined
+		for (const relay of [call.relay, call.groupRelay]) {
+			for (const tag of ['key', 'hbh_key', 'token', 'auth_token'])
+				for (const child of getBinaryNodeChildren(relay, tag))
+					if (child.content instanceof Uint8Array) child.content.fill(0)
+		}
+		call.relay = undefined
+		call.groupRelay = undefined
+	}
+
+	const applyPendingGroupEpoch = (call: CallState) => {
+		if (
+			!call.groupEngine ||
+			!call.groupEpoch ||
+			(call.groupState && call.groupEpoch.transactionId > call.groupState.transactionId)
+		)
+			return
+		const { transactionId, key } = call.groupEpoch
+		try {
+			call.groupEngine.applyGroupEpoch(transactionId, key)
+			logger?.debug({ callId: call.callId, transactionId, source: 'pending' }, 'group call epoch applied')
+		} finally {
+			key.fill(0)
+			call.groupEpoch = undefined
+		}
+	}
+
+	const attachGroupMedia = (call: CallState, incoming: boolean) => {
+		if (call.media || !call.groupSession || !call.groupRelay || !call.groupState?.hasRelay) return
+		const { relayIp, relayPort } = groupRelayEndpointFromNode(call.groupRelay)
+		const engine = call.groupSession.createEngine(incoming, true, call.video)
+		const media = createCallMediaStreamFromEngine(engine, relayIp, relayPort, { logger }, 'opus')
+		call.groupEngine = engine
+		call.media = media
+		media.on('media-event', event => {
+			if (!event.startsWith('RtcpReceived')) logger?.debug({ callId: call.callId, event }, 'group call media event')
+		})
+		media.on('error', error => logger?.error({ err: error, callId: call.callId }, 'group call media transport failed'))
+		try {
+			applyPendingGroupEpoch(call)
+		} catch (error) {
+			call.media = undefined
+			call.groupEngine = undefined
+			media.destroy()
+			throw error
+		}
+	}
+
+	const sendGroupEpoch = async (call: CallState) => {
+		const state = call.groupState
+		if (
+			!isCallActive(calls, call) ||
+			!call.groupSession ||
+			!state ||
+			!state.transactionId ||
+			state.transactionId === call.groupEpochTransaction
+		)
+			return
+		if (!state.rekeyRequested && call.groupEpochTransaction !== undefined) return
+		const recipients = state.epochRecipients
+		if (!recipients.length) return
+		const epoch = randomBytes(32)
+		const clear = encodeWAMessage({ call: { callKey: epoch } })
+		try {
+			await assertSessions(recipients)
+			if (!isCallActive(calls, call)) return
+			const encrypted = await Promise.all(
+				recipients.map(async jid => ({ jid, ...(await signalRepository.encryptMessage({ jid, data: clear })) }))
+			)
+			if (!isCallActive(calls, call)) return
+			if (call.groupEngine) call.groupEngine.applyGroupEpoch(state.transactionId, epoch)
+			else {
+				call.groupEpoch?.key.fill(0)
+				call.groupEpoch = { transactionId: state.transactionId, key: Buffer.from(epoch) }
+			}
+			call.groupEpochTransaction = state.transactionId
+			logger?.debug(
+				{ callId: call.callId, transactionId: state.transactionId, recipients: encrypted.length },
+				'group call epoch applied'
+			)
+			await Promise.all(
+				encrypted.map(item =>
+					sendNode(
+						buildGroupEncRekey({
+							callId: call.callId,
+							creator: call.creator,
+							to: item.jid,
+							id: generateMessageID(),
+							transactionId: state.transactionId,
+							encrypted: item,
+							...(item.type === 'pkmsg' && authState.creds.account
+								? { deviceIdentity: encodeSignedDeviceIdentity(authState.creds.account, true) }
+								: {})
+						})
+					)
+				)
+			)
+		} catch (error) {
+			finishCall(call)
+			throw error
+		} finally {
+			epoch.fill(0)
+			clear.fill(0)
+		}
 	}
 
 	const applyCallFiles = async (call: CallState, files: ResolvedCallFiles) => {
@@ -821,7 +942,21 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			if (!calls.has(callId)) throw new Boom('Group call ended before acknowledgement')
 			acknowledgeOffer(call, ack, offer.attrs.id)
 			logCall(callId, 'server_ack')
-			session.applyAck(binaryPack(encodeBinaryNode(ack)))
+			const groupState: GroupCallSnapshot = JSON.parse(session.applyAck(packGroupCallNode(ack)))
+			call.groupState = groupState
+			logger?.debug(
+				{
+					callId,
+					phase: 'ack',
+					transactionId: groupState.transactionId,
+					hasRelay: groupState.hasRelay,
+					members: groupState.members.length,
+					epochRecipients: groupState.epochRecipients.length
+				},
+				'group call snapshot'
+			)
+			call.groupRelay = getBinaryNodeChild(ack, 'relay')
+			if (call.groupRelay) attachGroupMedia(call, false)
 			const beat = () =>
 				void sendNode({
 					tag: 'call',
@@ -860,11 +995,13 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		const relay = getBinaryNodeChild(action, 'relay')
 		if (!enc || !relay) throw new Boom('The incoming call offer is missing this device key or its relay')
 		const from = call.offerFrom || call.creator
+		const callKey =
+			call.callKey ?? (await getCallKey(signalRepository.decryptMessage.bind(signalRepository), from, enc))
+		call.callKey = callKey
 		const preaccept = buildPreaccept(callId, from, call.creator, generateMessageID(), call.video)
-		await sendNode(preaccept)
-		const files = await resolveCallFiles(options)
-		const callKey = await getCallKey(signalRepository.decryptMessage.bind(signalRepository), call.creator, enc)
 		try {
+			await sendNode(preaccept)
+			const files = await resolveCallFiles(options)
 			const media = createCallMediaStream(
 				mediaConfigFromRelay(relay, callId, 'incoming', own.lid, call.peer, callKey, call.video)
 			)
@@ -872,7 +1009,6 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				if (!event.startsWith('RtcpReceived')) logger?.debug({ callId, event }, 'call media event')
 			})
 			media.on('error', error => logger?.error({ err: error, callId }, 'call media transport failed'))
-			call.callKey = callKey
 			call.relay = relay
 			call.media = media
 			await sendNode(buildAccept(callId, from, call.creator, generateMessageID(), call.video))
@@ -1568,7 +1704,28 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				break
 			case 'link_code_companion_reg':
 				const linkCodeCompanionReg = getBinaryNodeChild(node, 'link_code_companion_reg')
+				if (linkCodeCompanionReg?.attrs.stage === 'refresh_code') {
+					const ref = getBinaryNodeChildBuffer(linkCodeCompanionReg, 'link_code_pairing_ref')
+					if (ref && pairingState.ref?.equals(ref)) {
+						ev.emit('pairing.code.refresh', {
+							forceManualRefresh: linkCodeCompanionReg.attrs.force_manual_refresh === 'true'
+						})
+					}
+					break
+				}
+				if (linkCodeCompanionReg?.attrs.stage !== 'primary_hello') {
+					throw new Boom('Unsupported companion link stage', { statusCode: 400 })
+				}
+				pairingState.attempts += 1
 				const ref = toRequiredBuffer(getBinaryNodeChildBuffer(linkCodeCompanionReg, 'link_code_pairing_ref'))
+				if (
+					!pairingState.ref ||
+					!pairingState.ref.equals(ref) ||
+					Date.now() - pairingState.startedAt > 180_000 ||
+					pairingState.attempts > 3
+				) {
+					throw new Boom('Invalid, expired, or exhausted pairing reference', { statusCode: 400 })
+				}
 				const primaryIdentityPublicKey = toRequiredBuffer(
 					getBinaryNodeChildBuffer(linkCodeCompanionReg, 'primary_identity_pub')
 				)
@@ -2286,7 +2443,6 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 						}
 
 						processingStage = 'send-receipt'
-						acked = true
 						await sendReceipt(msg.key.remoteJid!, participant!, [msg.key.id!], type)
 
 						// send ack for history message
@@ -2295,6 +2451,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 							const jid = jidNormalizedUser(msg.key.remoteJid!)
 							await sendReceipt(jid, undefined, [msg.key.id!], 'hist_sync') // TODO: investigate
 						}
+						acked = true
 					} else {
 						acked = true
 						await sendMessageAck(node)
@@ -2304,6 +2461,37 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 
 				processingStage = 'upsert-message'
 				cleanMessage(msg, authState.creds.me!.id, authState.creds.me!.lid!)
+				if (msg.message?.messageHistoryBundle) {
+					const bundleKey = `${msg.key.remoteJid}:${msg.key.id}`
+					if (processedGroupHistoryBundles.has(bundleKey)) {
+						logger?.debug({ bundleKey }, 'skipping previously processed group history bundle')
+					} else {
+						const result = await downloadAndProcessGroupHistoryBundle(
+							msg,
+							[authState.creds.me!.id, authState.creds.me!.lid].filter((jid): jid is string => !!jid),
+							config.options,
+							logger
+						)
+						const messages = result.messages
+						if (messages.length) {
+							ev.emit('messaging-history.set', {
+								chats: [],
+								contacts: [],
+								messages
+							})
+						}
+						if (result.processed) {
+							const processedGroupHistoryBundlesList = addProcessedGroupHistoryBundle(
+								authState.creds.processedGroupHistoryBundles || [],
+								bundleKey
+							)
+							processedGroupHistoryBundles.clear()
+							for (const key of processedGroupHistoryBundlesList) processedGroupHistoryBundles.add(key)
+							authState.creds.processedGroupHistoryBundles = processedGroupHistoryBundlesList
+							ev.emit('creds.update', { processedGroupHistoryBundles: processedGroupHistoryBundlesList })
+						}
+					}
+				}
 
 				await upsertMessage(msg, node.attrs.offline ? 'append' : 'notify')
 			})
@@ -2505,7 +2693,8 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 
 	ws.on('CB:call', async (node: BinaryNode) => {
 		try {
-			await sendNode(callAck(node))
+			const ack = callAckOrReceipt(node)
+			if (ack) await sendNode(ack)
 			const call = parseCall(node)
 			if (
 				call &&
@@ -2521,18 +2710,26 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 				)
 					return
 				if (call.status === 'terminate') {
-					logger?.debug(
-						{ callId: call.id, from: call.from, reason: action?.attrs.reason, mediaStats: current?.media?.stats },
-						'call terminated'
-					)
+					logger?.debug({ callId: call.id, from: call.from, reason: action?.attrs.reason }, 'call terminated')
 				}
 				if (call.status === 'offer') {
-					await callOfferCache.set(call.id, call)
+					let offerHandled = current?.direction === 'incoming'
 					if (call.isGroup && !current && authState.creds.me?.lid) {
 						const creator = call.creator || call.from
 						const session = new GroupSession(call.id, creator, authState.creds.me.lid)
-						const groupSummary = JSON.parse(session.applyInvite(binaryPack(encodeBinaryNode(action!))))
+						const groupSummary = JSON.parse(session.applyInvite(packGroupCallNode(action!)))
 						call.groupState = groupSummary
+						logger?.debug(
+							{
+								callId: call.id,
+								phase: 'invite',
+								transactionId: groupSummary.transactionId,
+								hasRelay: groupSummary.hasRelay,
+								members: groupSummary.members.length,
+								epochRecipients: groupSummary.epochRecipients.length
+							},
+							'group call snapshot'
+						)
 						calls.set(call.id, {
 							callId: call.id,
 							peer: call.groupJid || call.from,
@@ -2545,10 +2742,22 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 							offer: node,
 							offerFrom: call.from,
 							groupSession: session,
+							groupState: groupSummary,
+							groupRelay: getBinaryNodeChild(action!, 'relay'),
 							...(call.groupJid && { group: call.groupJid }),
 							...(call.lightweight && { lightweight: true })
 						})
+						offerHandled = true
 					} else if (!call.isGroup && !current) {
+						const own = authState.creds.me
+						const enc =
+							action &&
+							getCallOfferEnc(
+								action,
+								[own?.id, own?.lid].filter((jid): jid is string => !!jid)
+							)
+						if (!enc) throw new Boom('The incoming call offer has no key for this device')
+						const callKey = await getCallKey(signalRepository.decryptMessage.bind(signalRepository), call.from, enc)
 						calls.set(call.id, {
 							callId: call.id,
 							peer: call.creator || call.from,
@@ -2560,8 +2769,10 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 							startedAt: Date.now(),
 							offer: node,
 							offerFrom: call.from,
+							callKey,
 							...(call.lightweight && { lightweight: true })
 						})
+						offerHandled = true
 						if (calls.size > 200) {
 							for (const [id, state] of calls) {
 								if (state.status === 'ended') calls.delete(id)
@@ -2570,10 +2781,66 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 							while (calls.size > 200) finishCall(calls.values().next().value!)
 						}
 					}
-				} else if (current?.groupSession && (call.status === 'group_update' || call.status === 'enc_rekey')) {
-					if (call.status === 'group_update') {
-						if (action && call.from === current.callId + '@call')
-							call.groupState = JSON.parse(current.groupSession.applyUpdate(binaryPack(encodeBinaryNode(action))))
+					if (offerHandled) {
+						await callOfferCache.set(call.id, call)
+						const receipt = callReceipt(node)
+						if (receipt) await sendNode(receipt)
+					}
+				} else if (current?.groupSession && call.status === 'group_update') {
+					if (action && call.from === current.callId + '@call') {
+						try {
+							const groupState: GroupCallSnapshot = JSON.parse(
+								current.groupSession.applyUpdate(packGroupCallNode(action))
+							)
+							current.groupState = groupState
+							logger?.debug(
+								{
+									callId: call.id,
+									phase: 'update',
+									transactionId: groupState.transactionId,
+									hasRelay: groupState.hasRelay,
+									members: groupState.members.length,
+									epochRecipients: groupState.epochRecipients.length
+								},
+								'group call snapshot'
+							)
+							const relay = getBinaryNodeChild(action, 'relay')
+							if (relay) current.groupRelay = relay
+							const hadMedia = !!current.media
+							attachGroupMedia(current, current.direction === 'incoming')
+							if (hadMedia && current.groupEngine)
+								current.groupSession.pushToEngine(current.groupEngine, current.media?.elapsedMs ?? 0)
+							applyPendingGroupEpoch(current)
+							if (current.direction === 'outgoing') await sendGroupEpoch(current)
+						} catch (error) {
+							finishCall(current)
+							throw error
+						}
+					}
+				} else if (current?.groupSession && call.status === 'enc_rekey' && action) {
+					const transactionId = Number(action.attrs['transaction-id'])
+					if (Number.isInteger(transactionId) && transactionId > 0 && transactionId <= 0xffffffff) {
+						if (call.creator !== current.creator || !(await callUserMatches(call.from, current.creator)))
+							throw new Boom('Group epoch sender is not the call creator')
+						const own = authState.creds.me
+						const enc = getCallOfferEnc(
+							action,
+							[own?.id, own?.lid].filter((jid): jid is string => !!jid)
+						)
+						if (!enc) throw new Boom('The group epoch has no encrypted key for this device')
+						const key = await getCallKey(signalRepository.decryptMessage.bind(signalRepository), call.from, enc)
+						if (current.groupEngine && transactionId <= (current.groupState?.transactionId ?? 0)) {
+							try {
+								current.groupEngine.applyGroupEpoch(transactionId, key)
+								current.groupEpochTransaction = transactionId
+								logger?.debug({ callId: call.id, transactionId, source: 'enc_rekey' }, 'group call epoch applied')
+							} finally {
+								key.fill(0)
+							}
+						} else if (!current.groupEpoch || transactionId > current.groupEpoch.transactionId) {
+							current.groupEpoch?.key.fill(0)
+							current.groupEpoch = { transactionId, key }
+						} else key.fill(0)
 					}
 				} else if (current) {
 					const expectedPeer = current.direction === 'outgoing' ? current.peer : current.creator
@@ -2672,6 +2939,9 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		sendActiveReceipts = false
 	})
 
+	const { pairingState: internalPairingState, ...publicSocket } = sock
+	void internalPairingState
+
 	async function pruneExpiredTcTokens() {
 		try {
 			await tcTokenIndexLoaded
@@ -2740,7 +3010,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 	}
 
 	return {
-		...sock,
+		...publicSocket,
 		sendMessageAck,
 		sendRetryRequest,
 		rejectCall,

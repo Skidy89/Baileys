@@ -1,14 +1,16 @@
 import { promisify } from 'util'
 import { inflate } from 'zlib'
+import { MAX_WEBSOCKET_MESSAGE_SIZE } from '../Utils/constants'
 import * as constants from './constants'
 import { jidEncode, type JidServer, WAJIDDomains } from './jid-utils'
 import type { BinaryNode, BinaryNodeCodingOptions } from './types'
 
 const inflatePromise = promisify(inflate)
+// shortcut: 100 MiB matches the WebSocket frame cap; raise it if WhatsApp requires larger inflated nodes.
 
 export const decompressingIfRequired = async (buffer: Buffer) => {
 	if (2 & buffer.readUInt8()) {
-		buffer = await inflatePromise(buffer.subarray(1))
+		buffer = await inflatePromise(buffer.subarray(1), { maxOutputLength: MAX_WEBSOCKET_MESSAGE_SIZE })
 	} else {
 		// nodes with no compression have a 0x00 prefix, we remove that
 		buffer = buffer.subarray(1)
@@ -60,7 +62,7 @@ export const decodeDecompressedBinaryNode = (
 			val |= next()! << (shift * 8)
 		}
 
-		return val
+		return n === 4 ? val >>> 0 : val
 	}
 
 	const readInt20 = () => {
@@ -305,7 +307,9 @@ export const decodeDecompressedBinaryNode = (
 export const decodeBinaryNode = (buff: Buffer): Promise<BinaryNode> => {
 	try {
 		if (2 & buff.readUInt8()) {
-			return inflatePromise(buff.subarray(1)).then(decompBuff => decodeDecompressedBinaryNode(decompBuff, constants))
+			return inflatePromise(buff.subarray(1), { maxOutputLength: MAX_WEBSOCKET_MESSAGE_SIZE }).then(decompBuff =>
+				decodeDecompressedBinaryNode(decompBuff, constants)
+			)
 		}
 
 		return Promise.resolve(decodeDecompressedBinaryNode(buff.subarray(1), constants))

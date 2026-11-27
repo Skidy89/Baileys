@@ -30,6 +30,7 @@ import { generateMessageID, unixTimestampSeconds } from '../generics'
 import { shouldIncludeReportingToken } from '../reporting-utils'
 import { getContentType, normalizeMessageContent } from './content'
 import { encryptedStream, generateThumbnail, getAudioDuration, getRawMediaUploadData } from './media'
+import { generateRichResponseMessage } from './rich-response'
 
 type ExtractByKey<T, K extends PropertyKey> = T extends Record<K, unknown> ? T : never
 type RequireKey<T, K extends keyof T> = T & {
@@ -657,6 +658,8 @@ export const generateWAMessageContent = async (
 				m.pollCreationMessage = pollCreationMessage
 			}
 		}
+	} else if (hasNonNullishProperty(message, 'richResponse')) {
+		m = generateRichResponseMessage(message, options.logger)
 	} else if (hasNonNullishProperty(message, 'album')) {
 		m.albumMessage = {
 			expectedImageCount: message.album.expectedImageCount,

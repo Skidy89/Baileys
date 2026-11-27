@@ -143,7 +143,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			additionalNodes,
 			useUserDevicesCache,
 			useCachedGroupMetadata,
-			statusJidList
+			statusJidList,
+			newsletterAdminProfile
 		}: MessageRelayOptions
 	) => {
 		const meId = assertMeId(authState.creds)
@@ -197,6 +198,32 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			if (isNewsletter) {
 				const patched = patchMessageBeforeSending ? await patchMessageBeforeSending(message, []) : message
 				const bytes = encodeNewsletterMessage(patched as proto.IMessage)
+				if (newsletterAdminProfile) {
+					const { id, name, pictureId, pictureDirectPath } = newsletterAdminProfile
+					if ((pictureId == null) !== (pictureDirectPath == null)) {
+						throw new Boom('Newsletter admin profile picture requires both id and direct path', {
+							statusCode: 400
+						})
+					}
+
+					const profileContent: BinaryNode[] = []
+					if (name) profileContent.push({ tag: 'name', attrs: {}, content: name })
+					if (pictureId && pictureDirectPath) {
+						profileContent.push({
+							tag: 'picture',
+							attrs: { id: pictureId, direct_path: pictureDirectPath }
+						})
+					}
+					if (!id && !profileContent.length) {
+						throw new Boom('Newsletter admin profile requires an id, name, or picture', { statusCode: 400 })
+					}
+
+					binaryNodeContent.push({
+						tag: 'meta',
+						attrs: {},
+						content: [{ tag: 'admin_profile', attrs: id ? { id } : {}, content: profileContent }]
+					})
+				}
 				binaryNodeContent.push({
 					tag: 'plaintext',
 					attrs: {},
@@ -212,7 +239,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					},
 					content: binaryNodeContent
 				}
-				logger?.debug({ msgId }, `sending newsletter message to ${jid}`)
+				logger?.debug({ msgId, hasAdminProfile: !!newsletterAdminProfile }, `sending newsletter message to ${jid}`)
 				await sendNode(stanza)
 				return
 			}
@@ -857,11 +884,11 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				await relayMessage(jid, fullMsg.message!, {
 					messageId: fullMsg.key.id!,
 					useCachedGroupMetadata: options.useCachedGroupMetadata,
+					newsletterAdminProfile: options.newsletterAdminProfile,
 					additionalAttributes,
 					statusJidList: options.statusJidList,
 					additionalNodes
 				})
-
 				return fullMsg
 			}
 		}

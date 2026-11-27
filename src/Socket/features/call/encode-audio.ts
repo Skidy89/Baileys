@@ -7,7 +7,7 @@ import type { ILogger } from '../../../Utils/logger'
 import type { CallState } from './calls'
 import type { ResolvedCallFiles } from './media-file'
 
-// Must match the live encoder in CallMediaStream: 16 kHz mono, 24 kbit/s CBR, 60 ms frames.
+// Must match CallMediaStream's pre-encoded Opus playback: 24 kbit/s CBR, 60 ms frames.
 // CBR makes every packet exactly 24000 * 0.060 / 8 = 180 bytes, which playOpusFile relies on.
 const OPUS_FRAME_MS = 60
 const OPUS_PACKET_BYTES = 180

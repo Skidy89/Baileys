@@ -28,9 +28,12 @@ const collect = async (stream: Readable) => {
 describe('downloadEncryptedContent', () => {
 	const key = Crypto.randomBytes(32)
 	const iv = Crypto.randomBytes(16)
+	const macKey = Crypto.randomBytes(32)
 	const plaintext = Buffer.from(Array.from({ length: 100 }, (_, index) => index))
 	const cipher = Crypto.createCipheriv('aes-256-cbc', key, iv)
-	const encrypted = Buffer.concat([cipher.update(plaintext), cipher.final(), Crypto.randomBytes(10)])
+	const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()])
+	const mac = Crypto.createHmac('sha256', macKey).update(iv).update(ciphertext).digest().subarray(0, 10)
+	const encrypted = Buffer.concat([ciphertext, mac])
 	let fetchSpy: jest.SpyInstance
 	let responseBody: Readable | undefined
 
@@ -54,6 +57,48 @@ describe('downloadEncryptedContent', () => {
 		const stream = await downloadEncryptedContent('https://example.test/media', { cipherKey: key, iv })
 
 		expect(await collect(stream)).toEqual(plaintext)
+	})
+
+	it('checks the encrypted media hash when the caller supplies it', async () => {
+		const expectedHash = Crypto.createHash('sha256').update(encrypted).digest()
+		const stream = await downloadEncryptedContent(
+			'https://example.test/media',
+			{ cipherKey: key, iv, macKey },
+			{ expectedFileEncSha256: expectedHash }
+		)
+		expect(await collect(stream)).toEqual(plaintext)
+
+		const mismatched = await downloadEncryptedContent(
+			'https://example.test/media',
+			{ cipherKey: key, iv, macKey },
+			{ expectedFileEncSha256: Crypto.createHash('sha256').update('different file').digest() }
+		)
+		await expect(collect(mismatched)).rejects.toThrow('media ciphertext SHA-256 mismatch')
+	})
+
+	it('rejects ciphertext that does not match the bundle encrypted hash', async () => {
+		const tampered = Buffer.from(encrypted)
+		tampered[tampered.length - 1] ^= 1
+		responseBody = Readable.from(chunks(tampered))
+		const stream = await downloadEncryptedContent(
+			'https://example.test/media',
+			{ cipherKey: key, iv, macKey },
+			{ expectedFileEncSha256: Crypto.createHash('sha256').update(encrypted).digest() }
+		)
+		await expect(collect(stream)).rejects.toThrow('media ciphertext SHA-256 mismatch')
+	})
+
+	it('rejects an expected full-file hash for ranged downloads', async () => {
+		await expect(
+			downloadEncryptedContent(
+				'https://example.test/media',
+				{ cipherKey: key, iv },
+				{
+					startByte: 16,
+					expectedFileEncSha256: Crypto.createHash('sha256').update(encrypted).digest()
+				}
+			)
+		).rejects.toThrow('Cannot verify a full-file SHA-256 for a ranged media download')
 	})
 
 	it('decrypts Uint8Array chunks from a non-zero byte offset', async () => {

@@ -5,7 +5,7 @@ import { BinaryInfo } from '../WAM/BinaryInfo.js';
 import { USyncQuery } from '../WAUSync/index.js';
 import { WebSocketClient } from './Client/index.js';
 import type { ILogger } from '../Utils/logger.js';
-export declare const buildPingIqResult: (from: string, logger?: ILogger) => BinaryNode;
+export declare const buildPingIqResult: (from: string, id: string, logger?: ILogger) => BinaryNode;
 /**
  * Connects to WA servers and performs:
  * - simple queries (no retry mechanism, wait for connection establishment)
@@ -44,6 +44,11 @@ export declare const makeSocket: (config: SocketConfig) => {
     digestKeyBundle: () => Promise<void>;
     rotateSignedPreKey: () => Promise<void>;
     requestPairingCode: (phoneNumber: string, customPairingCode?: string) => Promise<string>;
+    pairingState: {
+        ref?: Buffer;
+        startedAt: number;
+        attempts: number;
+    };
     updateServerTimeOffset: ({ attrs }: BinaryNode) => void;
     sendUnifiedSession: () => Promise<void>;
     wamBuffer: BinaryInfo;

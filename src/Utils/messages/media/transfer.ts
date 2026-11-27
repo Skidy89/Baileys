@@ -31,7 +31,8 @@ export type MediaDownloadOptions = {
 	startByte?: number
 	endByte?: number
 	options?: RequestInit
-	/** Optional media host override; falls back to DEF_MEDIA_HOST when not provided. */
+	expectedFileEncSha256?: Uint8Array
+	/** Optional WhatsApp media CDN host override; must be on whatsapp.net. */
 	host?: string
 }
 
@@ -47,6 +48,23 @@ const extractHost = (url: string | null | undefined): string | undefined => {
 	}
 }
 
+const isAllowedMediaUrl = (url: string, directPath?: string | null, host?: string) => {
+	try {
+		const parsed = new URL(url)
+		if (
+			parsed.protocol !== 'https:' ||
+			(parsed.port !== '' && parsed.port !== '443') ||
+			(parsed.hostname !== 'whatsapp.net' && !parsed.hostname.endsWith('.whatsapp.net'))
+		) {
+			return false
+		}
+
+		return !directPath || parsed.hostname === new URL(`https://${host}`).hostname
+	} catch {
+		return false
+	}
+}
+
 export const downloadContentFromMessage = async (
 	{ mediaKey, directPath, url }: DownloadableMessage,
 	type: MediaType,
@@ -54,10 +72,10 @@ export const downloadContentFromMessage = async (
 ) => {
 	// Fallback host: explicit opt > host parsed from `url` > DEF_MEDIA_HOST.
 	// Lets us honor a non-default host carried by the proto without forcing callers to thread it through.
-	const fallbackHost = opts.host ?? extractHost(url)
+	const fallbackHost = opts.host ?? extractHost(url) ?? DEF_MEDIA_HOST
 	const downloadUrl = directPath ? getUrlFromDirectPath(directPath, fallbackHost) : url
-	if (!downloadUrl) {
-		throw new Boom('No valid media URL or directPath present in message', { statusCode: 400 })
+	if (!downloadUrl || !isAllowedMediaUrl(downloadUrl, directPath, fallbackHost)) {
+		throw new Boom('No valid WhatsApp media URL or directPath present in message', { statusCode: 400 })
 	}
 
 	const keys = await getMediaKeys(mediaKey, type)
@@ -72,8 +90,15 @@ export const downloadContentFromMessage = async (
 export const downloadEncryptedContent = async (
 	downloadUrl: string,
 	{ cipherKey, iv }: MediaDecryptionKeyInfo,
-	{ startByte, endByte, options }: MediaDownloadOptions = {}
+	{ startByte, endByte, options, expectedFileEncSha256 }: MediaDownloadOptions = {}
 ) => {
+	if (expectedFileEncSha256 && expectedFileEncSha256.byteLength !== 32) {
+		throw new Boom('Expected media ciphertext SHA-256 must be 32 bytes', { statusCode: 400 })
+	}
+	if (expectedFileEncSha256 && (startByte || endByte)) {
+		throw new Boom('Cannot verify a full-file SHA-256 for a ranged media download', { statusCode: 400 })
+	}
+
 	let bytesFetched = 0
 	let startChunk = 0
 	let firstBlockIsIV = false
@@ -109,11 +134,14 @@ export const downloadEncryptedContent = async (
 	// download the message
 	const fetched = await getHttpStream(downloadUrl, {
 		...(options || {}),
-		headers
+		headers,
+		// Prevent fetch from following a WhatsApp CDN redirect to an untrusted host.
+		redirect: 'error'
 	})
 
 	const remainingBytes = Buffer.allocUnsafe(AES_CHUNK_SIZE)
 	let remainingLength = 0
+	const encryptedHash = expectedFileEncSha256 ? Crypto.createHash('sha256') : undefined
 
 	let aes: Crypto.Decipher
 
@@ -134,6 +162,7 @@ export const downloadEncryptedContent = async (
 		transform(chunk, _, callback) {
 			try {
 				const data = Buffer.isBuffer(chunk) ? chunk : toBufferView(chunk)
+				encryptedHash?.update(data)
 				let offset = 0
 
 				const decrypt = (bytes: Buffer) => {
@@ -180,6 +209,14 @@ export const downloadEncryptedContent = async (
 		},
 		final(callback) {
 			try {
+				if (encryptedHash) {
+					const actualHash = encryptedHash.digest()
+					const expectedHash = Buffer.from(expectedFileEncSha256!)
+					if (expectedHash.length !== actualHash.length || !Crypto.timingSafeEqual(actualHash, expectedHash)) {
+						callback(new Error('media ciphertext SHA-256 mismatch'))
+						return
+					}
+				}
 				pushBytes(aes.final(), b => this.push(b))
 				callback()
 			} catch (error) {

@@ -12,6 +12,10 @@ import type { ConnectionState, NewChatMessageCapInfo } from '../State.js';
 export type BaileysEventMap = {
     /** connection state has been updated -- WS closed, opened, connecting etc. */
     'connection.update': Partial<ConnectionState>;
+    /** WhatsApp requested a fresh pairing code; true means surface a manual refresh action to the user. */
+    'pairing.code.refresh': {
+        forceManualRefresh: boolean;
+    };
     /** credentials updated -- some metadata, keys or something */
     'creds.update': Partial<AuthenticationCreds>;
     /** set chats (history sync), everything is reverse chronologically sorted */
@@ -24,6 +28,7 @@ export type BaileysEventMap = {
         progress?: number | null;
         syncType?: proto.HistorySync.HistorySyncType | null;
         pastParticipants?: proto.IPastParticipants[] | null;
+        callLogRecords?: proto.CallLogRecord.$Properties[] | null;
         chunkOrder?: number | null;
         peerDataRequestSessionId?: string | null;
     };

@@ -26,7 +26,7 @@ const FAST_RESIZE_MAX_PIXELS = 6_000_000
 
 export const hkdfInfoKey = (type: MediaType) => {
 	const hkdfInfo = MEDIA_HKDF_KEY_MAPPING[type]
-	return `WhatsApp ${hkdfInfo} Keys`
+	return type === 'group-history' ? hkdfInfo : `WhatsApp ${hkdfInfo} Keys`
 }
 
 export const getRawMediaUploadData = async (media: WAMediaUpload, mediaType: MediaType, logger?: ILogger) => {
@@ -257,6 +257,7 @@ export const getHttpStream = async (
 		dispatcher: options.dispatcher,
 		method: 'GET',
 		headers: options.headers as HeadersInit,
+		redirect: options.redirect,
 		signal: options.signal ?? (options.timeout ? AbortSignal.timeout(options.timeout) : undefined)
 	})
 	if (!response.ok) {

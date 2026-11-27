@@ -5,6 +5,7 @@ import type { MediaType, MediaUploadType } from '../../Defaults'
 import type { BinaryNode } from '../../WABinary'
 import type { GroupMetadata } from '../GroupMetadata'
 import type { CacheStore } from '../Socket'
+import type { RichResponseMessageContent } from '../../Utils/messages/rich-response'
 
 // export the WAMessage Prototypes
 export { proto as WAProto }
@@ -225,6 +226,7 @@ export type WASendableProduct = Omit<proto.Message.ProductMessage.IProductSnapsh
 }
 
 export type AnyRegularMessageContent = (
+	| RichResponseMessageContent
 	| ({
 			text: string
 			linkPreview?: WAUrlInfo | null
@@ -305,6 +307,13 @@ type MinimalRelayOptions = {
 	messageId?: string
 	/** should we use group metadata cache, or fetch afresh from the server; default assumed to be "true" */
 	useCachedGroupMetadata?: boolean
+	/** Newsletter admin profile shown with posts when the newsletter has this feature enabled. */
+	newsletterAdminProfile?: {
+		id?: string | null
+		name?: string
+		pictureId?: string
+		pictureDirectPath?: string
+	}
 }
 
 export type MessageRelayOptions = MinimalRelayOptions & {

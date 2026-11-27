@@ -3,7 +3,7 @@ import { makeLibSignalRepository } from '../Signal/libsignal'
 import type { AuthenticationState, SocketConfig, WAVersion } from '../Types'
 import { Browsers } from '../Utils/browser-utils'
 
-const version = [2, 3000, 1035194821]
+const version = [2, 3000, 1056305113]
 
 export const UNAUTHORIZED_CODES = [401, 403, 419]
 
@@ -72,7 +72,7 @@ export const DEFAULT_CONNECTION_CONFIG: SocketConfig = {
 	fireInitQueries: true,
 	auth: undefined as unknown as AuthenticationState,
 	markOnlineOnConnect: true,
-	syncFullHistory: true,
+	syncFullHistory: false,
 	patchMessageBeforeSending: msg => msg,
 	shouldSyncHistoryMessage: ({ syncType }: proto.Message.IHistorySyncNotification) => {
 		return syncType !== proto.HistorySync.HistorySyncType.FULL

@@ -1,7 +1,12 @@
 import { Boom } from '@hapi/boom'
 import { resolve } from 'node:path'
+import { randomBytes } from 'node:crypto'
+import { unlink } from 'node:fs/promises'
+import { deflateSync } from 'node:zlib'
+import $protobuf from 'protobufjs/minimal.js'
 import readline from 'readline'
-import makeWASocket, { type AnyMessageContent, delay, DisconnectReason,  type GroupMetadata, isJidBroadcast, isJidNewsletter, makeCacheableSignalKeyStore, prepareWAMessageMedia, proto, useSqliteAuthState, type WAVersion } from '../src'
+import makeWASocket, { type AnyMessageContent, delay, DisconnectReason, getBinaryNodeChild, type GroupMetadata, isJidBroadcast, isJidNewsletter, makeCacheableSignalKeyStore, prepareWAMessageMedia, proto, useSqliteAuthState, type WAVersion } from '../src'
+import { encryptedStream } from '../src/Utils/messages/media/upload'
 import P from 'pino'
 import got from 'got'
 
@@ -12,6 +17,7 @@ const logger = P({
   level: "debug",
   
 })
+
 
 
 const doReplies = process.argv.includes('--do-reply')
@@ -30,6 +36,7 @@ const groups = new Map<string, GroupMetadata>()
 // Read line interface
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 const question = (text: string) => new Promise<string>((resolve) => rl.question(text, resolve))
+
 
 // start a connection
 const startSock = async() => {
@@ -50,6 +57,7 @@ const startSock = async() => {
 		// use safari as the browser, so that companion registration works
 		browser: ['open-wa systems', "Safari", '1.0.0'],
 		companionPlatformDisplay: 'Chrome (Windows)',	
+		supportGroupHistory: process.argv.includes('--support-group-history'),
         shouldIgnoreJid: (jid) => isJidBroadcast(jid)  || isJidNewsletter(jid),
 		cachedGroupMetadata: async (jid) => {
 			if (groups.has(jid)) {
@@ -118,7 +126,7 @@ const startSock = async() => {
 				}
 				if (connection === 'open') {
 					commandReady = true
-					console.log('Type "call <jid>" to call a contact and stream vendor/test.mp3')
+					
 				}
 				if(connection === 'close') {
 					commandReady = false
@@ -185,6 +193,10 @@ const startSock = async() => {
 				console.log('exiting...')
 				process.exit(0)
 			  }
+			  if (!text) continue
+			  
+			
+
 			  if (text == "changelabel") {
 				await sock.updateMemberLabel(msg.key.remoteJid!, "mi puta madre!!!")
 			  }
@@ -213,7 +225,6 @@ const startSock = async() => {
 				)
 				await sock.relayMessage(msg.key.remoteJid!, { imageMessage: prepared.imageMessage }, {})
 			  }
-			  
 
               if (!msg.key.fromMe && doReplies && !isJidNewsletter(msg.key?.remoteJid!)) {
 
@@ -234,8 +245,9 @@ const startSock = async() => {
 }
 
 rl.on('line', line => {
-	const [command, target] = line.trim().split(/\s+/, 2)
+	const [command, ...args] = line.trim().split(/\s+/)
 	if (command !== 'call') return
+	const target = args[0]
 	if (!target) {
 		console.log('Usage: call <jid>')
 		return

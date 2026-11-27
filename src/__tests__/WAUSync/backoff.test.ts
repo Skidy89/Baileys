@@ -14,17 +14,33 @@ describe('USyncBackoff', () => {
 		const query = { context: 'background', protocols: [{ name: 'devices' }] } as unknown as Query
 		const backoff = new USyncBackoff()
 		backoff.record(query, {
-			tag: 'iq', attrs: { type: 'result' }, content: [{
-				tag: 'usync', attrs: {}, content: [{
-					tag: 'result', attrs: {}, content: [{
-						tag: 'devices', attrs: {}, content: [{ tag: 'error', attrs: { backoff: '2' } }]
-					}]
-				}]
-			}]
+			tag: 'iq',
+			attrs: { type: 'result' },
+			content: [
+				{
+					tag: 'usync',
+					attrs: {},
+					content: [
+						{
+							tag: 'result',
+							attrs: {},
+							content: [
+								{
+									tag: 'devices',
+									attrs: {},
+									content: [{ tag: 'error', attrs: { backoff: '2' } }]
+								}
+							]
+						}
+					]
+				}
+			]
 		})
 
 		let finished = false
-		const waiting = backoff.waitFor(query).then(() => { finished = true })
+		const waiting = backoff.waitFor(query).then(() => {
+			finished = true
+		})
 		await jest.advanceTimersByTimeAsync(1999)
 		expect(finished).toBe(false)
 		await jest.advanceTimersByTimeAsync(1)
@@ -36,11 +52,26 @@ describe('USyncBackoff', () => {
 		jest.useFakeTimers()
 		const query = { context: 'interactive', protocols: [{ name: 'devices' }] } as unknown as Query
 		const backoff = new USyncBackoff()
-		backoff.record({ ...query, context: 'background' }, {
-			tag: 'iq', attrs: { type: 'result' }, content: [{ tag: 'usync', attrs: {}, content: [{
-				tag: 'result', attrs: {}, content: [{ tag: 'devices', attrs: {}, content: [{ tag: 'error', attrs: { backoff: '20' } }] }]
-			}]}]
-		})
+		backoff.record(
+			{ ...query, context: 'background' },
+			{
+				tag: 'iq',
+				attrs: { type: 'result' },
+				content: [
+					{
+						tag: 'usync',
+						attrs: {},
+						content: [
+							{
+								tag: 'result',
+								attrs: {},
+								content: [{ tag: 'devices', attrs: {}, content: [{ tag: 'error', attrs: { backoff: '20' } }] }]
+							}
+						]
+					}
+				]
+			}
+		)
 
 		await expect(backoff.waitFor(query)).resolves.toBeUndefined()
 	})

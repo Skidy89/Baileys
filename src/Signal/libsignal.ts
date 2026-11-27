@@ -96,8 +96,9 @@ export function makeLibSignalRepository(
 	// call sites don't have to null-check the (publicly optional) method.
 	const parsedKeys = auth.keys as SignalKeyStoreWithRecordTransaction
 	const migratedSessionCache = new LRUCache<string, true>({
-		ttl: 3 * 24 * 60 * 60 * 1000, // 7 days
-		ttlAutopurge: true,
+		// shortcut: entries beyond 2048 can be evicted before three days; raise only if migration churn warrants it.
+		max: 2048,
+		ttl: 3 * 24 * 60 * 60 * 1000, // 3 days
 		updateAgeOnGet: true
 	})
 
@@ -383,11 +384,10 @@ export function makeLibSignalRepository(
 				logger.debug(
 					{
 						fromJid,
-						totalDevices: deviceJids.length,
-						devicesWithSessions: deviceJids.length,
+						deviceCandidates: deviceJids.length,
 						devices: deviceJids
 					},
-					'bulk device migration complete - all user devices processed'
+					'device list collected for session migration'
 				)
 
 			// Prepare migration operations with addressing metadata up-front so+`)

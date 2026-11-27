@@ -333,7 +333,59 @@ export const extractGroupMetadata = (result: BinaryNode) => {
 		throw new Boom('Invalid group metadata response: missing group id', { data: group })
 	}
 
-	const descChild = getBinaryNodeChild(group, 'description')
+	const participantNodes: BinaryNode[] = []
+	let descChild: BinaryNode | undefined
+	let ephemeralChild: BinaryNode | undefined
+	let memberAddModeChild: BinaryNode | undefined
+	let linkedParentChild: BinaryNode | undefined
+	let lockedChild: BinaryNode | undefined
+	let announcementChild: BinaryNode | undefined
+	let parentChild: BinaryNode | undefined
+	let defaultSubGroupChild: BinaryNode | undefined
+	let membershipApprovalModeChild: BinaryNode | undefined
+	if (Array.isArray(group.content)) {
+		for (const child of group.content) {
+			switch (child.tag) {
+				case 'participant':
+					participantNodes.push(child)
+					break
+				case 'description':
+					descChild ??= child
+					break
+				case 'ephemeral':
+					ephemeralChild ??= child
+					break
+				case 'member_add_mode':
+					memberAddModeChild ??= child
+					break
+				case 'linked_parent':
+					linkedParentChild ??= child
+					break
+				case 'locked':
+					lockedChild ??= child
+					break
+				case 'announcement':
+					announcementChild ??= child
+					break
+				case 'parent':
+					parentChild ??= child
+					break
+				case 'default_sub_group':
+					defaultSubGroupChild ??= child
+					break
+				case 'membership_approval_mode':
+					membershipApprovalModeChild ??= child
+					break
+			}
+		}
+	}
+	const memberAddModeValue = memberAddModeChild?.content
+	const memberAddModeString =
+		Buffer.isBuffer(memberAddModeValue) || memberAddModeValue instanceof Uint8Array
+			? Buffer.from(memberAddModeValue.buffer, memberAddModeValue.byteOffset, memberAddModeValue.byteLength).toString(
+					'utf-8'
+				)
+			: memberAddModeValue
 	let desc: string | undefined
 	let descId: string | undefined
 	let descOwner: string | undefined
@@ -350,9 +402,8 @@ export const extractGroupMetadata = (result: BinaryNode) => {
 	}
 
 	const groupId = group.attrs.id.includes('@') ? group.attrs.id : jidEncode(group.attrs.id, 'g.us')
-	const eph = getBinaryNodeChild(group, 'ephemeral')?.attrs.expiration
-	const memberAddMode = getBinaryNodeChildString(group, 'member_add_mode') === 'all_member_add'
-	const participantNodes = getBinaryNodeChildren(group, 'participant')
+	const eph = ephemeralChild?.attrs.expiration
+	const memberAddMode = memberAddModeString === 'all_member_add'
 	const metadata: GroupMetadata = {
 		id: groupId,
 		notify: group.attrs.notify,
@@ -374,12 +425,12 @@ export const extractGroupMetadata = (result: BinaryNode) => {
 		descOwnerPn,
 		descOwnerUsername,
 		descTime,
-		linkedParent: getBinaryNodeChild(group, 'linked_parent')?.attrs.jid || undefined,
-		restrict: !!getBinaryNodeChild(group, 'locked'),
-		announce: !!getBinaryNodeChild(group, 'announcement'),
-		isCommunity: !!getBinaryNodeChild(group, 'parent'),
-		isCommunityAnnounce: !!getBinaryNodeChild(group, 'default_sub_group'),
-		joinApprovalMode: !!getBinaryNodeChild(group, 'membership_approval_mode'),
+		linkedParent: linkedParentChild?.attrs.jid || undefined,
+		restrict: !!lockedChild,
+		announce: !!announcementChild,
+		isCommunity: !!parentChild,
+		isCommunityAnnounce: !!defaultSubGroupChild,
+		joinApprovalMode: !!membershipApprovalModeChild,
 		memberAddMode,
 		participants: participantNodes.map(({ attrs }) => {
 			return {

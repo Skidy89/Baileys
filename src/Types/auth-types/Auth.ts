@@ -58,9 +58,15 @@ export type AuthenticationCreds = SignalCreds & {
 	nextPreKeyId: number
 
 	lastAccountSyncTimestamp?: number
+	/** Socket-open count used in the ClientPayload login counter field. */
+	loginCounter?: number
+	/** Whether a successful pre-key upload has confirmed keys are available on the server. */
 	platform?: string
 
+	/** Internal sync marker; only the first processed history notification is retained. */
 	processedHistoryMessages: MinimalMessage[]
+	/** Recently processed Group History bundle keys, bounded to avoid unbounded credential growth. */
+	processedGroupHistoryBundles?: string[]
 	/** number of times history & app state has been synced */
 	accountSyncCounter: number
 	accountSettings: AccountSettings

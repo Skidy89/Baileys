@@ -7,9 +7,9 @@ describe('WhatsApp XMPP ping response', () => {
 		const trace = jest.fn()
 		const logger = { trace } as unknown as ILogger
 
-		expect(buildPingIqResult('server@s.whatsapp.net', logger)).toEqual({
+		expect(buildPingIqResult('server@s.whatsapp.net', 'PING1', logger)).toEqual({
 			tag: 'iq',
-			attrs: { type: 'result', to: 'server@s.whatsapp.net' }
+			attrs: { id: 'PING1', type: 'result', to: 'server@s.whatsapp.net' }
 		})
 		expect(trace).toHaveBeenCalledWith({ from: 'server@s.whatsapp.net' }, 'building XMPP ping result')
 	})

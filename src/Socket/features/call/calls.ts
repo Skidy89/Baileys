@@ -1,6 +1,6 @@
 // Based on velowa (https://github.com/7ucg/velowa) by Baron - velowa License
 import { randomBytes, hkdfSync } from 'node:crypto'
-import type { GroupSession } from '@skidy89/signal-protocol'
+import { binaryMarshalPackedNode, type CallEngine, type GroupSession } from '@skidy89/signal-protocol'
 import { proto } from '../../../../WAProto/index.js'
 import { unpadRandomMax16 } from '../../../Utils/generics'
 import { type BinaryNode, getBinaryNodeChild, getBinaryNodeChildren } from '../../../WABinary'
@@ -25,8 +25,26 @@ export type CallState = {
 	callKey?: Buffer
 	media?: CallMediaStream
 	groupSession?: GroupSession
+	groupEngine?: CallEngine
+	groupState?: GroupCallSnapshot
+	groupRelay?: BinaryNode
+	groupEpoch?: { transactionId: number; key: Buffer }
+	groupEpochTransaction?: number
 	peerDevice?: string
 	videoRequest?: boolean
+}
+
+export const isCallActive = (calls: Map<string, CallState>, call: CallState) =>
+	call.status !== 'ended' && calls.get(call.callId) === call
+
+export type GroupCallSnapshot = {
+	applied: string
+	transactionId: number
+	media: string
+	rekeyRequested: boolean
+	hasRelay: boolean
+	epochRecipients: string[]
+	members: string[]
 }
 
 const CAPABILITY_AUDIO = Buffer.from([1, 5, 247, 9, 224, 59, 19])
@@ -37,6 +55,21 @@ const OPUS_SETTINGS = Buffer.from(
 )
 
 export const newCallId = () => `00${randomBytes(15).toString('hex')}`
+
+export const packGroupCallNode = (node: BinaryNode) => {
+	const marshal = (value: BinaryNode): Record<string, unknown> => ({
+		tag: value.tag,
+		attrs: Object.entries(value.attrs).map(([key, attr]) => [key, { String: attr }]),
+		content: Array.isArray(value.content)
+			? { Nodes: value.content.map(child => marshal(child)) }
+			: value.content instanceof Uint8Array
+				? { Bytes: Array.from(value.content) }
+				: typeof value.content === 'string'
+					? { String: value.content }
+					: null
+	})
+	return binaryMarshalPackedNode(JSON.stringify(marshal(node)))
+}
 
 export function acknowledgeOffer(call: CallState, ack: BinaryNode, stanzaId: string | undefined) {
 	if (ack.tag !== 'ack' || ack.attrs.class !== 'call' || ack.attrs.id !== stanzaId)
@@ -248,6 +281,15 @@ export const getCallKey = async (
 	}
 }
 
+export const getCallOfferEnc = (action: BinaryNode, ownJids: string[]) => {
+	const content = Array.isArray(action.content) ? action.content : []
+	const direct = content.find(child => child.tag === 'enc')
+	if (direct) return direct
+	const destination = content.find(child => child.tag === 'destination')
+	const device = getBinaryNodeChildren(destination, 'to').find(child => ownJids.includes(child.attrs.jid || ''))
+	return getBinaryNodeChildren(device, 'enc')[0]
+}
+
 export const mediaConfigFromRelay = (
 	relay: BinaryNode,
 	callId: string,
@@ -264,15 +306,17 @@ export const mediaConfigFromRelay = (
 	const usable = endpoints.filter(
 		n =>
 			n.content instanceof Uint8Array &&
-			n.content.length === 6 &&
+			(n.content.length === 6 || n.content.length === 18) &&
 			tokens.some((token, i) => Number(token.attrs.id ?? i) === Number(n.attrs.token_id || 0) && bytes(token)?.length)
 	)
 	const endpoint =
-		usable.find(n => Buffer.from(n.content as Uint8Array).readUInt16BE(4) === 3480) ??
+		usable.find(n => {
+			const address = Buffer.from(n.content as Uint8Array)
+			return address.readUInt16BE(address.length - 2) === 3480
+		}) ??
 		usable.find(n => n.attrs.is_fna !== '1' && Number(n.attrs.auth_token_id || 0) !== 0) ??
 		usable.find(n => n.attrs.is_fna !== '1') ??
-		usable[0] ??
-		endpoints.find(n => n.content instanceof Uint8Array && n.content.length === 18)
+		usable[0]
 	if (!key?.length || !endpoint || !(endpoint.content instanceof Uint8Array))
 		throw new Error('call relay has no usable key or endpoint')
 	const addressBytes = Buffer.from(endpoint.content)
@@ -310,6 +354,60 @@ export const mediaConfigFromRelay = (
 		enableVideo: video,
 		enableSframe: true,
 		audio: 'opus'
+	}
+}
+
+export const groupRelayEndpointFromNode = (relay: BinaryNode) => {
+	const tokens = getBinaryNodeChildren(relay, 'token').reduce<Buffer[]>((indexed, token) => {
+		const value = bytes(token)
+		const id = Number(token.attrs.id ?? indexed.length)
+		if (value?.length && Number.isInteger(id) && id >= 0 && id < 64) indexed[id] = value
+		return indexed
+	}, [])
+	const usable = getBinaryNodeChildren(relay, 'te2').filter(endpoint => {
+		const id = Number(endpoint.attrs.token_id)
+		return (
+			endpoint.attrs.is_fna !== '1' &&
+			endpoint.content instanceof Uint8Array &&
+			endpoint.content.length === 6 &&
+			Buffer.from(endpoint.content).readUInt16BE(4) !== 0 &&
+			Number.isInteger(id) &&
+			!!tokens[id]?.length
+		)
+	})
+	const endpoint = usable.find(item => Buffer.from(item.content as Uint8Array).readUInt16BE(4) === 3480) ?? usable[0]
+	if (!endpoint) throw new Error('group relay has no usable media endpoint')
+	const address = Buffer.from(endpoint.content as Uint8Array)
+	return { relayIp: Array.from(address.subarray(0, 4)).join('.'), relayPort: address.readUInt16BE(4) }
+}
+
+export const buildGroupEncRekey = (o: {
+	callId: string
+	creator: string
+	to: string
+	id: string
+	transactionId: number
+	encrypted: { type: 'msg' | 'pkmsg'; ciphertext: Uint8Array }
+	deviceIdentity?: Uint8Array
+}): BinaryNode => {
+	if (!Number.isInteger(o.transactionId) || o.transactionId < 1 || o.transactionId > 0xffffffff)
+		throw new Error('Invalid group epoch transaction ID')
+	if (!o.encrypted.ciphertext.length || (o.encrypted.type === 'pkmsg' && !o.deviceIdentity?.length))
+		throw new Error('Invalid encrypted group epoch')
+	return {
+		tag: 'call',
+		attrs: { to: o.to, id: o.id },
+		content: [
+			{
+				tag: 'enc_rekey',
+				attrs: { 'call-id': o.callId, 'call-creator': o.creator, 'transaction-id': String(o.transactionId) },
+				content: [
+					{ tag: 'encopt', attrs: { keygen: '2' } },
+					{ tag: 'enc', attrs: { v: '2', type: o.encrypted.type, count: '0' }, content: o.encrypted.ciphertext },
+					...(o.deviceIdentity ? [{ tag: 'device-identity', attrs: {}, content: o.deviceIdentity }] : [])
+				]
+			}
+		]
 	}
 }
 

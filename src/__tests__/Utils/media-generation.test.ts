@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'fs'
-import { createHash } from 'node:crypto'
+import { createHash, hkdfSync } from 'node:crypto'
 import { unlinkSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { Readable } from 'node:stream'
@@ -13,6 +13,7 @@ import {
 	extractImageThumb,
 	generateProfilePicture,
 	getAudioDuration,
+	getMediaKeys,
 	getRawMediaUploadData,
 	getStream,
 	toBuffer,
@@ -23,6 +24,15 @@ const ffmpegAvailable = spawnSync('ffmpeg', ['-version'], { stdio: 'ignore' }).s
 const ffmpegIt = ffmpegAvailable ? it : it.skip
 
 describe('prepareWAMessageMedia', () => {
+	it('derives Group History media keys with the info string expected by WhatsApp Web', async () => {
+		const mediaKey = Buffer.alloc(32, 1)
+		const expanded = Buffer.from(hkdfSync('sha256', mediaKey, Buffer.alloc(0), 'Group History', 112))
+		const keys = await getMediaKeys(mediaKey, 'group-history')
+
+		expect(keys.iv).toEqual(expanded.subarray(0, 16))
+		expect(keys.cipherKey).toEqual(expanded.subarray(16, 48))
+	})
+
 	it('preserves a numeric zero status background color', async () => {
 		const message = await generateWAMessageContent(
 			{ text: 'status' },

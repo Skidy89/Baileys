@@ -8,6 +8,9 @@ const makeWASocket = (config: UserFacingSocketConfig): ReturnType<typeof makeMes
 		...DEFAULT_CONNECTION_CONFIG,
 		...config
 	}
+	if (!config.shouldSyncHistoryMessage && newConfig.syncFullHistory) {
+		newConfig.shouldSyncHistoryMessage = () => true
+	}
 
 	return makeMessagesRecvSocket(newConfig)
 }

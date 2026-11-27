@@ -13,7 +13,7 @@ docs
 !docs/
 docs/*
 !docs/CALLS_ANALYSIS.md
-!docs/CALLS_RESULTS.md
+docs/CALLS_RESULTS.md
 !docs/rust-audit/
 !docs/rust-audit/*.md
 !docs/index.html
@@ -37,3 +37,7 @@ call-test.ts
 /bench/rust-audit/generated/
 /.d/
 ./d/*
+SECURITY-AUDIT.md
+tasks/
+scripts/
+.codebase-memory/

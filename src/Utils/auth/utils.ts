@@ -381,7 +381,8 @@ export const addTransactionCapability = (
 			// already-committed state.
 			if (ctx.sealed) {
 				if (await ctx.completion) return setOutsideTransaction(data)
-				logger && logger.warn({ types: Object.keys(data) }, 'transaction context is sealed; ignoring detached write (M5 guard)')
+				logger &&
+					logger.warn({ types: Object.keys(data) }, 'transaction context is sealed; ignoring detached write (M5 guard)')
 				return
 			}
 
@@ -546,9 +547,11 @@ export const initAuthCreds = (): AuthenticationCreds => {
 		registrationId: generateRegistrationId(),
 		advSecretKey: randomBytes(32).toString('base64'),
 		processedHistoryMessages: [],
+		processedGroupHistoryBundles: [],
 		nextPreKeyId: 1,
 		firstUnuploadedPreKeyId: 1,
 		accountSyncCounter: 0,
+		loginCounter: 0,
 		accountSettings: {
 			unarchiveChats: false
 		},

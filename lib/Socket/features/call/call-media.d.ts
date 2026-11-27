@@ -7,6 +7,12 @@ export type CallMediaOptions = DuplexOptions & {
     onVideo?: (frame: Buffer) => void;
     logger?: ILogger | undefined;
 };
+type CallEngineMediaConfig = {
+    engine: CallEngine;
+    relayIp: string;
+    relayPort: number;
+    audio?: 'opus';
+};
 /**
  * RelayChannel transport around skid-signal's Rust call engine.
  * Writable input and readable output are 16 kHz, mono, signed 16-bit little-endian PCM.
@@ -14,11 +20,7 @@ export type CallMediaOptions = DuplexOptions & {
 export declare class CallMediaStream extends Duplex {
     #private;
     private logger?;
-    constructor(config: VoipConfig | {
-        engine: CallEngine;
-        relayIp: string;
-        relayPort: number;
-    }, options?: CallMediaOptions, logger?: ILogger | undefined);
+    constructor(config: VoipConfig | CallEngineMediaConfig, options?: CallMediaOptions, logger?: ILogger | undefined);
     get elapsedMs(): number;
     get connected(): boolean;
     _read(): void;
@@ -43,8 +45,17 @@ export declare class CallMediaStream extends Duplex {
     rekeyRecv(peerLid: string): boolean;
     disableVideo(): void;
     get stats(): string;
+    get audioStats(): {
+        opusPacketsSubmitted: number;
+        pcmFramesSent: number;
+        incomingPcmFrames: number;
+        encoderBackpressureFrames: number;
+        outgoingDroppedBytes: number;
+        incomingDroppedBytes: number;
+        udpDatagramsSent: number;
+    };
     _destroy(error: Error | null, callback: (error?: Error | null) => void): void;
 }
 export declare const createCallMediaStream: (config: VoipConfig, options?: CallMediaOptions) => CallMediaStream;
-export declare const createCallMediaStreamFromEngine: (engine: CallEngine, relayIp: string, relayPort: number, options?: CallMediaOptions) => CallMediaStream;
+export declare const createCallMediaStreamFromEngine: (engine: CallEngine, relayIp: string, relayPort: number, options?: CallMediaOptions, audio?: "opus") => CallMediaStream;
 //# sourceMappingURL=call-media.d.ts.map

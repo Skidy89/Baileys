@@ -21,6 +21,8 @@ export type CallMediaOptions = DuplexOptions & {
 	logger?: ILogger | undefined
 }
 
+type CallEngineMediaConfig = { engine: CallEngine; relayIp: string; relayPort: number; audio?: 'opus' }
+
 /**
  * RelayChannel transport around skid-signal's Rust call engine.
  * Writable input and readable output are 16 kHz, mono, signed 16-bit little-endian PCM.
@@ -39,6 +41,12 @@ export class CallMediaStream extends Duplex {
 	private logger?: ILogger | undefined
 	#queuedBytes = 0
 	#udpSent = 0
+	#opusPacketsSubmitted = 0
+	#pcmFramesSent = 0
+	#incomingPcmFrames = 0
+	#encoderBackpressureFrames = 0
+	#outgoingDroppedBytes = 0
+	#incomingDroppedBytes = 0
 	#opusFile?: Buffer
 	#audioIn?: Int16Array
 	#audioPos = 0
@@ -58,7 +66,7 @@ export class CallMediaStream extends Duplex {
 	#videoFps = 15
 
 	constructor(
-		config: VoipConfig | { engine: CallEngine; relayIp: string; relayPort: number },
+		config: VoipConfig | CallEngineMediaConfig,
 		options: CallMediaOptions = {},
 		logger?: ILogger | undefined
 	) {
@@ -145,10 +153,13 @@ export class CallMediaStream extends Duplex {
 				const first = this.#audio[0]!
 				if (first.length <= excess) {
 					this.#queuedBytes -= first.length
+					this.#outgoingDroppedBytes += first.length
 					this.#audio.shift()
 				} else {
-					this.#audio[0] = first.subarray(excess + (excess % 2))
-					this.#queuedBytes -= excess + (excess % 2)
+					const dropped = excess + (excess % 2)
+					this.#audio[0] = first.subarray(dropped)
+					this.#queuedBytes -= dropped
+					this.#outgoingDroppedBytes += dropped
 				}
 			}
 		}
@@ -165,12 +176,17 @@ export class CallMediaStream extends Duplex {
 		if (this.#closed) return
 		if (this.#opusFile && !this.#paused) {
 			this.#engine.handleEncodedAudio(this.#now(), this.#opusFile.subarray(0, OPUS_PACKET_BYTES))
+			this.#opusPacketsSubmitted++
 			this.#opusFile =
 				this.#opusFile.length > OPUS_PACKET_BYTES ? this.#opusFile.subarray(OPUS_PACKET_BYTES) : undefined
 			const remaining = (this.#opusFile?.length ?? 0) / OPUS_PACKET_BYTES
 			if (remaining % 100 === 0)
 				this.logger?.debug({ remaining, udpSent: this.#udpSent }, 'Prepared Opus playback progress')
 			this.#drain()
+			return
+		}
+		if (this.#encoder?.stdin?.writableNeedDrain) {
+			this.#encoderBackpressureFrames++
 			return
 		}
 		const frame = new Int16Array(FRAME_SAMPLES)
@@ -185,9 +201,10 @@ export class CallMediaStream extends Duplex {
 		} else if (!this.#paused) {
 			const bytes = Buffer.from(frame.buffer)
 			let offset = 0
-			while (offset < bytes.length && this.#audio.length) {
+			const bytesToRead = Math.min(bytes.length, this.#queuedBytes - (this.#queuedBytes % 2))
+			while (offset < bytesToRead && this.#audio.length) {
 				const first = this.#audio[0]!
-				const length = Math.min(bytes.length - offset, first.length)
+				const length = Math.min(bytesToRead - offset, first.length)
 				first.copy(bytes, offset, 0, length)
 				offset += length
 				this.#queuedBytes -= length
@@ -199,11 +216,11 @@ export class CallMediaStream extends Duplex {
 			Math.max(-32768, Math.min(32767, Math.round(sample * (this.#paused ? 0 : this.#gain))))
 		)
 		if (this.#encoder?.stdin) {
-			if (this.#encoder.stdin.writableNeedDrain) return
 			this.#encoder.stdin.write(Buffer.from(Int16Array.from(pcm).buffer))
 			return
 		}
 		this.#engine.handleMicFrame(this.#now(), pcm)
+		this.#pcmFramesSent++
 		this.#drain()
 	}
 
@@ -274,6 +291,7 @@ export class CallMediaStream extends Duplex {
 					let offset = 0
 					while (offset + OPUS_PACKET_BYTES <= data.length && !this.#closed) {
 						this.#engine.handleEncodedAudio(this.#now(), data.subarray(offset, offset + OPUS_PACKET_BYTES))
+						this.#opusPacketsSubmitted++
 						offset += OPUS_PACKET_BYTES
 						if (first) {
 							first = false
@@ -354,6 +372,7 @@ export class CallMediaStream extends Duplex {
 					}
 					moved = true
 				} else if (output.kind === 2 && output.pcm?.length) {
+					this.#incomingPcmFrames++
 					const pcm = Buffer.allocUnsafe(output.pcm.length * 2)
 					for (let j = 0; j < output.pcm.length; j++) {
 						const sample = Math.max(-32768, Math.min(32767, Math.round(output.pcm[j]!)))
@@ -368,7 +387,9 @@ export class CallMediaStream extends Duplex {
 						)
 					}
 					while (this.#readQueueBytes > MAX_QUEUED_AUDIO_BYTES) {
-						this.#readQueueBytes -= this.#readQueue.shift()!.length
+						const dropped = this.#readQueue.shift()!.length
+						this.#readQueueBytes -= dropped
+						this.#incomingDroppedBytes += dropped
 					}
 					this._read()
 					moved = true
@@ -545,6 +566,18 @@ export class CallMediaStream extends Duplex {
 		return this.#engine.mediaStats()
 	}
 
+	get audioStats() {
+		return {
+			opusPacketsSubmitted: this.#opusPacketsSubmitted,
+			pcmFramesSent: this.#pcmFramesSent,
+			incomingPcmFrames: this.#incomingPcmFrames,
+			encoderBackpressureFrames: this.#encoderBackpressureFrames,
+			outgoingDroppedBytes: this.#outgoingDroppedBytes,
+			incomingDroppedBytes: this.#incomingDroppedBytes,
+			udpDatagramsSent: this.#udpSent
+		}
+	}
+
 	_destroy(error: Error | null, callback: (error?: Error | null) => void) {
 		if (error) this.logger?.error({ err: error, elapsedMs: this.#now() }, 'Call media stream destroyed with error')
 		else this.logger?.info({ elapsedMs: this.#now() }, 'Call media stream destroyed')
@@ -573,5 +606,6 @@ export const createCallMediaStreamFromEngine = (
 	engine: CallEngine,
 	relayIp: string,
 	relayPort: number,
-	options?: CallMediaOptions
-) => new CallMediaStream({ engine, relayIp, relayPort }, options, options?.logger)
+	options?: CallMediaOptions,
+	audio?: 'opus'
+) => new CallMediaStream({ engine, relayIp, relayPort, audio }, options, options?.logger)
